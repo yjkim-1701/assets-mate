@@ -28,7 +28,7 @@ export type Asset = {
 export const ASSETS: Asset[] = [
   {
     id: 'a1',
-    name: 'campaign_summer_hero.jpg',
+    name: 'product_shot_01.jpg',
     type: 'image',
     size: '4.2 MB',
     dim: '3840×2160',
@@ -320,6 +320,8 @@ export type AssetVersionRow = {
   size: string;
   dim: string;
   colorProfile: string;
+  /** 버전 비교 미리보기용 `public/sample/` 파일명. 없으면 에셋 기본 `name` 사용 */
+  sampleFilename?: string;
 };
 
 export const ASSET_VERSION_HISTORY: Record<string, AssetVersionRow[]> = {
@@ -333,6 +335,7 @@ export const ASSET_VERSION_HISTORY: Record<string, AssetVersionRow[]> = {
       size: '4.2 MB',
       dim: '3840×2160',
       colorProfile: 'sRGB IEC61966-2.1',
+      sampleFilename: 'campaign_summer_hero_after.png',
     },
     {
       versionId: 'a1-v2',
@@ -391,7 +394,7 @@ export const BRAND_KIT_ITEMS = [
 export type ShareAccessLogRow = { id: string; at: string; actor: string; action: string; asset: string };
 
 export const SHARE_ACCESS_LOGS: ShareAccessLogRow[] = [
-  { id: 'l1', at: '2026-04-16 15:22', actor: 'agency-viewer@partner.com', action: '다운로드', asset: 'campaign_summer_hero.jpg' },
+  { id: 'l1', at: '2026-04-16 15:22', actor: 'agency-viewer@partner.com', action: '다운로드', asset: 'product_shot_01.jpg' },
   { id: 'l2', at: '2026-04-16 14:01', actor: 'agency-viewer@partner.com', action: '미리보기', asset: '브랜드 킷 패키지' },
   { id: 'l3', at: '2026-04-15 09:40', actor: 'freelance@design.kr', action: '다운로드', asset: 'logo_primary.svg' },
 ];
@@ -502,7 +505,7 @@ export const SOCIAL_CALENDAR_EVENTS: SocialCalendarEvent[] = [
     channel: 'Instagram 피드',
     status: 'scheduled',
     assetId: 'a1',
-    assetName: 'campaign_summer_hero.jpg',
+    assetName: 'product_shot_01.jpg',
     repeatRule: 'none',
   },
   {
@@ -595,7 +598,7 @@ export const DEPLOY_HISTORY: DeployHistoryRow[] = [
   {
     id: 'd1',
     assetId: 'a1',
-    assetName: 'campaign_summer_hero.jpg',
+    assetName: 'product_shot_01.jpg',
     channelId: 'ig-feed',
     channel: 'Instagram 피드',
     deployedAt: '2026-04-16 14:22',
@@ -606,7 +609,7 @@ export const DEPLOY_HISTORY: DeployHistoryRow[] = [
   {
     id: 'd2',
     assetId: 'a1',
-    assetName: 'campaign_summer_hero.jpg',
+    assetName: 'product_shot_01.jpg',
     channelId: 'fb-feed',
     channel: 'Facebook 피드',
     deployedAt: '2026-04-16 14:25',
@@ -764,7 +767,7 @@ export const FORBIDDEN_ASSETS: ForbiddenAssetRow[] = [
     reason: 'brand_change',
     forbiddenAt: '2026-04-01',
     replacementAssetId: 'a1',
-    replacementName: 'campaign_summer_hero.jpg',
+    replacementName: 'product_shot_01.jpg',
     usedIn: [
       { name: 'Winter 2019 랜딩 (아카이브)', type: 'page' },
       { name: 'Brand Refresh', type: 'campaign' },

@@ -34,6 +34,27 @@
   background-color: #FEE2E2 !important;
 }
 
+/** 완료·성공 계열 CTA (연한 녹 배경 + 진녹 텍스트) */
+.s2-success-fill {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  box-shadow: none !important;
+}
+.s2-success-fill svg,
+.s2-success-fill [data-rsp-slot='text'] {
+  color: #047857 !important;
+}
+.s2-success-fill:hover:not(:disabled),
+.s2-success-fill[data-hovered]:not(:disabled) {
+  background-color: #d1fae5 !important;
+}
+.s2-success-fill:active:not(:disabled),
+.s2-success-fill[data-pressed]:not(:disabled),
+.s2-success-fill:focus-visible {
+  background-color: #a7f3d0 !important;
+}
+
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;

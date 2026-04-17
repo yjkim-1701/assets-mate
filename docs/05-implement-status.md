@@ -73,7 +73,7 @@
 | ID | 기능 | 목업 기능 상태 | 비고 | 추후 구현 예정 |
 |----|------|----------------|------|----------------|
 | F-3.1 | 브랜드 위반 자동 수정 | **완료** | AI Creative Inbox(필터·선택·일괄 버튼), 승인 상세 전·후 비교·라이트박스 (`AIFixInbox.tsx`, `AIFixApproval.tsx`) | Firefly/실 API·원본 대체·후보 비교·일괄 진행률·감사 |
-| F-3.2 | 자연어 기반 편집 | **완료** | 자연어 입력·카테고리 템플릿·원본/편집 프리뷰·지연 결과·이력·가드레일·초기화 (`AICreativeStudio.tsx`) | Firefly API·실 픽셀 편집·프로젝트 저장 |
+| F-3.2 | 자연어 기반 편집 | **완료** | 자연어 입력·카테고리 템플릿·원본/편집 프리뷰·지연 결과·이력·**AI 편집 실행 이력 보기**(슬라이드·이전/다음·`n/N`·목업 프롬프트·**이 이미지로 교체**로 프리뷰·명령 반영)·가드레일·초기화 (`AICreativeStudio.tsx`) | Firefly API·실 픽셀 편집·프로젝트 저장·서버 영속 이력 |
 | F-3.3 | Generative Fill | **완료** | 마스킹 도구·제거/교체 모드·데모 마스크·4후보·Custom Model 스위치 (`GenerativeFillPanel.tsx`, Studio Fill 탭) | 실 Fill API·정밀 마스크 |
 | F-3.4 | Generative Expand | **완료** | Studio: 타깃 프리셋·방향·프롬프트·원본/확장 구분 프리뷰 (`GenerativeExpandPanel.tsx`); 소셜: 세로 비율 안내·원클릭 Expand·프리뷰 반영 (`SocialResize.tsx`) | 실 Expand API |
 | F-3.5 | 브랜드 Custom Model | **완료** | 학습 유형·데이터 개수·진행률·모델 목록·기본 설정·결과 비교·스튜디오에서 모델 선택 (`BrandCustomModel.tsx`, `/ai/custom-models`, `AICreativeStudio.tsx`) | AEM 연동 학습·실 Firefly API·추론 가드 |

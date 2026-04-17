@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Text, Button, TextArea, InlineAlert, ProgressBar } from '@react-spectrum/s2';
 import { MutedBadge } from '../components/MutedBadge';
 import { AccentButton } from '../components/AccentButton';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
+import Checkmark from '@react-spectrum/s2/icons/Checkmark';
 import { useNavigate, Link } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
 import { BRAND_CUSTOM_MODELS } from '../data/mock';
@@ -18,10 +19,15 @@ const card: React.CSSProperties = {
   border: `1px solid ${CM.cardBorder}`,
   boxShadow: CM.cardShadow,
 };
+/** AIFixApproval 비교 행과 동일 너비·이미지 높이 */
+const compareRowWrap: React.CSSProperties = {
+  width: 'min(1082px, 92vw)',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+};
 const imageBox: React.CSSProperties = {
   flex: 1,
-  minHeight: 280,
-  height: 300,
+  height: 270,
   backgroundColor: CM.surfacePlaceholder,
   borderRadius: 12,
   display: 'flex',
@@ -29,9 +35,9 @@ const imageBox: React.CSSProperties = {
   justifyContent: 'center',
 };
 
-const ASSET_FILENAME = 'campaign_summer_hero.jpg';
+const ASSET_FILENAME = 'product_shot_01.jpg';
 /** Instruct Edit 완료 후 프리뷰·라이트박스에 표시하는 목업 결과 이미지 */
-const MOCK_PREVIEW_AFTER_FILENAME = 'campaign_summer_hero_after.png';
+const MOCK_PREVIEW_AFTER_FILENAME = 'product_shot_02.png';
 const MOCK_AI_MS = 2800;
 
 const TABS = ['자연어 편집', 'Generative Fill', 'Generative Expand'];
@@ -84,13 +90,38 @@ type HistoryStep = {
   id: string;
   label: string;
   prompt: string;
+  /** 표시용 시각 (시간 순 정렬·타임라인) */
+  at: string;
 };
 
 const ORIGINAL_STEP: HistoryStep = {
   id: 'original',
   label: '원본',
   prompt: '',
+  at: '세션 시작 (원본)',
 };
+
+/**
+ * AI 생성 이력(목업) — 우측 패널에 표시. 각각 `public/sample/` 파일 1개.
+ * 「이 이미지로 교체」 시 편집 명령 필드와 프리뷰에 반영됩니다.
+ */
+const AI_EDIT_HISTORY_SLIDES: { id: string; imageFile: string; prompt: string }[] = [
+  {
+    id: 'h1',
+    imageFile: 'instruct_edit_history_01.png',
+    prompt: '헤드셋의 색상을 하얀색 으로 변경해줘',
+  },
+  {
+    id: 'h2',
+    imageFile: 'instruct_edit_history_02.png',
+    prompt: '맥북을 열린 상태로 만들어줘',
+  },
+  {
+    id: 'h3',
+    imageFile: 'instruct_edit_history_03.png',
+    prompt: '맥북과 헤드셋의 위치를 서로 바꿔줘',
+  },
+];
 
 /** 템플릿 칩 클릭 시 기존 프롬프트에 문장을 이어 붙임 */
 function mergePromptFragment(current: string, fragment: string): string {
@@ -122,6 +153,10 @@ export default function AICreativeStudio() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const completeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lightbox, setLightbox] = useState<'original' | 'preview' | null>(null);
+  /** AI 생성 이력 또는 세션 단계「이 이미지로 교체」로 지정한 프리뷰 파일명 — 있으면 우측 프리뷰에 우선 */
+  const [historyPreviewOverrideFile, setHistoryPreviewOverrideFile] = useState<string | null>(null);
+  /** 교체할 때마다 증가 → `<img>` 캐시 무효화·강제 리로드 */
+  const [previewReplaceRevision, setPreviewReplaceRevision] = useState(0);
   const readyModels = useMemo(
     () => BRAND_CUSTOM_MODELS.filter(m => m.status === 'ready'),
     []
@@ -131,15 +166,40 @@ export default function AICreativeStudio() {
   );
   const [promptRunError, setPromptRunError] = useState<string | null>(null);
 
+  /** 명령 필드(prompt)가 우선 — 우측 이력 패널「이 이미지로 교체」만 한 경우에도 가드레일이 같은 문장을 본다 */
   const latestGuardrail = useMemo(() => {
-    const last = history[history.length - 1];
-    if (!last?.prompt) return evaluateBrandGuardrail('');
-    return evaluateBrandGuardrail(last.prompt);
-  }, [history]);
+    const fromField = prompt.trim();
+    const fromHistory = history[history.length - 1]?.prompt?.trim() ?? '';
+    return evaluateBrandGuardrail(fromField || fromHistory);
+  }, [prompt, history]);
 
   const displayedStep = history[activeStepIndex] ?? ORIGINAL_STEP;
   const hasEdits = history.length > 1;
-  const previewHasImage = hasEdits && displayedStep.id !== 'original' && !loading;
+  /** 우측 편집 프리뷰 파일명: AI 생성 이력 교체 > 세션 이력 단계 */
+  const previewImageFilename = useMemo(() => {
+    if (loading) return null;
+    if (historyPreviewOverrideFile) return historyPreviewOverrideFile;
+    if (!hasEdits) return null;
+    return displayedStep.id === 'original' ? ASSET_FILENAME : MOCK_PREVIEW_AFTER_FILENAME;
+  }, [loading, historyPreviewOverrideFile, hasEdits, displayedStep.id]);
+  const previewHasImage = previewImageFilename !== null && !loading;
+  const previewIsEditedLook = Boolean(
+    previewImageFilename && previewImageFilename !== ASSET_FILENAME
+  );
+  /** 편집 프리뷰가 원본이 아닐 때만 완료 가능 */
+  const canFinalComplete = !loading && previewHasImage && previewIsEditedLook;
+
+  /** AI 생성 이력으로 교체한 경우 — 프리뷰 하단에 이력 번호·프롬프트만 표시 */
+  const previewOverrideDescription = useMemo(() => {
+    if (!historyPreviewOverrideFile) return null;
+    const idx = AI_EDIT_HISTORY_SLIDES.findIndex(s => s.imageFile === historyPreviewOverrideFile);
+    if (idx >= 0) {
+      const slide = AI_EDIT_HISTORY_SLIDES[idx];
+      return `이력 ${idx + 1}/${AI_EDIT_HISTORY_SLIDES.length} · ${slide.prompt}`;
+    }
+    const p = prompt.trim();
+    return p ? `미리보기 · ${historyPreviewOverrideFile} — ${p}` : `미리보기 · ${historyPreviewOverrideFile}`;
+  }, [historyPreviewOverrideFile, prompt]);
 
   useEffect(() => {
     return () => {
@@ -169,6 +229,8 @@ export default function AICreativeStudio() {
       return;
     }
     setPromptRunError(null);
+    setHistoryPreviewOverrideFile(null);
+    setPreviewReplaceRevision(0);
     setLoading(true);
     setProgress(0);
     const start = Date.now();
@@ -183,10 +245,13 @@ export default function AICreativeStudio() {
         timerRef.current = null;
       }
       const labelIndex = history.length;
+      const at = new Date().toLocaleString('ko-KR', { dateStyle: 'medium', timeStyle: 'medium' });
+      const cmd = prompt.trim();
       const newStep: HistoryStep = {
         id: `step-${Date.now()}`,
         label: `${labelIndex}. ${prompt.length > 20 ? `${prompt.slice(0, 20)}…` : prompt}`,
-        prompt: prompt.trim(),
+        prompt: cmd,
+        at,
       };
       setHistory(prev => [...prev, newStep]);
       setActiveStepIndex(labelIndex);
@@ -196,6 +261,8 @@ export default function AICreativeStudio() {
   };
 
   const undoLastEdit = () => {
+    setHistoryPreviewOverrideFile(null);
+    setPreviewReplaceRevision(0);
     setHistory(prev => {
       if (prev.length <= 1) return prev;
       const next = prev.slice(0, -1);
@@ -205,8 +272,19 @@ export default function AICreativeStudio() {
   };
 
   const goToStep = (index: number) => {
+    setHistoryPreviewOverrideFile(null);
+    setPreviewReplaceRevision(0);
     setActiveStepIndex(Math.max(0, Math.min(index, history.length - 1)));
   };
+
+  const applyArchiveSlide = useCallback((index: number) => {
+    const slide = AI_EDIT_HISTORY_SLIDES[index];
+    if (!slide?.imageFile) return;
+    setPrompt(slide.prompt);
+    setHistoryPreviewOverrideFile(slide.imageFile);
+    setPreviewReplaceRevision(n => n + 1);
+    setPromptRunError(null);
+  }, []);
 
   return (
     <>
@@ -258,8 +336,9 @@ export default function AICreativeStudio() {
 
         {activeTab === 0 && (
           <>
-            <div style={f({ gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' })}>
-              <div style={f({ flexDirection: 'column', gap: 8, flex: 1, minWidth: 260 })}>
+            <div style={compareRowWrap}>
+              <div style={f({ gap: 21, alignItems: 'flex-start' })}>
+              <div style={f({ flexDirection: 'column', gap: 8, flex: '1 1 0', minWidth: 0 })}>
                 <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center' }}>원본</Text>
                 <div style={{ ...imageBox, padding: 0, overflow: 'hidden' }}>
                   <SampleAssetImage filename={ASSET_FILENAME} />
@@ -270,10 +349,10 @@ export default function AICreativeStudio() {
                   </Button>
                 </div>
               </div>
-              <div style={f({ flexDirection: 'column', gap: 8, flex: 1, minWidth: 260 })}>
+              <div style={f({ flexDirection: 'column', gap: 8, flex: '1 1 0', minWidth: 0 })}>
                 <div style={f({ justifyContent: 'center', gap: 8, alignItems: 'center', flexWrap: 'wrap' })}>
                   <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold' }}>편집 프리뷰</Text>
-                  {hasEdits && displayedStep.id !== 'original' && (
+                  {previewIsEditedLook && (
                     <MutedBadge tone="accent" size="S">
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                         <MagicWand />
@@ -284,16 +363,20 @@ export default function AICreativeStudio() {
                 </div>
                 <div
                   style={
-                    hasEdits && displayedStep.id !== 'original'
+                    previewIsEditedLook
                       ? { ...imageBox, border: '2px solid #C4B5FD', padding: 0, overflow: 'hidden' }
                       : imageBox
                   }
                 >
                   {loading ? (
                     <Text UNSAFE_style={{ color: CM.textSecondary, padding: 24, textAlign: 'center' }}>미리보기 생성 중…</Text>
-                  ) : hasEdits && displayedStep.id !== 'original' ? (
-                    <div style={{ width: '100%', height: '100%' }}>
-                      <SampleAssetImage filename={MOCK_PREVIEW_AFTER_FILENAME} alt="편집 프리뷰" />
+                  ) : previewImageFilename ? (
+                    <div style={{ width: '100%', height: '100%' }} key={`pv-${previewImageFilename}-${previewReplaceRevision}`}>
+                      <SampleAssetImage
+                        filename={previewImageFilename}
+                        alt="편집 프리뷰"
+                        cacheBust={previewReplaceRevision > 0 ? previewReplaceRevision : undefined}
+                      />
                     </div>
                   ) : (
                     <Text UNSAFE_style={{ color: CM.textSecondary, padding: 16, textAlign: 'center' }}>
@@ -311,114 +394,217 @@ export default function AICreativeStudio() {
                     이미지 크게 보기
                   </Button>
                 </div>
+                {previewOverrideDescription && (
+                  <Text UNSAFE_style={{ fontSize: 11, color: CM.textSecondary, textAlign: 'center', lineHeight: 1.45 }}>
+                    {previewOverrideDescription}
+                  </Text>
+                )}
+              </div>
               </div>
             </div>
 
-            <div style={card}>
-              <div style={{ width: '100%' }}>
-                <TextArea
-                  label="편집 명령 (자연어)"
-                  value={prompt}
-                  onChange={v => {
-                    setPrompt(v);
-                    setPromptRunError(null);
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 20,
+                alignItems: 'stretch',
+              }}
+            >
+              <div style={{ ...card, flex: '1 1 400px', minWidth: 0 }}>
+                <div style={{ width: '100%' }}>
+                  <TextArea
+                    label="편집 명령 (자연어)"
+                    value={prompt}
+                    onChange={v => {
+                      setPrompt(v);
+                      setPromptRunError(null);
+                    }}
+                    description="한국어 또는 영어로 원하는 변경을 입력하세요. 아래 템플릿을 누를 때마다 문장이 이어 붙습니다(색상·배경·오브젝트 등 여러 항목을 조합할 수 있습니다). 우측「편집 이력」에서「이 이미지로 교체」한 경우에도 이 필드에 같은 문장이 채워집니다."
+                  />
+                </div>
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                    gap: 16,
+                    marginTop: 14,
+                    alignItems: 'start',
                   }}
-                  description="한국어 또는 영어로 원하는 변경을 입력하세요. 아래 템플릿을 누를 때마다 문장이 이어 붙습니다(색상·배경·오브젝트 등 여러 항목을 조합할 수 있습니다)."
-                />
+                >
+                  {PROMPT_TEMPLATE_GROUPS.map(group => (
+                    <div key={group.category}>
+                      <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
+                        {group.category}
+                      </Text>
+                      <div style={f({ gap: 8, flexWrap: 'wrap' })}>
+                        {group.items.map(({ label, text }) => (
+                          <Button
+                            key={`${group.category}-${label}`}
+                            variant="secondary"
+                            size="S"
+                            onPress={() => {
+                              setPrompt(p => mergePromptFragment(p, text));
+                              setPromptRunError(null);
+                            }}
+                          >
+                            {label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: 16 }}>
+                  {promptRunError && (
+                    <div style={{ marginBottom: 12 }}>
+                      <InlineAlert variant="negative">
+                        <Text>{promptRunError}</Text>
+                      </InlineAlert>
+                    </div>
+                  )}
+                  <div style={f({ justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
+                    <Button variant="secondary" isDisabled={history.length <= 1} onPress={undoLastEdit}>
+                      마지막 편집 취소
+                    </Button>
+                    <AccentButton isDisabled={loading} onPress={runInstructEdit}>
+                      <MagicWand />
+                      <Text>AI 편집 실행</Text>
+                    </AccentButton>
+                    <Button
+                      variant="accent"
+                      isDisabled={!canFinalComplete}
+                      onPress={() => navigate('/ai/inbox')}
+                      UNSAFE_className="s2-success-fill"
+                    >
+                      <Checkmark />
+                      <Text>최종 확인 및 완료</Text>
+                    </Button>
+                  </div>
+                  {loading && (
+                    <div style={{ marginTop: 16 }}>
+                      <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
+                        Firefly Instruct Edit 처리 중… (예상 {MOCK_AI_MS / 1000}초 · 서비스 기준 10초 이내)
+                      </Text>
+                      <ProgressBar value={progress} />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                  gap: 16,
-                  marginTop: 14,
-                  alignItems: 'start',
+                  ...card,
+                  flex: '1 1 280px',
+                  minWidth: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 12,
+                  maxHeight: 'min(85vh, 920px)',
+                  overflowY: 'auto',
                 }}
               >
-                {PROMPT_TEMPLATE_GROUPS.map(group => (
-                  <div key={group.category}>
-                    <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
-                      {group.category}
-                    </Text>
-                    <div style={f({ gap: 8, flexWrap: 'wrap' })}>
-                      {group.items.map(({ label, text }) => (
-                        <Button
-                          key={`${group.category}-${label}`}
-                          variant="secondary"
-                          size="S"
-                          onPress={() => {
-                            setPrompt(p => mergePromptFragment(p, text));
-                            setPromptRunError(null);
-                          }}
-                        >
-                          {label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', display: 'block' }}>편집 이력</Text>
+                <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, lineHeight: 1.5 }}>
+                  AI 생성 결과 3건과 이번 세션 단계를 확인할 수 있습니다. 썸네일 행에서「이 이미지로 교체」를 누르면 편집 명령·우측 프리뷰에 반영됩니다.
+                </Text>
 
-              <div style={{ marginTop: 16 }}>
-                {promptRunError && (
-                  <div style={{ marginBottom: 12 }}>
-                    <InlineAlert variant="negative">
-                      <Text>{promptRunError}</Text>
-                    </InlineAlert>
-                  </div>
-                )}
-                <div style={f({ justifyContent: 'flex-end', gap: 8 })}>
-                  <Button variant="secondary" isDisabled={history.length <= 1} onPress={undoLastEdit}>
-                    마지막 편집 취소
-                  </Button>
-                  <AccentButton isDisabled={loading} onPress={runInstructEdit}>
-                    <MagicWand />
-                    <Text>AI 편집 실행</Text>
-                  </AccentButton>
+                <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary }}>AI 생성 이력</Text>
+                <div style={f({ flexDirection: 'column', gap: 10 })}>
+                  {AI_EDIT_HISTORY_SLIDES.map((slide, idx) => (
+                    <div
+                      key={slide.id}
+                      style={{
+                        border: `1px solid ${CM.cardBorder}`,
+                        borderRadius: 8,
+                        padding: 10,
+                        backgroundColor: CM.surfacePlaceholder,
+                        display: 'flex',
+                        gap: 10,
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 72,
+                          height: 56,
+                          flexShrink: 0,
+                          borderRadius: 6,
+                          overflow: 'hidden',
+                          backgroundColor: CM.panelBg,
+                          border: `1px solid ${CM.cardBorder}`,
+                        }}
+                      >
+                        <SampleAssetImage
+                          filename={slide.imageFile}
+                          alt=""
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <Text UNSAFE_style={{ fontSize: 11, fontWeight: 600, color: CM.textSecondary }}>
+                          이력 {idx + 1}/3
+                        </Text>
+                        <Text UNSAFE_style={{ fontSize: 12, lineHeight: 1.45 }}>{slide.prompt}</Text>
+                        <div>
+                          <Button variant="secondary" size="S" onPress={() => applyArchiveSlide(idx)}>
+                            이 이미지로 교체
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                {loading && (
-                  <div style={{ marginTop: 16 }}>
-                    <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
-                      Firefly Instruct Edit 처리 중… (예상 {MOCK_AI_MS / 1000}초 · 서비스 기준 10초 이내)
+
+                <div
+                  style={{
+                    height: 1,
+                    backgroundColor: CM.cardBorder,
+                    margin: '4px 0',
+                    flexShrink: 0,
+                  }}
+                />
+
+                <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary }}>이번 세션</Text>
+                {hasEdits ? (
+                  <>
+                    <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block' }}>
+                      단계를 선택하면 해당 미리보기로 이동합니다.
                     </Text>
-                    <ProgressBar value={progress} />
-                  </div>
+                    <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
+                      {history.map((step, index) => {
+                        const active = index === activeStepIndex;
+                        return active ? (
+                          <AccentButton key={step.id} size="S" onPress={() => goToStep(index)}>
+                            {step.label}
+                          </AccentButton>
+                        ) : (
+                          <Button key={step.id} variant="secondary" size="S" onPress={() => goToStep(index)}>
+                            {step.label}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    {history.length > 1 && history[activeStepIndex]?.prompt && (
+                      <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', lineHeight: 1.5 }}>
+                        선택 단계 명령: {history[activeStepIndex].prompt}
+                      </Text>
+                    )}
+                  </>
+                ) : (
+                  <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary, lineHeight: 1.55 }}>
+                    AI 편집 실행 후 단계별 이력이 이곳에 추가됩니다.
+                  </Text>
                 )}
               </div>
             </div>
 
-            {hasEdits && (
-              <div style={card}>
-                <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', display: 'block', marginBottom: 10 }}>
-                  편집 이력 (단계 선택 시 해당 미리보기로 이동)
-                </Text>
-                <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
-                  {history.map((step, index) => {
-                    const active = index === activeStepIndex;
-                    return active ? (
-                      <AccentButton key={step.id} size="S" onPress={() => goToStep(index)}>
-                        {step.label}
-                      </AccentButton>
-                    ) : (
-                      <Button key={step.id} variant="secondary" size="S" onPress={() => goToStep(index)}>
-                        {step.label}
-                      </Button>
-                    );
-                  })}
-                </div>
-                {history.length > 1 && history[activeStepIndex]?.prompt && (
-                  <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginTop: 12, display: 'block' }}>
-                    선택 단계 명령: {history[activeStepIndex].prompt}
-                  </Text>
-                )}
-              </div>
-            )}
-
-            {hasEdits && !loading && (
+            {!loading && (hasEdits || prompt.trim()) && (
               <>
                 {latestGuardrail.ok ? (
-                  <InlineAlert variant="positive">브랜드 가드레일: 이번 편집 요청은 가이드와 충돌이 감지되지 않았습니다.</InlineAlert>
+                  <InlineAlert variant="positive">브랜드 가드레일: 현재 편집 명령 기준 가이드와 충돌이 감지되지 않았습니다.</InlineAlert>
                 ) : (
                   <InlineAlert variant="notice">
                     <Text UNSAFE_style={{ fontWeight: 700, display: 'block', marginBottom: 6 }}>브랜드 가드레일 경고</Text>
@@ -431,15 +617,24 @@ export default function AICreativeStudio() {
                     </ul>
                   </InlineAlert>
                 )}
-
-                <div style={f({ gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' })}>
-                  <Button variant="secondary" onPress={() => { setHistory([ORIGINAL_STEP]); setActiveStepIndex(0); }}>
-                    처음(원본)으로 초기화
-                  </Button>
-                  <Button variant="secondary">다른 후보 보기</Button>
-                  <AccentButton>적용 & 저장</AccentButton>
-                </div>
               </>
+            )}
+
+            {hasEdits && !loading && (
+              <div style={f({ gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' })}>
+                <Button
+                  variant="secondary"
+                    onPress={() => {
+                      setHistory([ORIGINAL_STEP]);
+                      setActiveStepIndex(0);
+                      setHistoryPreviewOverrideFile(null);
+                      setPreviewReplaceRevision(0);
+                    }}
+                >
+                  처음(원본)으로 초기화
+                </Button>
+                <Button variant="secondary">다른 후보 보기</Button>
+              </div>
             )}
 
             {lightbox && (
@@ -487,13 +682,24 @@ export default function AICreativeStudio() {
                       overflow: 'hidden',
                       backgroundColor: '#0f172a',
                       border:
-                        lightbox === 'preview' ? '2px solid #C4B5FD' : `1px solid ${CM.cardBorder}`,
+                        lightbox === 'preview' && previewIsEditedLook
+                          ? '2px solid #C4B5FD'
+                          : `1px solid ${CM.cardBorder}`,
                     }}
                   >
                     <div style={{ width: '100%', height: 'min(75vh, 820px)', position: 'relative' }}>
                       <SampleAssetImage
-                        filename={lightbox === 'preview' ? MOCK_PREVIEW_AFTER_FILENAME : ASSET_FILENAME}
+                        filename={
+                          lightbox === 'preview'
+                            ? previewImageFilename ?? MOCK_PREVIEW_AFTER_FILENAME
+                            : ASSET_FILENAME
+                        }
                         alt={lightbox === 'preview' ? '편집 프리뷰' : '원본'}
+                        cacheBust={
+                          lightbox === 'preview' && previewReplaceRevision > 0
+                            ? previewReplaceRevision
+                            : undefined
+                        }
                       />
                     </div>
                   </div>

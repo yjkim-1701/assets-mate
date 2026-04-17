@@ -355,10 +355,10 @@ export default function SocialResize() {
                     backgroundColor: CM.surfacePlaceholder,
                   }}
                 >
-                  <SampleAssetImage filename="campaign_summer_hero.jpg" />
+                  <SampleAssetImage filename="product_shot_01.jpg" />
                 </div>
                 <div style={f({ flexDirection: 'column', gap: 4 })}>
-                  <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold' }}>campaign_summer_hero.jpg</Text>
+                  <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold' }}>product_shot_01.jpg</Text>
                   <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>3840×2160 · 4.2 MB · 2026 Summer Campaign</Text>
                   <MutedBadge tone="success" size="S">
                     브랜드 스코어: 92
@@ -462,7 +462,7 @@ export default function SocialResize() {
                                 boxShadow: needsExpand && expandApplied ? '0 0 0 2px rgba(99,102,241,0.5)' : 'none',
                               }}
                             >
-                              <SampleAssetImage filename="campaign_summer_hero.jpg" />
+                              <SampleAssetImage filename="product_shot_01.jpg" />
                             </div>
                           </div>
                           {needsExpand && (
@@ -796,11 +796,11 @@ export default function SocialResize() {
                 배포 전 확인
               </Text>
               <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 12, display: 'block' }}>
-                원본 campaign_summer_hero.jpg · 선택 {deployPick.size}개 채널 ·{' '}
+                원본 product_shot_01.jpg · 선택 {deployPick.size}개 채널 ·{' '}
                 {deployTiming === 'now' ? '즉시' : `예약 ${scheduleLocal}`}
               </Text>
               <div style={{ width: 120, height: 120, borderRadius: 8, overflow: 'hidden', marginBottom: 12 }}>
-                <SampleAssetImage filename="campaign_summer_hero.jpg" />
+                <SampleAssetImage filename="product_shot_01.jpg" />
               </div>
               <div style={f({ gap: 12 })}>
                 <AccentButton isDisabled={deployPick.size < 3 || deployPhase === 'running'} onPress={runDeploy}>

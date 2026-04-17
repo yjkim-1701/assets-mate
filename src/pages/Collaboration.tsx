@@ -1,7 +1,7 @@
 import { Text, Button, Checkbox, TextField } from '@react-spectrum/s2';
 import { MutedBadge } from '../components/MutedBadge';
 import { MutedProgressBar } from '../components/MutedProgressBar';
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
 import { SampleAssetImage } from '../components/SampleAssetImage';
@@ -17,10 +17,15 @@ import {
   APPROVAL_KANBAN_SEED,
   type ApprovalKanbanCard,
   type ApprovalKanbanColumn,
+  type AssetVersionRow,
 } from '../data/mock';
 import { BADGE_TOKENS } from '../theme/tokens';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
+
+function compareSampleFilename(row: AssetVersionRow | undefined, assetName: string): string {
+  return row?.sampleFilename ?? assetName;
+}
 const card: React.CSSProperties = {
   backgroundColor: CM.panelBg,
   borderRadius: 12,
@@ -51,6 +56,8 @@ const KANBAN_COLS: { key: ApprovalKanbanColumn; label: string }[] = [
   { key: 'approved', label: '승인됨' },
 ];
 
+type ReviewStatusFilter = 'all' | 'pending' | 'changes' | 'approved';
+
 export default function Collaboration() {
   const [activeTab, setActiveTab] = useState(0);
   const [shareExpiry, setShareExpiry] = useState('2026-05-01');
@@ -62,6 +69,31 @@ export default function Collaboration() {
 
   const [comments, setComments] = useState(() => [...REVIEW_COMMENTS]);
   const [selectedReviewId, setSelectedReviewId] = useState('r1');
+  const [reviewStatusFilter, setReviewStatusFilter] = useState<ReviewStatusFilter>('all');
+
+  const reviewFilterCounts = useMemo(
+    () => ({
+      all: REVIEWS.length,
+      pending: REVIEWS.filter(r => r.status === 'pending').length,
+      changes: REVIEWS.filter(r => r.status === 'changes').length,
+      approved: REVIEWS.filter(r => r.status === 'approved').length,
+    }),
+    []
+  );
+
+  const filteredReviews = useMemo(() => {
+    if (reviewStatusFilter === 'all') return REVIEWS;
+    return REVIEWS.filter(r => r.status === reviewStatusFilter);
+  }, [reviewStatusFilter]);
+
+  const onReviewFilterChange = useCallback((next: ReviewStatusFilter) => {
+    setReviewStatusFilter(next);
+    const list = next === 'all' ? REVIEWS : REVIEWS.filter(r => r.status === next);
+    setSelectedReviewId(prev => {
+      if (list.some(r => r.id === prev)) return prev;
+      return list[0]?.id ?? prev;
+    });
+  }, []);
 
   const versionAssetId = useMemo(() => {
     const keys = Object.keys(ASSET_VERSION_HISTORY);
@@ -73,22 +105,21 @@ export default function Collaboration() {
   const [rightVid, setRightVid] = useState(versions[0]?.versionId ?? '');
   const [compareMode, setCompareMode] = useState<'side' | 'overlay'>('side');
   const [wipePct, setWipePct] = useState(50);
-  const scrollSync = useRef(false);
-  const leftScrollRef = useRef<HTMLDivElement>(null);
-  const rightScrollRef = useRef<HTMLDivElement>(null);
+  const [compareLightboxOpen, setCompareLightboxOpen] = useState(false);
 
-  const onScrollSync = useCallback((source: 'left' | 'right') => (e: React.UIEvent<HTMLDivElement>) => {
-    if (scrollSync.current) return;
-    const src = e.currentTarget;
-    const target = source === 'left' ? rightScrollRef.current : leftScrollRef.current;
-    if (!target) return;
-    scrollSync.current = true;
-    target.scrollTop = src.scrollTop;
-    target.scrollLeft = src.scrollLeft;
-    requestAnimationFrame(() => {
-      scrollSync.current = false;
-    });
-  }, []);
+  useEffect(() => {
+    if (!compareLightboxOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setCompareLightboxOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [compareLightboxOpen]);
 
   const leftRow = versions.find(v => v.versionId === leftVid);
   const rightRow = versions.find(v => v.versionId === rightVid);
@@ -297,23 +328,32 @@ export default function Collaboration() {
         {/* 리뷰·피드백 */}
         {activeTab === 1 && (
           <div style={f({ flexDirection: 'column', gap: 16 })}>
-            <div style={f({ gap: 8, flexWrap: 'wrap' })}>
-              <Button variant="secondary" size="S">
-                전체
-              </Button>
-              <Button variant="secondary" size="S">
-                대기 중 (2)
-              </Button>
-              <Button variant="secondary" size="S">
-                수정요청 (1)
-              </Button>
-              <Button variant="secondary" size="S">
-                승인 (1)
-              </Button>
+            <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
+              {(
+                [
+                  { key: 'all' as const, label: '전체' },
+                  { key: 'pending' as const, label: `대기 중 (${reviewFilterCounts.pending})` },
+                  { key: 'changes' as const, label: `수정요청 (${reviewFilterCounts.changes})` },
+                  { key: 'approved' as const, label: `승인 (${reviewFilterCounts.approved})` },
+                ] as const
+              ).map(({ key, label }) =>
+                reviewStatusFilter === key ? (
+                  <AccentButton key={key} size="S" onPress={() => onReviewFilterChange(key)}>
+                    {label}
+                  </AccentButton>
+                ) : (
+                  <Button key={key} variant="secondary" size="S" onPress={() => onReviewFilterChange(key)}>
+                    {label}
+                  </Button>
+                )
+              )}
             </div>
             <div style={f({ gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' })}>
               <div style={f({ flexDirection: 'column', gap: 8, flex: 1, minWidth: 280 })}>
-                {REVIEWS.map(r => (
+                {filteredReviews.length === 0 && (
+                  <Text UNSAFE_style={{ fontSize: 13, color: CM.textMuted }}>이 상태의 리뷰가 없습니다.</Text>
+                )}
+                {filteredReviews.map(r => (
                   <div
                     key={r.id}
                     role="button"
@@ -493,12 +533,24 @@ export default function Collaboration() {
                   ))}
                 </select>
               </label>
-              <div style={f({ gap: 8 })}>
+              <div style={f({ gap: 8, alignItems: 'center', flexWrap: 'wrap' })}>
                 <Button variant={compareMode === 'side' ? 'accent' : 'secondary'} size="S" onPress={() => setCompareMode('side')}>
                   나란히
                 </Button>
                 <Button variant={compareMode === 'overlay' ? 'accent' : 'secondary'} size="S" onPress={() => setCompareMode('overlay')}>
                   오버레이
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="S"
+                  onPress={() => setCompareLightboxOpen(true)}
+                  UNSAFE_style={{
+                    backgroundColor: '#EEF2FF',
+                    border: '1px solid #A5B4FC',
+                    color: '#3730A3',
+                  }}
+                >
+                  이미지 크게 보기
                 </Button>
               </div>
             </div>
@@ -506,31 +558,54 @@ export default function Collaboration() {
             {compareAsset && (
               <>
                 {compareMode === 'side' ? (
-                  <div style={f({ gap: 16, alignItems: 'stretch', flexWrap: 'wrap' })}>
-                    <div style={{ flex: 1, minWidth: 280 }}>
+                  <div style={f({ gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' })}>
+                    <div style={{ flex: '1 1 280px', minWidth: 280, maxWidth: '100%' }}>
                       <Text UNSAFE_style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, display: 'block' }}>
                         {leftRow?.label ?? '—'}
                       </Text>
                       <div
-                        ref={leftScrollRef}
-                        onScroll={onScrollSync('left')}
                         style={{
-                          maxHeight: 360,
-                          overflow: 'auto',
                           borderRadius: 8,
                           border: `1px solid ${CM.cardBorder}`,
-                          position: 'relative',
+                          overflow: 'hidden',
+                          backgroundColor: CM.surfacePlaceholder,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          maxHeight: 'min(52vh, 480px)',
                         }}
                       >
-                        <div style={{ position: 'relative' }}>
-                          <SampleAssetImage filename={compareAsset.name} />
+                        {/* 오버레이는 실제 렌더된 이미지 박스 기준이어야 contain 시 여백 밖으로 나가지 않음 */}
+                        <div
+                          style={{
+                            position: 'relative',
+                            display: 'inline-block',
+                            maxWidth: '100%',
+                            maxHeight: 'min(52vh, 480px)',
+                            lineHeight: 0,
+                          }}
+                        >
+                          <SampleAssetImage
+                            filename={compareSampleFilename(leftRow, compareAsset.name)}
+                            style={{
+                              display: 'block',
+                              width: 'auto',
+                              height: 'auto',
+                              maxWidth: '100%',
+                              maxHeight: 'min(52vh, 480px)',
+                              objectFit: 'contain',
+                            }}
+                          />
                           <div
                             style={{
                               position: 'absolute',
-                              bottom: 12,
-                              right: 12,
+                              right: '6%',
+                              bottom: '6%',
                               width: '28%',
                               height: '22%',
+                              maxWidth: 'calc(100% - 12px)',
+                              maxHeight: 'calc(100% - 12px)',
+                              boxSizing: 'border-box',
                               border: `2px dashed ${CM.warning}`,
                               backgroundColor: 'rgba(251, 191, 36, 0.15)',
                               pointerEvents: 'none',
@@ -540,22 +615,31 @@ export default function Collaboration() {
                         </div>
                       </div>
                     </div>
-                    <div style={{ flex: 1, minWidth: 280 }}>
+                    <div style={{ flex: '1 1 280px', minWidth: 280, maxWidth: '100%' }}>
                       <Text UNSAFE_style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, display: 'block' }}>
                         {rightRow?.label ?? '—'}
                       </Text>
                       <div
-                        ref={rightScrollRef}
-                        onScroll={onScrollSync('right')}
                         style={{
-                          maxHeight: 360,
-                          overflow: 'auto',
                           borderRadius: 8,
                           border: `1px solid ${CM.cardBorder}`,
-                          position: 'relative',
+                          overflow: 'hidden',
+                          backgroundColor: CM.surfacePlaceholder,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          maxHeight: 'min(52vh, 480px)',
                         }}
                       >
-                        <SampleAssetImage filename={compareAsset.name} />
+                        <SampleAssetImage
+                          filename={compareSampleFilename(rightRow, compareAsset.name)}
+                          style={{
+                            width: '100%',
+                            height: 'auto',
+                            maxHeight: 'min(52vh, 480px)',
+                            objectFit: 'contain',
+                          }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -574,7 +658,7 @@ export default function Collaboration() {
                       }}
                     >
                       <div style={{ opacity: 0.55 }}>
-                        <SampleAssetImage filename={compareAsset.name} />
+                        <SampleAssetImage filename={compareSampleFilename(leftRow, compareAsset.name)} />
                       </div>
                       <div
                         style={{
@@ -584,7 +668,7 @@ export default function Collaboration() {
                           pointerEvents: 'none',
                         }}
                       >
-                        <SampleAssetImage filename={compareAsset.name} />
+                        <SampleAssetImage filename={compareSampleFilename(rightRow, compareAsset.name)} />
                       </div>
                     </div>
                     <label style={f({ gap: 12, alignItems: 'center', maxWidth: 400 })}>
@@ -633,6 +717,133 @@ export default function Collaboration() {
                     </tbody>
                   </table>
                 </div>
+
+                {compareLightboxOpen && (
+                  <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="버전 비교 이미지 확대"
+                    style={{
+                      position: 'fixed',
+                      inset: 0,
+                      zIndex: 10000,
+                      background: 'rgba(15, 23, 42, 0.92)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 20,
+                    }}
+                    onClick={() => setCompareLightboxOpen(false)}
+                  >
+                    <div
+                      style={{
+                        width: 'min(96vw, 1280px)',
+                        maxHeight: 'min(92vh, 900px)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 12,
+                      }}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <div style={f({ justifyContent: 'space-between', alignItems: 'center' })}>
+                        <Text UNSAFE_style={{ fontSize: 16, fontWeight: 700, color: '#f8fafc' }}>버전 비교 · 확대</Text>
+                        <Button variant="secondary" size="M" onPress={() => setCompareLightboxOpen(false)}>
+                          닫기
+                        </Button>
+                      </div>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                          gap: 16,
+                          minHeight: 0,
+                          flex: 1,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 8,
+                            minWidth: 0,
+                            background: '#0f172a',
+                            borderRadius: 10,
+                            border: `1px solid ${CM.cardBorder}`,
+                            padding: 10,
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <Text UNSAFE_style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>
+                            {leftRow?.label ?? '좌측'}
+                          </Text>
+                          <div
+                            style={{
+                              flex: 1,
+                              minHeight: 200,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: 8,
+                              overflow: 'hidden',
+                              background: '#1e293b',
+                            }}
+                          >
+                            <SampleAssetImage
+                              filename={compareSampleFilename(leftRow, compareAsset.name)}
+                              alt=""
+                              style={{
+                                width: '100%',
+                                height: 'auto',
+                                maxHeight: 'min(72vh, 720px)',
+                                objectFit: 'contain',
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 8,
+                            minWidth: 0,
+                            background: '#0f172a',
+                            borderRadius: 10,
+                            border: `1px solid ${CM.cardBorder}`,
+                            padding: 10,
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <Text UNSAFE_style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>
+                            {rightRow?.label ?? '우측'}
+                          </Text>
+                          <div
+                            style={{
+                              flex: 1,
+                              minHeight: 200,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: 8,
+                              overflow: 'hidden',
+                              background: '#1e293b',
+                            }}
+                          >
+                            <SampleAssetImage
+                              filename={compareSampleFilename(rightRow, compareAsset.name)}
+                              alt=""
+                              style={{
+                                width: '100%',
+                                height: 'auto',
+                                maxHeight: 'min(72vh, 720px)',
+                                objectFit: 'contain',
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>

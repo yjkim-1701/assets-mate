@@ -37,7 +37,7 @@ function colorsFor(name) {
 /** @type {Spec[]} */
 const SPECS = [
   // mock.ts ASSETS
-  { file: 'campaign_summer_hero.jpg', w: 1920, h: 1080, fmt: 'jpeg' },
+  { file: 'product_shot_01.jpg', w: 1920, h: 1080, fmt: 'jpeg' },
   { file: 'promo_banner_v2.png', w: 1920, h: 1080, fmt: 'png' },
   { file: 'social_post_03.png', w: 1080, h: 1080, fmt: 'jpeg' },
   { file: 'product_lifestyle_01.jpg', w: 1600, h: 1200, fmt: 'jpeg' },

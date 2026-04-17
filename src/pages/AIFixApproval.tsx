@@ -19,7 +19,7 @@ const card: React.CSSProperties = {
 };
 const imageBox: React.CSSProperties = {
   flex: 1,
-  height: 208,
+  height: 270,
   backgroundColor: CM.surfacePlaceholder,
   borderRadius: 12,
   display: 'flex',
@@ -28,18 +28,28 @@ const imageBox: React.CSSProperties = {
 };
 
 const compareRowWrap: React.CSSProperties = {
-  width: 'min(832px, 90vw)',
+  width: 'min(1082px, 92vw)',
   marginLeft: 'auto',
   marginRight: 'auto',
 };
 
 const afterImageStyle: React.CSSProperties = { filter: 'saturate(1.08) contrast(1.02)' };
 
+/** AI Curated 후보 미리보기 — `public/sample/curated_edit_01.png` ~ `03.png` (직접 교체 가능) */
+const CURATED_CANDIDATE_COUNT = 3;
+function curatedCandidateFilename(index: number): string {
+  const n = ((index % CURATED_CANDIDATE_COUNT) + CURATED_CANDIDATE_COUNT) % CURATED_CANDIDATE_COUNT;
+  return `curated_edit_${String(n + 1).padStart(2, '0')}.png`;
+}
+
 export default function AIFixApproval() {
   const { fixId } = useParams();
   const navigate = useNavigate();
   const fix = AI_FIX_INBOX.find(f => f.id === fixId) || AI_FIX_INBOX[0];
   const [lightbox, setLightbox] = useState<'before' | 'after' | null>(null);
+  /** 우측 후보 이미지 인덱스 0..2 */
+  const [candidateIndex, setCandidateIndex] = useState(0);
+  const afterPreviewFilename = curatedCandidateFilename(candidateIndex);
 
   useEffect(() => {
     if (lightbox === null) return;
@@ -92,7 +102,7 @@ export default function AIFixApproval() {
         </div>
 
         <div style={compareRowWrap}>
-          <div style={f({ gap: 16 })}>
+          <div style={f({ gap: 21 })}>
             <div style={f({ flexDirection: 'column', gap: 8, flex: 1 })}>
               <div style={f({ justifyContent: 'center', alignItems: 'center', width: '100%' })}>
                 <MutedBadge tone="danger" size="M">수정 전</MutedBadge>
@@ -119,10 +129,6 @@ export default function AIFixApproval() {
                 <Button variant="secondary" size="S" onPress={() => setLightbox('before')}>
                   이미지 크게 보기
                 </Button>
-                <AccentButton size="S" onPress={() => navigate(`/ai/brand-fix/${fix.assetId}`)}>
-                  <MagicWand />
-                  <Text>AI 수정</Text>
-                </AccentButton>
               </div>
               <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 4, width: '100%' })}>
                 <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>브랜드 스코어</Text>
@@ -158,12 +164,12 @@ export default function AIFixApproval() {
                   size="S"
                   style={{ flex: '1 1 0', minWidth: 0, justifyContent: 'center' }}
                 >
-                  후보 1/3
+                  후보 {candidateIndex + 1}/{CURATED_CANDIDATE_COUNT}
                 </MutedBadge>
               </div>
               <div style={{ ...imageBox, border: '2px solid #A7F3D0', color: CM.textSecondary, padding: 0, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%' }}>
-                  <SampleAssetImage filename={fix.assetName} phase="after" style={afterImageStyle} />
+                <div style={{ width: '100%', height: '100%' }} key={afterPreviewFilename}>
+                  <SampleAssetImage filename={afterPreviewFilename} style={afterImageStyle} />
                 </div>
               </div>
               <div style={f({ justifyContent: 'center' })}>
@@ -210,7 +216,9 @@ export default function AIFixApproval() {
             >
               <div style={f({ justifyContent: 'space-between', alignItems: 'center' })}>
                 <Text UNSAFE_style={{ fontSize: 16, fontWeight: 700, color: '#f8fafc' }}>
-                  {lightbox === 'before' ? '수정 전 원본' : '수정 후 후보'}
+                  {lightbox === 'before'
+                    ? '수정 전 원본'
+                    : `수정 후 후보 ${candidateIndex + 1}/${CURATED_CANDIDATE_COUNT}`}
                 </Text>
                 <Button variant="secondary" size="M" onPress={() => setLightbox(null)}>
                   닫기
@@ -228,9 +236,10 @@ export default function AIFixApproval() {
               >
                 <div style={{ width: '100%', height: 'min(75vh, 820px)', position: 'relative' }}>
                   <SampleAssetImage
-                    filename={fix.assetName}
-                    phase={lightbox}
+                    filename={lightbox === 'before' ? fix.assetName : afterPreviewFilename}
+                    phase={lightbox === 'before' ? 'before' : 'after'}
                     style={lightbox === 'after' ? afterImageStyle : undefined}
+                    key={lightbox === 'after' ? afterPreviewFilename : 'before-lb'}
                   />
                 </div>
               </div>
@@ -238,10 +247,32 @@ export default function AIFixApproval() {
           </div>
         )}
 
-        <div style={f({ justifyContent: 'center', gap: 8 })}>
-          <Button variant="secondary" size="S">◀ 이전 후보</Button>
-          <Text UNSAFE_style={{ fontSize: 14, fontWeight: 600, padding: '6px 12px' }}>후보 1 / 3</Text>
-          <Button variant="secondary" size="S">다음 후보 ▶</Button>
+        <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 12 })}>
+          <div style={f({ justifyContent: 'center', gap: 8 })}>
+            <Button
+              variant="secondary"
+              size="S"
+              onPress={() =>
+                setCandidateIndex(i => (i - 1 + CURATED_CANDIDATE_COUNT) % CURATED_CANDIDATE_COUNT)
+              }
+            >
+              ◀ 이전 후보
+            </Button>
+            <Text UNSAFE_style={{ fontSize: 14, fontWeight: 600, padding: '6px 12px' }}>
+              후보 {candidateIndex + 1} / {CURATED_CANDIDATE_COUNT}
+            </Text>
+            <Button
+              variant="secondary"
+              size="S"
+              onPress={() => setCandidateIndex(i => (i + 1) % CURATED_CANDIDATE_COUNT)}
+            >
+              다음 후보 ▶
+            </Button>
+          </div>
+          <AccentButton size="S" onPress={() => navigate(`/ai/brand-fix/${fix.assetId}`)}>
+            <MagicWand />
+            <Text>AI 프롬프트로 직접 수정하기</Text>
+          </AccentButton>
         </div>
 
         <div style={card}>
