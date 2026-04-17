@@ -1,0 +1,45 @@
+@import '@react-spectrum/s2/page.css';
+
+/**
+ * Accent fill at accent-600 (blue-600): 기본 Spectrum accent 버튼(accent-900)보다 한 단계 밝게.
+ * 값은 @react-spectrum/s2/style/dist/spectrum-theme.mjs 의 blue-600/700와 동일.
+ */
+.s2-accent-fill-600 {
+  background-color: rgb(114, 158, 253) !important;
+}
+.s2-accent-fill-600:hover:not(:disabled),
+.s2-accent-fill-600[data-hovered]:not(:disabled) {
+  background-color: rgb(93, 137, 255) !important;
+}
+.s2-accent-fill-600:active:not(:disabled),
+.s2-accent-fill-600[data-pressed]:not(:disabled) {
+  background-color: rgb(93, 137, 255) !important;
+}
+.s2-accent-fill-600:focus-visible {
+  background-color: rgb(93, 137, 255) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .s2-accent-fill-600 {
+    background-color: rgb(37, 73, 229) !important;
+  }
+  .s2-accent-fill-600:hover:not(:disabled),
+  .s2-accent-fill-600[data-hovered]:not(:disabled),
+  .s2-accent-fill-600:active:not(:disabled),
+  .s2-accent-fill-600[data-pressed]:not(:disabled),
+  .s2-accent-fill-600:focus-visible {
+    background-color: rgb(52, 91, 248) !important;
+  }
+}
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
