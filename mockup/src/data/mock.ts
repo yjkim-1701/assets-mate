@@ -251,3 +251,153 @@ export const STATUS_LABELS: Record<FixStatus, string> = {
   rejected: '거절',
   changes_requested: '수정요청',
 };
+
+/** F-2.4 템플릿 잠금 영역 — 목업 좌표(%) */
+export type TemplateLockRegion = {
+  id: string;
+  label: string;
+  kind: 'logo' | 'font' | 'color' | 'editable';
+  locked: boolean;
+  rect: { x: number; y: number; w: number; h: number };
+};
+
+export const TEMPLATE_LOCK_DEMO = {
+  templateName: 'Summer Sale — 에이전시 배너',
+  regions: [
+    {
+      id: 'r-logo',
+      label: '로고',
+      kind: 'logo' as const,
+      locked: true,
+      rect: { x: 6, y: 8, w: 22, h: 14 },
+    },
+    {
+      id: 'r-headline',
+      label: '헤드라인 (편집 가능)',
+      kind: 'font' as const,
+      locked: false,
+      rect: { x: 8, y: 32, w: 84, h: 18 },
+    },
+    {
+      id: 'r-brandbar',
+      label: '브랜드 컬러 밴드',
+      kind: 'color' as const,
+      locked: true,
+      rect: { x: 0, y: 88, w: 100, h: 12 },
+    },
+    {
+      id: 'r-cta',
+      label: 'CTA 카피',
+      kind: 'editable' as const,
+      locked: false,
+      rect: { x: 58, y: 58, w: 34, h: 12 },
+    },
+  ] satisfies TemplateLockRegion[],
+};
+
+/** F-2.6 금지 에셋 */
+export type ForbiddenReason = 'license_expired' | 'brand_change' | 'legal' | 'recall' | 'other';
+
+export const FORBIDDEN_REASON_LABELS: Record<ForbiddenReason, string> = {
+  license_expired: '라이선스 만료',
+  brand_change: '브랜드 변경',
+  legal: '법적 이슈',
+  recall: '리콜 / 사용 중단',
+  other: '기타',
+};
+
+export type ForbiddenAssetRow = {
+  id: string;
+  assetId: string;
+  assetName: string;
+  reason: ForbiddenReason;
+  forbiddenAt: string;
+  replacementAssetId: string | null;
+  replacementName: string | null;
+  usedIn: { name: string; type: 'campaign' | 'page' }[];
+};
+
+export const FORBIDDEN_ASSETS: ForbiddenAssetRow[] = [
+  {
+    id: 'fb1',
+    assetId: 'legacy-hero-2019',
+    assetName: 'legacy_hero_2019.jpg',
+    reason: 'brand_change',
+    forbiddenAt: '2026-04-01',
+    replacementAssetId: 'a1',
+    replacementName: 'campaign_summer_hero.jpg',
+    usedIn: [
+      { name: 'Winter 2019 랜딩 (아카이브)', type: 'page' },
+      { name: 'Brand Refresh', type: 'campaign' },
+    ],
+  },
+  {
+    id: 'fb2',
+    assetId: 'stock-xyz-88',
+    assetName: 'stock_lifestyle_01.png',
+    reason: 'license_expired',
+    forbiddenAt: '2026-04-10',
+    replacementAssetId: 'a4',
+    replacementName: 'product_lifestyle_01.jpg',
+    usedIn: [{ name: '2026 Summer', type: 'campaign' }],
+  },
+  {
+    id: 'fb3',
+    assetId: 'old-logo-mark',
+    assetName: 'logo_mark_v1.svg',
+    reason: 'recall',
+    forbiddenAt: '2026-03-15',
+    replacementAssetId: null,
+    replacementName: null,
+    usedIn: [
+      { name: '파트너 포털 헤더', type: 'page' },
+      { name: 'Q2 Newsletter', type: 'campaign' },
+    ],
+  },
+];
+
+/** F-3.5 브랜드 Custom Model */
+export type CustomModelStatus = 'ready' | 'training' | 'disabled';
+
+export type BrandCustomModel = {
+  id: string;
+  name: string;
+  modelType: 'photography' | 'illustration';
+  status: CustomModelStatus;
+  assetCount: number;
+  trainedAt?: string;
+  etaMinutes?: number;
+  progress?: number;
+  isDefault: boolean;
+};
+
+export const BRAND_CUSTOM_MODELS: BrandCustomModel[] = [
+  {
+    id: 'cm-1',
+    name: 'Brand Photo 2026',
+    modelType: 'photography',
+    status: 'ready',
+    assetCount: 24,
+    trainedAt: '2026-03-28',
+    isDefault: true,
+  },
+  {
+    id: 'cm-2',
+    name: 'Illustration Lite',
+    modelType: 'illustration',
+    status: 'ready',
+    assetCount: 18,
+    trainedAt: '2026-02-10',
+    isDefault: false,
+  },
+  {
+    id: 'cm-3',
+    name: 'Q2 Retrain (진행 중)',
+    modelType: 'photography',
+    status: 'training',
+    assetCount: 16,
+    etaMinutes: 42,
+    progress: 61,
+    isDefault: false,
+  },
+];

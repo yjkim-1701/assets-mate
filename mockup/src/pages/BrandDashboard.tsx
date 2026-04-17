@@ -7,7 +7,7 @@ import Logo from '@react-spectrum/s2/icons/Logo';
 import TextIcon from '@react-spectrum/s2/icons/Text';
 import Layout from '@react-spectrum/s2/icons/Layout';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
 import { SampleAssetImage } from '../components/SampleAssetImage';
@@ -52,6 +52,38 @@ export default function BrandDashboard() {
     <>
       <PageHeader title="브랜드 거버넌스" description="브랜드 일관성과 컴플라이언스 현황을 확인합니다" />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={f({ gap: 12, flexWrap: 'wrap' })}>
+          <Link
+            to="/brand/template-locks"
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: CM.primaryBlue,
+              textDecoration: 'none',
+              padding: '10px 14px',
+              borderRadius: 8,
+              border: `1px solid ${CM.cardBorder}`,
+              backgroundColor: CM.panelBg,
+            }}
+          >
+            템플릿 잠금 영역 (F-2.4) →
+          </Link>
+          <Link
+            to="/brand/forbidden"
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: CM.primaryBlue,
+              textDecoration: 'none',
+              padding: '10px 14px',
+              borderRadius: 8,
+              border: `1px solid ${CM.cardBorder}`,
+              backgroundColor: CM.panelBg,
+            }}
+          >
+            금지 에셋 관리 (F-2.6) →
+          </Link>
+        </div>
         <div style={card}>
           <div style={f({ justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 })}>
             <Text UNSAFE_style={{ fontSize: 18, fontWeight: 'bold' }}>브랜드 건강도 종합 스코어</Text>

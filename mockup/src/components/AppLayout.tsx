@@ -56,7 +56,10 @@ function pathToPageLabel(pathname: string): string {
   if (pathname === '/') return '대시보드';
   if (pathname === '/settings') return '설정';
   if (pathname.startsWith('/search')) return '검색 & 탐색';
+  if (pathname === '/brand/template-locks') return '템플릿 잠금 영역';
+  if (pathname === '/brand/forbidden') return '금지 에셋 관리';
   if (pathname.startsWith('/brand')) return '브랜드 거버넌스';
+  if (pathname.startsWith('/ai/custom-models')) return '브랜드 Custom Model';
   if (pathname.startsWith('/ai')) return 'AI Creative';
   if (pathname.startsWith('/collaboration')) return '협업 & 승인';
   if (pathname.startsWith('/social')) return '소셜 리사이즈';

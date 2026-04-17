@@ -3,8 +3,9 @@ import { Text, Button, TextArea, InlineAlert, ProgressBar } from '@react-spectru
 import { MutedBadge } from '../components/MutedBadge';
 import { AccentButton } from '../components/AccentButton';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
+import { BRAND_CUSTOM_MODELS } from '../data/mock';
 import { SampleAssetImage } from '../components/SampleAssetImage';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
@@ -133,6 +134,13 @@ export default function AICreativeStudio() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const completeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lightbox, setLightbox] = useState<'original' | 'preview' | null>(null);
+  const readyModels = useMemo(
+    () => BRAND_CUSTOM_MODELS.filter(m => m.status === 'ready'),
+    []
+  );
+  const [studioModelId, setStudioModelId] = useState(
+    () => readyModels.find(m => m.isDefault)?.id ?? readyModels[0]?.id ?? ''
+  );
 
   const latestGuardrail = useMemo(() => {
     const last = history[history.length - 1];
@@ -211,6 +219,36 @@ export default function AICreativeStudio() {
     <>
       <PageHeader title="AI Creative Studio" description="Firefly Image-to-Image Instruct Edit — 자연어로 에셋을 편집합니다" />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={f({ justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 })}>
+          <div style={f({ gap: 10, alignItems: 'center', flexWrap: 'wrap' })}>
+            <Text UNSAFE_style={{ fontSize: 13, fontWeight: 600, color: CM.textSecondary }}>적용 Custom Model</Text>
+            <select
+              value={studioModelId}
+              onChange={e => setStudioModelId(e.target.value)}
+              style={{
+                fontSize: 13,
+                padding: '8px 12px',
+                borderRadius: 8,
+                border: `1px solid ${CM.cardBorder}`,
+                backgroundColor: CM.panelBg,
+                minWidth: 200,
+              }}
+            >
+              {readyModels.map(m => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+            <MutedBadge tone="neutral" size="S">F-3.5</MutedBadge>
+          </div>
+          <Link
+            to="/ai/custom-models"
+            style={{ fontSize: 13, fontWeight: 600, color: CM.primaryBlue, textDecoration: 'none' }}
+          >
+            모델 학습·관리 →
+          </Link>
+        </div>
         <div style={f({ gap: 8 })}>
           {TABS.map((tab, i) =>
             activeTab === i ? (

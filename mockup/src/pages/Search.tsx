@@ -614,7 +614,21 @@ export default function Search() {
                 </Button>
               )}
             </div>
-            <div style={{ maxHeight: 200, overflow: 'auto', marginBottom: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'nowrap',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                gap: 8,
+                maxHeight: 200,
+                overflowX: 'auto',
+                overflowY: 'hidden',
+                marginBottom: 12,
+                paddingBottom: 4,
+              }}
+            >
               {taxonomyKeys
                 .filter(k => {
                   const parts = k.split('/');
@@ -632,7 +646,7 @@ export default function Search() {
                       variant="secondary"
                       size="S"
                       onPress={() => setTaxonomyPrefix(k.split('/'))}
-                      UNSAFE_style={{ margin: '4px 4px 4px 0' }}
+                      UNSAFE_style={{ flexShrink: 0 }}
                     >
                       {label} ({cnt})
                     </Button>

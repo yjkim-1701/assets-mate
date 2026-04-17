@@ -10,6 +10,9 @@ import AICreativeStudio from './pages/AICreativeStudio';
 import Collaboration from './pages/Collaboration';
 import SocialResize from './pages/SocialResize';
 import Optimization from './pages/Optimization';
+import TemplateLocks from './pages/TemplateLocks';
+import ForbiddenAssets from './pages/ForbiddenAssets';
+import BrandCustomModel from './pages/BrandCustomModel';
 
 function App() {
   return (
@@ -20,12 +23,15 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/search" element={<Search />} />
             <Route path="/brand" element={<BrandDashboard />} />
+            <Route path="/brand/template-locks" element={<TemplateLocks />} />
+            <Route path="/brand/forbidden" element={<ForbiddenAssets />} />
             <Route path="/ai/inbox" element={<AIFixInbox />} />
             <Route path="/ai/inbox/:fixId" element={<AIFixApproval />} />
             <Route path="/ai/studio/:assetId" element={<AICreativeStudio />} />
             <Route path="/ai/studio" element={<AICreativeStudio />} />
             <Route path="/ai/brand-fix/:assetId" element={<AICreativeStudio />} />
             <Route path="/ai/variations/:assetId" element={<AICreativeStudio />} />
+            <Route path="/ai/custom-models" element={<BrandCustomModel />} />
             <Route path="/ai" element={<AIFixInbox />} />
             <Route path="/collaboration" element={<Collaboration />} />
             <Route path="/social/resize" element={<SocialResize />} />
