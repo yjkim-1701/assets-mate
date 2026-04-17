@@ -3,15 +3,17 @@ import { sampleImageUrl } from '../lib/sampleMedia';
 
 type Props = {
   filename: string;
+  /** 수정 전(위반 연출) / 수정 후 — `_before` 매핑이 있을 때만 달라짐 */
+  phase?: 'before' | 'after';
   alt?: string;
   style?: CSSProperties;
 };
 
 /** 샘플 에셋 이미지(또는 비디오 포스터). cover로 영역을 채웁니다. */
-export function SampleAssetImage({ filename, alt = '', style }: Props) {
+export function SampleAssetImage({ filename, phase = 'after', alt = '', style }: Props) {
   return (
     <img
-      src={sampleImageUrl(filename)}
+      src={sampleImageUrl(filename, phase)}
       alt={alt}
       loading="lazy"
       decoding="async"

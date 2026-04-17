@@ -113,7 +113,10 @@ export default function Search() {
                       overflow: 'hidden',
                     }}
                   >
-                    <SampleAssetImage filename={asset.name} />
+                    <SampleAssetImage
+                      filename={asset.name}
+                      phase={asset.status === 'violation' ? 'before' : 'after'}
+                    />
                     {asset.type === 'video' && (
                       <div
                         style={{

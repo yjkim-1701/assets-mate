@@ -26,7 +26,7 @@
 |--------|-------------|-----------|
 | `campaign_summer_hero.jpg` | 3840×2160 | 여름 캠페인 와이드 히어로 |
 | `promo_banner_v2.png` | 1920×1080 | 프로모션 풀 HD 배너 |
-| `social_post_03.jpg` | 1080×1080 | 소셜 정사각 (인스타 피드 등) |
+| `social_post_03.png` | 1080×1080 | 소셜 정사각 (인스타 피드 등) |
 | `product_lifestyle_01.jpg` | 4000×3000 | 제품 라이프스타일 (고해상도 마스터) |
 | `email_header_q2.png` | 600×200 | 뉴스레터 이메일 헤더 (낮은 높이) |
 | `infographic_stats.png` | 1200×2400 | 세로형 인포그래픽 |
@@ -37,9 +37,9 @@
 
 | 파일명 | 용도 요약 |
 |--------|-----------|
-| `stock_lifestyle_01.jpg` | 스톡 이미지 라이선스 UI |
-| `model_portrait_02.jpg` | 모델 초상권 만료 예시 |
-| `bg_texture_03.png` | 배경 텍스처 스톡 |
+| `stock_lifestyle_01.png` | 스톡 이미지 라이선스 UI |
+| `social_post_03.png` | 모델 초상권 만료 예시 |
+| `bg_texture_03.jpg` | 배경 텍스처 스톡 |
 
 ### 2.3 `Collaboration` — 리뷰 목록 예시
 
@@ -146,7 +146,7 @@
 
 ---
 
-### `stock_lifestyle_01.jpg` · `bg_texture_03.png` (라이선스 UI용)
+### `stock_lifestyle_01.png` · `bg_texture_03.jpg` (라이선스 UI용)
 
 - **용도**: BrandDashboard “만료 임박” 목록 썸네일·대표 이미지.
 - **구도·무드**: `stock_lifestyle` — 일반적인 라이프스타일 스톡. `bg_texture` — 은은한 종이·패브릭·노이즈 텍스처.
@@ -159,7 +159,7 @@
 
 ---
 
-### `model_portrait_02.jpg` (모델 초상권)
+### `social_post_03.png` (모델 초상권)
 
 - **용도**: 초상권 만료 카운트다운 데모.
 - **구도·무드**: 프로필·반신 등 **모델 릴리스가 명확한 스톡 초상**을 사용.

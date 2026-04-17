@@ -39,7 +39,7 @@ const SPECS = [
   // mock.ts ASSETS
   { file: 'campaign_summer_hero.jpg', w: 1920, h: 1080, fmt: 'jpeg' },
   { file: 'promo_banner_v2.png', w: 1920, h: 1080, fmt: 'png' },
-  { file: 'social_post_03.jpg', w: 1080, h: 1080, fmt: 'jpeg' },
+  { file: 'social_post_03.png', w: 1080, h: 1080, fmt: 'jpeg' },
   { file: 'product_lifestyle_01.jpg', w: 1600, h: 1200, fmt: 'jpeg' },
   { file: 'email_header_q2.png', w: 600, h: 200, fmt: 'png' },
   { file: 'infographic_stats.png', w: 800, h: 1600, fmt: 'png' },
@@ -51,9 +51,9 @@ const SPECS = [
   { file: 'social_post_agency.jpg', w: 1080, h: 1080, fmt: 'jpeg' },
   { file: 'email_header_final.png', w: 600, h: 200, fmt: 'png' },
   { file: 'product_shot_01.jpg', w: 1200, h: 1200, fmt: 'jpeg' },
-  { file: 'stock_lifestyle_01.jpg', w: 1200, h: 800, fmt: 'jpeg' },
-  { file: 'model_portrait_02.jpg', w: 800, h: 1000, fmt: 'jpeg' },
-  { file: 'bg_texture_03.png', w: 512, h: 512, fmt: 'png' },
+  { file: 'stock_lifestyle_01.png', w: 1200, h: 800, fmt: 'jpeg' },
+  { file: 'social_post_03.png', w: 800, h: 1000, fmt: 'jpeg' },
+  { file: 'bg_texture_03.jpg', w: 512, h: 512, fmt: 'png' },
 ];
 
 function fontSizeFor(w, h) {

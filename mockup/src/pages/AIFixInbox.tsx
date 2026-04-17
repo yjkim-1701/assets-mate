@@ -99,7 +99,7 @@ export default function AIFixInbox() {
                     backgroundColor: CM.surfacePlaceholder,
                   }}
                 >
-                  <SampleAssetImage filename={fix.assetName} />
+                  <SampleAssetImage filename={fix.assetName} phase="before" />
                 </div>
                 <div style={f({ flexDirection: 'column', gap: 4, flex: 1 })}>
                   <div style={f({ gap: 8, alignItems: 'center' })}>

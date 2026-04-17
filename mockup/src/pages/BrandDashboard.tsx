@@ -30,9 +30,9 @@ const CATEGORY_SCORES: { name: string; score: number; Icon: ComponentType }[] = 
 ];
 
 const LICENSES_EXPIRING = [
-  { name: 'stock_lifestyle_01.jpg', daysLeft: 7, type: '스톡 이미지' },
-  { name: 'model_portrait_02.jpg', daysLeft: 14, type: '모델 초상권' },
-  { name: 'bg_texture_03.png', daysLeft: 30, type: '스톡 이미지' },
+  { name: 'stock_lifestyle_01.png', daysLeft: 7, type: '스톡 이미지' },
+  { name: 'social_post_03.png', daysLeft: 14, type: '모델 초상권' },
+  { name: 'bg_texture_03.jpg', daysLeft: 30, type: '스톡 이미지' },
 ];
 
 function SeverityBadge({ severity }: { severity: string }) {
