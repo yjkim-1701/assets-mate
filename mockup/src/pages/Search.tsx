@@ -1,9 +1,9 @@
 import { Text, SearchField, Button, Badge, Checkbox, TagGroup, Tag } from '@react-spectrum/s2';
-import Image from '@react-spectrum/s2/icons/Image';
 import Video from '@react-spectrum/s2/icons/Video';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
+import { SampleAssetImage } from '../components/SampleAssetImage';
 import { ASSETS } from '../data/mock';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
@@ -96,10 +96,34 @@ export default function Search() {
               {filtered.map(asset => (
                 <div key={asset.id} style={{ ...card, padding: 0, overflow: 'hidden', cursor: 'pointer' }}
                   onClick={() => navigate(`/assets/${asset.id}`)}>
-                  <div style={{ width: '100%', height: 160, backgroundColor: CM.surfacePlaceholder, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CM.textMuted }}>
-                    <span style={{ display: 'flex', width: 44, height: 44, opacity: 0.4 }}>
-                      {asset.type === 'video' ? <Video /> : <Image />}
-                    </span>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: 160,
+                      position: 'relative',
+                      backgroundColor: CM.surfacePlaceholder,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <SampleAssetImage filename={asset.name} />
+                    {asset.type === 'video' && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: 'rgba(15, 23, 42, 0.35)',
+                          pointerEvents: 'none',
+                          color: 'rgba(255,255,255,0.95)',
+                        }}
+                      >
+                        <span style={{ display: 'flex', width: 40, height: 40 }}>
+                          <Video />
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div style={{ padding: 12 }}>
                     <Text UNSAFE_style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 4 }}>{asset.name}</Text>

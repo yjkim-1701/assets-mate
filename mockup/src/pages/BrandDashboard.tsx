@@ -8,6 +8,7 @@ import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
+import { SampleAssetImage } from '../components/SampleAssetImage';
 import { BRAND_VIOLATIONS } from '../data/mock';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
@@ -102,9 +103,23 @@ export default function BrandDashboard() {
             <div style={f({ flexDirection: 'column', gap: 12 })}>
               {LICENSES_EXPIRING.map((lic, i) => (
                 <div key={i} style={f({ justifyContent: 'space-between', alignItems: 'center', padding: 12, backgroundColor: CM.warningBg, borderRadius: 8 })}>
-                  <div style={f({ flexDirection: 'column', gap: 2 })}>
-                    <Text UNSAFE_style={{ fontSize: 14, fontWeight: 600 }}>{lic.name}</Text>
-                    <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>{lic.type}</Text>
+                  <div style={f({ gap: 12, alignItems: 'center' })}>
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                        backgroundColor: CM.surfacePlaceholder,
+                      }}
+                    >
+                      <SampleAssetImage filename={lic.name} />
+                    </div>
+                    <div style={f({ flexDirection: 'column', gap: 2 })}>
+                      <Text UNSAFE_style={{ fontSize: 14, fontWeight: 600 }}>{lic.name}</Text>
+                      <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>{lic.type}</Text>
+                    </div>
                   </div>
                   <Badge variant={lic.daysLeft <= 7 ? 'negative' : 'notice'} size="S">
                     D-{lic.daysLeft}

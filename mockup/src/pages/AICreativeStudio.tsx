@@ -1,10 +1,10 @@
 import { Text, Button, Badge, TextArea, InlineAlert } from '@react-spectrum/s2';
 import { AccentButton } from '../components/AccentButton';
-import Image from '@react-spectrum/s2/icons/Image';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import Star from '@react-spectrum/s2/icons/Star';
 import { useState } from 'react';
 import { PageHeader, CM } from '../components/AppLayout';
+import { SampleAssetImage } from '../components/SampleAssetImage';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
 const card: React.CSSProperties = {
@@ -79,10 +79,8 @@ export default function AICreativeStudio() {
         <div style={f({ gap: 24 })}>
           <div style={f({ flexDirection: 'column', gap: 8, flex: 1 })}>
             <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center' }}>원본</Text>
-            <div style={{ ...imageBox, color: CM.textMuted }}>
-              <span style={{ display: 'flex', width: 56, height: 56, opacity: 0.35 }}>
-                <Image />
-              </span>
+            <div style={{ ...imageBox, color: CM.textMuted, padding: 0, overflow: 'hidden' }}>
+              <SampleAssetImage filename="campaign_summer_hero.jpg" />
             </div>
           </div>
           <div style={f({ flexDirection: 'column', gap: 8, flex: 1 })}>
@@ -95,13 +93,28 @@ export default function AICreativeStudio() {
                 </Badge>
               )}
             </div>
-            <div style={hasResult ? { ...imageBox, border: `2px solid ${CM.accentViolet}` } : imageBox}>
+            <div style={hasResult ? { ...imageBox, border: `2px solid ${CM.accentViolet}`, padding: 0, overflow: 'hidden' } : imageBox}>
               {hasResult ? (
-                <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 8, color: CM.accentViolet })}>
-                  <span style={{ display: 'flex', width: 40, height: 40, opacity: 0.85 }}>
-                    <Star />
-                  </span>
-                  <Text UNSAFE_style={{ color: CM.accentViolet, fontWeight: 600 }}>AI 편집 완료</Text>
+                <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                  <SampleAssetImage filename="campaign_summer_hero.jpg" style={{ filter: 'saturate(1.12) hue-rotate(-8deg)' }} />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      background: 'linear-gradient(to top, rgba(88, 60, 120, 0.35), transparent 50%)',
+                      color: CM.accentViolet,
+                    }}
+                  >
+                    <span style={{ display: 'flex', width: 40, height: 40, opacity: 0.95 }}>
+                      <Star />
+                    </span>
+                    <Text UNSAFE_style={{ color: '#fff', fontWeight: 600 }}>AI 편집 완료</Text>
+                  </div>
                 </div>
               ) : (
                 <Text UNSAFE_style={{ color: CM.textSecondary }}>편집 명령을 실행하면 결과가 여기에 표시됩니다</Text>

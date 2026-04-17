@@ -2,6 +2,7 @@ import { Text, Button, Badge, ProgressBar } from '@react-spectrum/s2';
 import { useState } from 'react';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
+import { SampleAssetImage } from '../components/SampleAssetImage';
 import { CAMPAIGNS } from '../data/mock';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
@@ -74,8 +75,17 @@ export default function Collaboration() {
             {REVIEWS.map(r => (
               <div key={r.id} style={{ ...card, cursor: 'default', padding: 16 }}>
                 <div style={f({ gap: 16, alignItems: 'center' })}>
-                  <div style={{ width: 56, height: 56, backgroundColor: CM.surfacePlaceholder, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text UNSAFE_style={{ fontSize: 20, opacity: 0.3 }}>🖼</Text>
+                  <div
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: 8,
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                      backgroundColor: CM.surfacePlaceholder,
+                    }}
+                  >
+                    <SampleAssetImage filename={r.asset} />
                   </div>
                   <div style={f({ flexDirection: 'column', gap: 4, flex: 1 })}>
                     <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold' }}>{r.asset}</Text>

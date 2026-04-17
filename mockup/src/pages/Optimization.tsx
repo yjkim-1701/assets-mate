@@ -2,6 +2,7 @@ import { Text, Button, Badge, Checkbox } from '@react-spectrum/s2';
 import { useState } from 'react';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
+import { SampleAssetImage } from '../components/SampleAssetImage';
 import { ASSETS } from '../data/mock';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
@@ -71,6 +72,18 @@ export default function Optimization() {
                   <div key={asset.id} style={{ padding: 12, borderBottom: `1px solid ${CM.cardBorder}` }}>
                     <div style={f({ gap: 12, alignItems: 'center' })}>
                       <Checkbox isSelected={selectedAssets.has(asset.id)} onChange={() => toggle(asset.id)} />
+                      <div
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: 8,
+                          overflow: 'hidden',
+                          flexShrink: 0,
+                          backgroundColor: CM.surfacePlaceholder,
+                        }}
+                      >
+                        <SampleAssetImage filename={asset.name} />
+                      </div>
                       <Text UNSAFE_style={{ fontSize: 14, fontWeight: 500, flex: 1 }}>{asset.name}</Text>
                       <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>{asset.dim}</Text>
                       <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>{asset.size}</Text>

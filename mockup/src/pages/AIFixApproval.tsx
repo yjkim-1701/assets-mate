@@ -1,10 +1,10 @@
 import { Text, Button, Badge, Meter, TextArea } from '@react-spectrum/s2';
-import Image from '@react-spectrum/s2/icons/Image';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import Star from '@react-spectrum/s2/icons/Star';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
+import { SampleAssetImage } from '../components/SampleAssetImage';
 import { AI_FIX_INBOX, STATUS_LABELS } from '../data/mock';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
@@ -65,15 +65,27 @@ export default function AIFixApproval() {
         <div style={f({ gap: 24 })}>
           <div style={f({ flexDirection: 'column', gap: 12, flex: 1 })}>
             <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center' }}>수정 전</Text>
-            <div style={{ ...imageBox, color: CM.textMuted }}>
-              <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 8 })}>
-                <span style={{ display: 'flex', width: 48, height: 48, opacity: 0.35 }}>
-                  <Image />
-                </span>
-                <Text UNSAFE_style={{ color: CM.textSecondary }}>원본 이미지</Text>
-                {fix.violations.map(v => (
-                  <Badge key={v} variant="negative" size="S">● {v} 위반</Badge>
-                ))}
+            <div style={{ ...imageBox, color: CM.textMuted, padding: 0, overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                <SampleAssetImage filename={fix.assetName} />
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 8,
+                    left: 8,
+                    right: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 8,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <Text UNSAFE_style={{ color: CM.textSecondary, textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>원본 이미지</Text>
+                  {fix.violations.map(v => (
+                    <Badge key={v} variant="negative" size="S">● {v} 위반</Badge>
+                  ))}
+                </div>
               </div>
             </div>
             <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 4 })}>
@@ -91,16 +103,31 @@ export default function AIFixApproval() {
               <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold' }}>수정 후</Text>
               <Badge variant="informative" size="S">후보 1/3</Badge>
             </div>
-            <div style={{ ...imageBox, border: `2px solid ${CM.success}`, color: CM.textSecondary }}>
-              <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 8 })}>
-                <span style={{ display: 'flex', width: 40, height: 40, opacity: 0.6 }}>
-                  <Star />
-                </span>
-                <Text UNSAFE_style={{ color: CM.textSecondary }}>AI 수정 결과</Text>
-                <Badge variant="accent" size="S">
-                  <MagicWand />
-                  <Text>AI Generated</Text>
-                </Badge>
+            <div style={{ ...imageBox, border: `2px solid ${CM.success}`, color: CM.textSecondary, padding: 0, overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                <SampleAssetImage filename={fix.assetName} style={{ filter: 'saturate(1.08) contrast(1.02)' }} />
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    pointerEvents: 'none',
+                    background: 'linear-gradient(to top, rgba(15,23,42,0.45), transparent 55%)',
+                  }}
+                >
+                  <span style={{ display: 'flex', width: 40, height: 40, color: 'rgba(255,255,255,0.9)' }}>
+                    <Star />
+                  </span>
+                  <Text UNSAFE_style={{ color: '#fff', fontWeight: 600 }}>AI 수정 결과</Text>
+                  <Badge variant="accent" size="S">
+                    <MagicWand />
+                    <Text>AI Generated</Text>
+                  </Badge>
+                </div>
               </div>
             </div>
             <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 4 })}>

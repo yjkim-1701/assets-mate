@@ -1,9 +1,9 @@
 import { Text, Button, Badge, Checkbox, Meter } from '@react-spectrum/s2';
-import Image from '@react-spectrum/s2/icons/Image';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
+import { SampleAssetImage } from '../components/SampleAssetImage';
 import { AI_FIX_INBOX, STATUS_LABELS, type FixStatus } from '../data/mock';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
@@ -78,10 +78,17 @@ export default function AIFixInbox() {
                 <div onClick={e => e.stopPropagation()}>
                   <Checkbox isSelected={selected.has(fix.id)} onChange={() => toggleSelect(fix.id)} />
                 </div>
-                <div style={{ width: 64, height: 64, backgroundColor: CM.surfacePlaceholder, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CM.textMuted }}>
-                  <span style={{ display: 'flex', width: 32, height: 32, opacity: 0.4 }}>
-                    <Image />
-                  </span>
+                <div
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 8,
+                    flexShrink: 0,
+                    overflow: 'hidden',
+                    backgroundColor: CM.surfacePlaceholder,
+                  }}
+                >
+                  <SampleAssetImage filename={fix.assetName} />
                 </div>
                 <div style={f({ flexDirection: 'column', gap: 4, flex: 1 })}>
                   <div style={f({ gap: 8, alignItems: 'center' })}>

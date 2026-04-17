@@ -1,5 +1,4 @@
 import { Text, Button, Badge, Checkbox } from '@react-spectrum/s2';
-import Image from '@react-spectrum/s2/icons/Image';
 import Camera from '@react-spectrum/s2/icons/Camera';
 import User from '@react-spectrum/s2/icons/User';
 import Video from '@react-spectrum/s2/icons/Video';
@@ -8,6 +7,7 @@ import Link from '@react-spectrum/s2/icons/Link';
 import { useState } from 'react';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
+import { SampleAssetImage } from '../components/SampleAssetImage';
 import { SOCIAL_CHANNELS } from '../data/mock';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
@@ -91,10 +91,17 @@ export default function SocialResize() {
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div style={card}>
           <div style={f({ gap: 16, alignItems: 'center' })}>
-            <div style={{ width: 80, height: 80, backgroundColor: CM.surfacePlaceholder, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CM.textMuted }}>
-              <span style={{ display: 'flex', width: 40, height: 40, opacity: 0.45 }}>
-                <Image />
-              </span>
+            <div
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 8,
+                overflow: 'hidden',
+                flexShrink: 0,
+                backgroundColor: CM.surfacePlaceholder,
+              }}
+            >
+              <SampleAssetImage filename="campaign_summer_hero.jpg" />
             </div>
             <div style={f({ flexDirection: 'column', gap: 4 })}>
               <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold' }}>campaign_summer_hero.jpg</Text>
@@ -134,10 +141,18 @@ export default function SocialResize() {
                 const needsExpand = ch.height / ch.width > 1.5;
                 return (
                   <div key={ch.id} style={f({ flexDirection: 'column', gap: 8 })}>
-                    <div style={{ width: previewW, height: previewH, backgroundColor: CM.surfacePlaceholder, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', color: CM.textMuted }}>
-                      <span style={{ display: 'flex', width: 36, height: 36, opacity: 0.35 }}>
-                        <Image />
-                      </span>
+                    <div
+                      style={{
+                        width: previewW,
+                        height: previewH,
+                        backgroundColor: CM.surfacePlaceholder,
+                        borderRadius: 12,
+                        overflow: 'hidden',
+                        position: 'relative',
+                        color: CM.textMuted,
+                      }}
+                    >
+                      <SampleAssetImage filename="campaign_summer_hero.jpg" />
                       {needsExpand && (
                         <div style={{ position: 'absolute', top: 8, right: 8 }}>
                           <Badge variant="accent" size="S">AI Expand</Badge>
