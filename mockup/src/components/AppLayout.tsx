@@ -60,6 +60,7 @@ function pathToPageLabel(pathname: string): string {
   if (pathname === '/brand/forbidden') return '금지 에셋 관리';
   if (pathname.startsWith('/brand')) return '브랜드 거버넌스';
   if (pathname.startsWith('/ai/custom-models')) return '브랜드 Custom Model';
+  if (pathname.startsWith('/ai/variations')) return '브랜드 변형 생성';
   if (pathname.startsWith('/ai')) return 'AI Creative';
   if (pathname.startsWith('/collaboration')) return '협업 & 승인';
   if (pathname.startsWith('/social')) return '소셜 리사이즈';

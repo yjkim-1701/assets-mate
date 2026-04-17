@@ -7,6 +7,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
 import { BRAND_CUSTOM_MODELS } from '../data/mock';
 import { SampleAssetImage } from '../components/SampleAssetImage';
+import { GenerativeFillPanel } from '../components/GenerativeFillPanel';
+import { GenerativeExpandPanel } from '../components/GenerativeExpandPanel';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
 const card: React.CSSProperties = {
@@ -497,22 +499,25 @@ export default function AICreativeStudio() {
 
         {activeTab === 1 && (
           <div style={card}>
-            <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Generative Fill (F-3.3)</Text>
-            <Text UNSAFE_style={{ fontSize: 14, color: CM.textSecondary, lineHeight: 1.5 }}>
-              마스킹 후 제거·교체 모드는 별도 캔버스 도구와 Fill API 연동이 필요합니다. 자연어 편집 탭에서 영역 변경 의도를 프롬프트로 먼저 시도할 수 있습니다.
+            <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold', display: 'block', marginBottom: 12 }}>
+              Generative Fill (F-3.3)
             </Text>
+            <GenerativeFillPanel assetFilename={ASSET_FILENAME} studioModelId={studioModelId} />
           </div>
         )}
 
         {activeTab === 2 && (
           <div style={card}>
-            <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Generative Expand (F-3.4)</Text>
-            <Text UNSAFE_style={{ fontSize: 14, color: CM.textSecondary, lineHeight: 1.5 }}>
-              소셜 리사이즈 화면에서 비율 변환 시 Expand 연계를 안내합니다. 여기서는 확장 방향·프롬프트 API를 붙이면 완성됩니다.
+            <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold', display: 'block', marginBottom: 12 }}>
+              Generative Expand (F-3.4)
             </Text>
-            <div style={{ marginTop: 12 }}>
+            <GenerativeExpandPanel assetFilename={ASSET_FILENAME} />
+            <div style={f({ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${CM.cardBorder}` })}>
+              <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
+                소셜 리사이즈에서 채널 프리셋에 맞춰 동일한 Expand를 적용하려면 아래로 이동하세요.
+              </Text>
               <Button variant="secondary" onPress={() => navigate('/social/resize')}>
-                소셜 리사이즈로 이동
+                소셜 리사이즈 (T5 연계)
               </Button>
             </div>
           </div>

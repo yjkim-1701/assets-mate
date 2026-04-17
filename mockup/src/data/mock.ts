@@ -205,10 +205,197 @@ export const ASSETS: Asset[] = [
 ];
 
 export const CAMPAIGNS = [
-  { id: 'c1', name: '2026 Summer', status: 'active', progress: 72, assets: 24, pending: 3 },
-  { id: 'c2', name: 'Brand Refresh', status: 'active', progress: 45, assets: 18, pending: 7 },
-  { id: 'c3', name: 'Q2 Newsletter', status: 'active', progress: 90, assets: 8, pending: 1 },
-  { id: 'c4', name: 'Winter 2025', status: 'completed', progress: 100, assets: 32, pending: 0 },
+  {
+    id: 'c1',
+    name: '2026 Summer',
+    status: 'active' as const,
+    progress: 72,
+    assets: 24,
+    pending: 3,
+    period: '2026-04-01 ~ 2026-08-31',
+    owner: '김민지',
+    channels: ['Instagram', 'Display', 'YouTube'],
+  },
+  {
+    id: 'c2',
+    name: 'Brand Refresh',
+    status: 'active' as const,
+    progress: 45,
+    assets: 18,
+    pending: 7,
+    period: '2026-03-15 ~ 2026-06-30',
+    owner: '박에이전시',
+    channels: ['TikTok', 'Instagram', 'Facebook'],
+  },
+  {
+    id: 'c3',
+    name: 'Q2 Newsletter',
+    status: 'active' as const,
+    progress: 90,
+    assets: 8,
+    pending: 1,
+    period: '2026-04-01 ~ 2026-06-15',
+    owner: '이CRM',
+    channels: ['Email', 'LinkedIn'],
+  },
+  {
+    id: 'c4',
+    name: 'Winter 2025',
+    status: 'completed' as const,
+    progress: 100,
+    assets: 32,
+    pending: 0,
+    period: '2025-11-01 ~ 2026-02-28',
+    owner: '최브랜드',
+    channels: ['Display', 'Facebook'],
+  },
+];
+
+/** F-4.4 캠페인 워크스페이스 — 태스크 목업 */
+export type CampaignTaskStatus = 'todo' | 'in_progress' | 'done';
+export type CampaignTask = {
+  id: string;
+  campaignId: string;
+  title: string;
+  status: CampaignTaskStatus;
+  due: string;
+  assignee: string;
+};
+
+export const CAMPAIGN_TASKS: CampaignTask[] = [
+  { id: 't1', campaignId: 'c1', title: '히어로 배너 최종 리뷰', status: 'done', due: '2026-04-18', assignee: '김민지' },
+  { id: 't2', campaignId: 'c1', title: '소셜 9:16 세트 제작', status: 'in_progress', due: '2026-04-22', assignee: '박에이전시' },
+  { id: 't3', campaignId: 'c1', title: 'YouTube 프리롤 업로드', status: 'todo', due: '2026-04-28', assignee: '이CRM' },
+  { id: 't4', campaignId: 'c2', title: '틱톡 훅 영상 컷', status: 'in_progress', due: '2026-04-19', assignee: '박에이전시' },
+  { id: 't5', campaignId: 'c3', title: '뉴스레터 헤더 승인', status: 'done', due: '2026-04-12', assignee: '이CRM' },
+];
+
+/** F-4.3 버전 비교 — 에셋별 버전 이력 */
+export type AssetVersionRow = {
+  versionId: string;
+  label: string;
+  modified: string;
+  author: string;
+  reason: string;
+  size: string;
+  dim: string;
+  colorProfile: string;
+};
+
+export const ASSET_VERSION_HISTORY: Record<string, AssetVersionRow[]> = {
+  a1: [
+    {
+      versionId: 'a1-v3',
+      label: 'v3 (현재)',
+      modified: '2026-04-14 09:00',
+      author: 'Park',
+      reason: '히어로 카피·CTA 수정',
+      size: '4.2 MB',
+      dim: '3840×2160',
+      colorProfile: 'sRGB IEC61966-2.1',
+    },
+    {
+      versionId: 'a1-v2',
+      label: 'v2',
+      modified: '2026-04-10 11:20',
+      author: 'Kim',
+      reason: '색상 보정',
+      size: '4.0 MB',
+      dim: '3840×2160',
+      colorProfile: 'sRGB IEC61966-2.1',
+    },
+    {
+      versionId: 'a1-v1',
+      label: 'v1',
+      modified: '2026-04-05 16:00',
+      author: 'Lee',
+      reason: '최초 업로드',
+      size: '3.9 MB',
+      dim: '3840×2160',
+      colorProfile: 'Adobe RGB (1998)',
+    },
+  ],
+  a2: [
+    {
+      versionId: 'a2-v2',
+      label: 'v2 (현재)',
+      modified: '2026-04-15 14:00',
+      author: 'Agency',
+      reason: '프로모션 카피 반영',
+      size: '1.8 MB',
+      dim: '1920×1080',
+      colorProfile: 'sRGB',
+    },
+    {
+      versionId: 'a2-v1',
+      label: 'v1',
+      modified: '2026-04-08 10:00',
+      author: 'Kim',
+      reason: '초안',
+      size: '1.7 MB',
+      dim: '1920×1080',
+      colorProfile: 'sRGB',
+    },
+  ],
+};
+
+/** F-4.1 브랜드 킷·공유 패키지 목업 */
+export const BRAND_KIT_ITEMS = [
+  { id: 'bk1', kind: 'logo' as const, name: 'Primary 로고 (가로)', format: 'SVG, PNG @1x–3x' },
+  { id: 'bk2', kind: 'logo' as const, name: '심볼 마크', format: 'SVG' },
+  { id: 'bk3', kind: 'color' as const, name: '브랜드 팔레트 2026', format: 'ASE, CSS 변수' },
+  { id: 'bk4', kind: 'font' as const, name: '타이포그래피', format: 'WOFF2 패밀리' },
+  { id: 'bk5', kind: 'doc' as const, name: '브랜드 가이드라인 PDF', format: 'PDF v3.2' },
+];
+
+export type ShareAccessLogRow = { id: string; at: string; actor: string; action: string; asset: string };
+
+export const SHARE_ACCESS_LOGS: ShareAccessLogRow[] = [
+  { id: 'l1', at: '2026-04-16 15:22', actor: 'agency-viewer@partner.com', action: '다운로드', asset: 'campaign_summer_hero.jpg' },
+  { id: 'l2', at: '2026-04-16 14:01', actor: 'agency-viewer@partner.com', action: '미리보기', asset: '브랜드 킷 패키지' },
+  { id: 'l3', at: '2026-04-15 09:40', actor: 'freelance@design.kr', action: '다운로드', asset: 'logo_primary.svg' },
+];
+
+/** F-4.2 리뷰 코멘트 스레드 */
+export type ReviewComment = {
+  id: string;
+  reviewId: string;
+  body: string;
+  author: string;
+  at: string;
+  resolved: boolean;
+};
+
+export const REVIEW_COMMENTS: ReviewComment[] = [
+  { id: 'cm1', reviewId: 'r1', body: '로고 안전 영역이 가이드보다 좁습니다. 상단 8px 더 확보 부탁드립니다.', author: 'Kim', at: '1시간 전', resolved: false },
+  { id: 'cm2', reviewId: 'r1', body: '배경 그라데이션은 브랜드 프리셋 #2만 사용해 주세요.', author: 'Kim', at: '2시간 전', resolved: true },
+  { id: 'cm3', reviewId: 'r2', body: 'CTA 대비율 WCAG AA 확인 부탁합니다.', author: 'Park (Agency)', at: '4시간 전', resolved: false },
+];
+
+/** F-4.2 비주얼 마크업 포인트 (% 좌표) */
+export const REVIEW_PINS = [
+  { id: 'p1', reviewId: 'r1', x: 22, y: 35, label: '1' },
+  { id: 'p2', reviewId: 'r1', x: 68, y: 52, label: '2' },
+];
+
+/** F-4.5 칸반 초기 목업 (에셋 카드) */
+export type ApprovalKanbanColumn = 'unsubmitted' | 'in_review' | 'changes' | 'approved';
+
+export type ApprovalKanbanCard = {
+  id: string;
+  assetName: string;
+  assignee: string;
+  dueDate: string;
+  overdue: boolean;
+  column: ApprovalKanbanColumn;
+};
+
+export const APPROVAL_KANBAN_SEED: ApprovalKanbanCard[] = [
+  { id: 'k1', assetName: 'draft_cover.png', assignee: 'Lee', dueDate: '2026-04-25', overdue: false, column: 'unsubmitted' },
+  { id: 'k2', assetName: 'promo_banner_v2.png', assignee: 'Kim', dueDate: '2026-04-18', overdue: true, column: 'in_review' },
+  { id: 'k3', assetName: 'social_post_agency.jpg', assignee: 'Park', dueDate: '2026-04-12', overdue: true, column: 'changes' },
+  { id: 'k4', assetName: 'email_header_final.png', assignee: 'Lee', dueDate: '2026-04-10', overdue: false, column: 'approved' },
+  { id: 'k5', assetName: 'story_anim_v1.mp4', assignee: 'Choi', dueDate: '2026-04-20', overdue: false, column: 'in_review' },
 ];
 
 export const BRAND_VIOLATIONS = [
@@ -236,11 +423,223 @@ export const SOCIAL_CHANNELS = [
   { id: 'x-feed', name: 'X (Twitter) 피드', width: 1600, height: 900 },
 ];
 
-export const CALENDAR_EVENTS = [
-  { id: 'e1', title: 'Summer Campaign Launch', date: '2026-04-20', channel: 'Instagram', status: 'scheduled' },
-  { id: 'e2', title: 'Product Teaser', date: '2026-04-22', channel: 'YouTube', status: 'draft' },
-  { id: 'e3', title: 'Newsletter Banner', date: '2026-04-25', channel: 'Email', status: 'scheduled' },
-  { id: 'e4', title: 'LinkedIn Thought Leadership', date: '2026-04-28', channel: 'LinkedIn', status: 'draft' },
+/** F-5.4 소셜 캘린더 — 채널 색상은 UI 레인·뱃지용 */
+export const CHANNEL_HEX: Record<string, string> = {
+  'ig-feed': '#E11D48',
+  'ig-story': '#F472B6',
+  'fb-feed': '#1877F2',
+  'fb-cover': '#166FE5',
+  'yt-thumb': '#DC2626',
+  'yt-banner': '#B91C1C',
+  'li-feed': '#0A66C2',
+  'x-feed': '#0F172A',
+  email: '#6366F1',
+};
+
+export type SocialCalendarStatus = 'scheduled' | 'publishing' | 'completed' | 'failed';
+
+export type SocialCalendarEvent = {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  channelId: string;
+  channel: string;
+  status: SocialCalendarStatus;
+  assetId: string;
+  assetName: string;
+  repeatRule: 'none' | 'weekly' | 'monthly';
+};
+
+/** F-5.4 초기 일정 (드래그로 날짜 변경 가능 — 목업 상태) */
+export const SOCIAL_CALENDAR_EVENTS: SocialCalendarEvent[] = [
+  {
+    id: 'e1',
+    title: 'Summer Campaign Launch',
+    date: '2026-04-20',
+    time: '10:00',
+    channelId: 'ig-feed',
+    channel: 'Instagram 피드',
+    status: 'scheduled',
+    assetId: 'a1',
+    assetName: 'campaign_summer_hero.jpg',
+    repeatRule: 'none',
+  },
+  {
+    id: 'e2',
+    title: 'Product Teaser',
+    date: '2026-04-22',
+    time: '15:30',
+    channelId: 'yt-thumb',
+    channel: 'YouTube 썸네일',
+    status: 'publishing',
+    assetId: 'a4',
+    assetName: 'product_lifestyle_01.jpg',
+    repeatRule: 'none',
+  },
+  {
+    id: 'e3',
+    title: 'Newsletter Banner',
+    date: '2026-04-25',
+    time: '09:00',
+    channelId: 'li-feed',
+    channel: 'LinkedIn 피드',
+    status: 'scheduled',
+    assetId: 'a5',
+    assetName: 'email_header_q2.png',
+    repeatRule: 'weekly',
+  },
+  {
+    id: 'e4',
+    title: 'LinkedIn Thought Leadership',
+    date: '2026-04-28',
+    time: '11:00',
+    channelId: 'li-feed',
+    channel: 'LinkedIn 피드',
+    status: 'scheduled',
+    assetId: 'a7',
+    assetName: 'infographic_stats.png',
+    repeatRule: 'none',
+  },
+  {
+    id: 'e5',
+    title: '스토리 프로모',
+    date: '2026-04-17',
+    time: '18:00',
+    channelId: 'ig-story',
+    channel: 'Instagram 스토리',
+    status: 'completed',
+    assetId: 'a3',
+    assetName: 'social_post_03.png',
+    repeatRule: 'none',
+  },
+  {
+    id: 'e6',
+    title: 'X 제품 스레드',
+    date: '2026-04-18',
+    time: '12:00',
+    channelId: 'x-feed',
+    channel: 'X 피드',
+    status: 'failed',
+    assetId: 'a2',
+    assetName: 'promo_banner_v2.png',
+    repeatRule: 'none',
+  },
+];
+
+/** 하위 호환 — 기존 필드만 필요한 참조용 */
+export const CALENDAR_EVENTS = SOCIAL_CALENDAR_EVENTS.map(e => ({
+  id: e.id,
+  title: e.title,
+  date: e.date,
+  channel: e.channel,
+  status: e.status === 'scheduled' ? 'scheduled' : e.status === 'failed' ? 'draft' : 'scheduled',
+}));
+
+/** F-5.6 배포 이력 */
+export type DeployHistoryStatus = 'success' | 'failed' | 'retrying';
+
+export type DeployHistoryRow = {
+  id: string;
+  assetId: string;
+  assetName: string;
+  channelId: string;
+  channel: string;
+  deployedAt: string;
+  deployedBy: string;
+  status: DeployHistoryStatus;
+  campaign: string;
+};
+
+export const DEPLOY_HISTORY: DeployHistoryRow[] = [
+  {
+    id: 'd1',
+    assetId: 'a1',
+    assetName: 'campaign_summer_hero.jpg',
+    channelId: 'ig-feed',
+    channel: 'Instagram 피드',
+    deployedAt: '2026-04-16 14:22',
+    deployedBy: '김민지',
+    status: 'success',
+    campaign: '2026 Summer',
+  },
+  {
+    id: 'd2',
+    assetId: 'a1',
+    assetName: 'campaign_summer_hero.jpg',
+    channelId: 'fb-feed',
+    channel: 'Facebook 피드',
+    deployedAt: '2026-04-16 14:25',
+    deployedBy: '김민지',
+    status: 'success',
+    campaign: '2026 Summer',
+  },
+  {
+    id: 'd3',
+    assetId: 'a4',
+    assetName: 'product_lifestyle_01.jpg',
+    channelId: 'yt-thumb',
+    channel: 'YouTube 썸네일',
+    deployedAt: '2026-04-15 09:10',
+    deployedBy: '박에이전시',
+    status: 'failed',
+    campaign: '2026 Summer',
+  },
+  {
+    id: 'd4',
+    assetId: 'a4',
+    assetName: 'product_lifestyle_01.jpg',
+    channelId: 'yt-thumb',
+    channel: 'YouTube 썸네일',
+    deployedAt: '2026-04-15 09:18',
+    deployedBy: '시스템',
+    status: 'retrying',
+    campaign: '2026 Summer',
+  },
+  {
+    id: 'd5',
+    assetId: 'a5',
+    assetName: 'email_header_q2.png',
+    channelId: 'li-feed',
+    channel: 'LinkedIn 피드',
+    deployedAt: '2026-04-14 11:00',
+    deployedBy: '이CRM',
+    status: 'success',
+    campaign: 'Q2 Newsletter',
+  },
+  {
+    id: 'd6',
+    assetId: 'a2',
+    assetName: 'promo_banner_v2.png',
+    channelId: 'x-feed',
+    channel: 'X 피드',
+    deployedAt: '2026-04-13 16:40',
+    deployedBy: '김민지',
+    status: 'success',
+    campaign: '2026 Summer',
+  },
+  {
+    id: 'd7',
+    assetId: 'a6',
+    assetName: 'video_teaser_15s.mp4',
+    channelId: 'yt-thumb',
+    channel: 'YouTube 썸네일',
+    deployedAt: '2026-04-12 10:05',
+    deployedBy: '박에이전시',
+    status: 'success',
+    campaign: 'Brand Refresh',
+  },
+  {
+    id: 'd8',
+    assetId: 'a3',
+    assetName: 'social_post_03.png',
+    channelId: 'ig-story',
+    channel: 'Instagram 스토리',
+    deployedAt: '2026-04-11 19:30',
+    deployedBy: '최브랜드',
+    status: 'success',
+    campaign: 'Brand Refresh',
+  },
 ];
 
 export type FixStatus = 'pending' | 'approved' | 'rejected' | 'changes_requested';

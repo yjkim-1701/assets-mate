@@ -13,6 +13,7 @@ import Optimization from './pages/Optimization';
 import TemplateLocks from './pages/TemplateLocks';
 import ForbiddenAssets from './pages/ForbiddenAssets';
 import BrandCustomModel from './pages/BrandCustomModel';
+import BrandVariations from './pages/BrandVariations';
 
 function App() {
   return (
@@ -30,7 +31,7 @@ function App() {
             <Route path="/ai/studio/:assetId" element={<AICreativeStudio />} />
             <Route path="/ai/studio" element={<AICreativeStudio />} />
             <Route path="/ai/brand-fix/:assetId" element={<AICreativeStudio />} />
-            <Route path="/ai/variations/:assetId" element={<AICreativeStudio />} />
+            <Route path="/ai/variations/:assetId" element={<BrandVariations />} />
             <Route path="/ai/custom-models" element={<BrandCustomModel />} />
             <Route path="/ai" element={<AIFixInbox />} />
             <Route path="/collaboration" element={<Collaboration />} />
