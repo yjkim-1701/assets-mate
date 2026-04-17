@@ -134,7 +134,7 @@ export default function BrandVariations() {
                 </option>
               ))}
             </select>
-            <MutedBadge tone="neutral" size="S">F-3.6</MutedBadge>
+            <MutedBadge tone="neutral" size="S">브랜드 변형</MutedBadge>
           </div>
           <div style={{ marginTop: 16 }}>
             <AccentButton isDisabled={loading || !prompt.trim()} onPress={runGenerate}>
@@ -144,7 +144,7 @@ export default function BrandVariations() {
           {loading && (
             <div style={{ marginTop: 16 }}>
               <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 8 }}>
-                Generate + Custom Model 적용 중… (목업)
+                생성 요청 처리 중 — Custom Model 적용
               </Text>
               <ProgressBar value={progress} />
             </div>
@@ -188,7 +188,7 @@ export default function BrandVariations() {
               ))}
             </div>
             <Text UNSAFE_style={{ fontSize: 12, color: CM.textMuted, marginTop: 12, display: 'block' }}>
-              저장 시 원본과 「변형」관계가 자동 연결됩니다 (목업).
+              저장 시 원본 에셋과 변형 에셋의 관계가 자동으로 기록됩니다.
             </Text>
             <div style={f({ justifyContent: 'flex-end', gap: 8, marginTop: 16 })}>
               <Button variant="secondary" onPress={() => { setCandidates(null); setPicked(null); }}>

@@ -41,8 +41,7 @@ export default function TemplateLocks() {
     }
     if (role === 'agency' && !r.locked) {
       setWarn(null);
-      // 편집 가능 영역 — 목업 피드백만
-      setWarn(`「${r.label}」영역 편집 모드로 전환됩니다. (목업)`);
+      setWarn(`「${r.label}」영역 편집 모드로 전환됩니다.`);
     }
   };
 

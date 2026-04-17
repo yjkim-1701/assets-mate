@@ -42,7 +42,7 @@ export default function ForbiddenAssets() {
     if (selected.size === 0) return;
     setRows(prev => prev.filter(r => !selected.has(r.id)));
     setSelected(new Set());
-    setBanner(`${selected.size}건을 금지 해제했습니다. (목업)`);
+    setBanner(`${selected.size}건을 금지 해제했습니다.`);
   };
 
   const simulateDownloadBlock = (name: string) => {
@@ -77,7 +77,7 @@ export default function ForbiddenAssets() {
             {selected.size === rows.length ? '전체 해제' : '전체 선택'}
           </Button>
           <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>
-            관리자 일괄 처리 · 다운로드 시도 시 차단 + 대체 제안 (목업)
+            관리자 일괄 처리 · 다운로드 시도 시 차단 및 대체 에셋 안내
           </Text>
         </div>
 

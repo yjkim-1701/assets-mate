@@ -82,7 +82,7 @@ export default function BrandCustomModel() {
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <InlineAlert variant="informative">
           <Text>
-            AEM Assets에서 10–30개 에셋을 선택한 뒤 학습을 실행합니다. 아래는 목업 진행률·예상 시간입니다.
+            AEM Assets에서 10–30개 에셋을 선택한 뒤 학습을 실행합니다. 아래에 진행률과 예상 남은 시간이 표시됩니다.
           </Text>
         </InlineAlert>
 
@@ -124,7 +124,7 @@ export default function BrandCustomModel() {
                   style={{ width: '100%' }}
                 />
                 <Text UNSAFE_style={{ fontSize: 12, color: CM.textMuted, marginTop: 4, display: 'block' }}>
-                  미리보기: 선택된 대표 에셋 썸네일 (목업)
+                  미리보기: 선택된 대표 에셋 썸네일
                 </Text>
                 <div style={f({ gap: 8, marginTop: 8, flexWrap: 'wrap' })}>
                   {ASSETS.slice(0, 5).map(a => (
@@ -211,7 +211,7 @@ export default function BrandCustomModel() {
                     <div style={{ maxWidth: 320, marginTop: 8 }}>
                       <ProgressBar label="진행률" value={m.progress} />
                       <Text UNSAFE_style={{ fontSize: 11, color: CM.textMuted, marginTop: 4 }}>
-                        예상 {m.etaMinutes}분 남음 (목업)
+                        예상 {m.etaMinutes}분 남음
                       </Text>
                     </div>
                   )}
@@ -243,7 +243,7 @@ export default function BrandCustomModel() {
             결과 비교 (기본 Firefly vs Custom Model)
           </Text>
           <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary, marginBottom: 16, display: 'block' }}>
-            동일 프롬프트로 생성 시 브랜드 톤 유지 정도를 비교합니다 (목업 시각).
+            동일 프롬프트로 생성했을 때 브랜드 톤 유지 정도를 나란히 비교합니다.
           </Text>
           <div style={f({ gap: 16, alignItems: 'stretch', flexWrap: 'wrap' })}>
             <div style={f({ flexDirection: 'column', gap: 8, flex: 1, minWidth: 200 })}>
@@ -271,7 +271,7 @@ export default function BrandCustomModel() {
                 <SampleAssetImage filename={ASSETS[0].name} />
               </div>
               <Text UNSAFE_style={{ fontSize: 12, color: CM.textMuted, textAlign: 'center' }}>
-                {compareLeft === 'custom' ? '브랜드 톤에 더 근접 (목업)' : '일반 Firefly 스타일'}
+                {compareLeft === 'custom' ? '브랜드 톤에 더 가깝습니다' : '일반 Firefly 스타일'}
               </Text>
             </div>
             <div style={f({ flexDirection: 'column', gap: 8, flex: 1, minWidth: 200 })}>
@@ -299,7 +299,7 @@ export default function BrandCustomModel() {
                 <SampleAssetImage filename={ASSETS[0].name} />
               </div>
               <Text UNSAFE_style={{ fontSize: 12, color: CM.textMuted, textAlign: 'center' }}>
-                {compareRight === 'custom' ? '브랜드 톤에 더 근접 (목업)' : '일반 Firefly 스타일'}
+                {compareRight === 'custom' ? '브랜드 톤에 더 가깝습니다' : '일반 Firefly 스타일'}
               </Text>
             </div>
           </div>

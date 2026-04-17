@@ -405,7 +405,10 @@ export default function Search() {
 
   return (
     <>
-      <PageHeader title="검색 & 탐색" description="F-1 고급 검색: 비주얼·색상·시맨틱·복합 필터·다국어·중복·텍소노미 (목 데이터)" />
+      <PageHeader
+        title="검색 & 탐색"
+        description="비주얼·색상·의미 기반 검색과 복합 필터로 에셋을 찾고, 다국어 변형·중복 정리·분류 탐색까지 한 화면에서 처리합니다."
+      />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
           {TABS.map((tab, i) =>
@@ -425,7 +428,7 @@ export default function Search() {
           <div style={card}>
             <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', display: 'block', marginBottom: 8 }}>참조 이미지</Text>
             <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', marginBottom: 12 }}>
-              드래그&드롭 또는 샘플 선택 후 유사도 임계값을 조절합니다 (mock: 임베딩 대신 버킷·캠페인 기반 점수).
+              참조 이미지를 드래그하여 넣거나 샘플을 고른 뒤 유사도 하한을 조절합니다. 유사도는 콘텐츠 특성과 캠페인 메타데이터를 반영해 계산됩니다.
             </Text>
             <div
               onDragOver={e => {
@@ -541,7 +544,7 @@ export default function Search() {
           <div style={card}>
             <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', display: 'block', marginBottom: 8 }}>다국어 유사 에셋 그룹</Text>
             <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, lineHeight: 1.5 }}>
-              동일 캠페인·그룹 ID로 묶인 언어별 변형입니다. 완성도는 mock 상태 배지로 표시합니다.
+              동일 캠페인·그룹으로 묶인 언어별 변형입니다. 현지화·검수 상태는 배지로 구분합니다.
             </Text>
             {[...langGroups.entries()].map(([gid, items]) => (
               <div key={gid} style={{ marginTop: 16, padding: 12, borderRadius: 8, border: `1px solid ${CM.cardBorder}` }}>
@@ -572,7 +575,7 @@ export default function Search() {
           <div style={card}>
             <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', display: 'block', marginBottom: 8 }}>중복·유사 에셋 그룹</Text>
             <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 12 }}>
-              그룹당 보존할 에셋을 선택합니다 (mock). 정리 실행·리포트는 추후 연동.
+              그룹에서 유지할 대표 에셋을 선택합니다. 정리 작업 실행과 감사 리포트는 승인 워크플로와 연결할 수 있습니다.
             </Text>
             {[...dupGroups.entries()].map(([gid, items]) => (
               <div key={gid} style={{ marginTop: 12, padding: 12, borderRadius: 8, backgroundColor: CM.breadcrumbBg }}>

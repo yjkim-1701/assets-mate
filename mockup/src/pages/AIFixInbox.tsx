@@ -39,21 +39,6 @@ function filterTabTone(key: string): MutedTone {
   return m[key] ?? 'neutral';
 }
 
-/** 기본 뱃지형 탭 대비 ~1.3배 (패딩·글자·모서리) */
-const filterTabBase: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 8,
-  padding: '4px 11px',
-  fontSize: 16,
-  fontWeight: 600,
-  lineHeight: 1.25,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-  boxSizing: 'border-box' as const,
-};
-
 function StatusBadge({ status }: { status: FixStatus }) {
   const tone: Record<FixStatus, 'warning' | 'success' | 'danger' | 'info'> = {
     pending: 'warning',
@@ -83,30 +68,33 @@ export default function AIFixInbox() {
 
   return (
     <>
-      <PageHeader title="AI Creative Inbox" />
+      <PageHeader
+        title="AI Creative Inbox"
+        description="브랜드 가이드에 맞춰 자동 보정된 결과를 검토하고, 승인·반려·수정 요청을 처리합니다."
+      />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <div style={f({ gap: 10, alignItems: 'center' })}>
+        <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
           {STATUS_TABS.map(tab => {
             const count = tab.key === 'all' ? AI_FIX_INBOX.length : AI_FIX_INBOX.filter(f => f.status === tab.key).length;
             const isActive = activeFilter === tab.key;
             const tone = filterTabTone(tab.key);
             const t = BADGE_TOKENS[tone];
             return (
-              <button
+              <Button
                 key={tab.key}
-                type="button"
-                onClick={() => setActiveFilter(tab.key)}
-                style={{
-                  ...filterTabBase,
-                  border: `1px solid ${t.border}`,
+                size="S"
+                variant="secondary"
+                onPress={() => setActiveFilter(tab.key)}
+                UNSAFE_style={{
                   backgroundColor: t.bg,
+                  border: `1px solid ${t.border}`,
                   color: t.text,
                   fontWeight: isActive ? 700 : 600,
                   boxShadow: isActive ? `0 0 0 2px ${t.text}` : 'none',
                 }}
               >
                 {tab.label} ({count})
-              </button>
+              </Button>
             );
           })}
           <div style={{ flex: 1 }} />

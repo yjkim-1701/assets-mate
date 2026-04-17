@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from 'react';
-import { Text, ActionButton } from '@react-spectrum/s2';
+import { useState } from 'react';
+import { Text, ActionButton, Dialog, DialogContainer, Heading, Content, Button } from '@react-spectrum/s2';
 import { MutedBadge } from './MutedBadge';
 import Search from '@react-spectrum/s2/icons/Search';
 import HelpCircle from '@react-spectrum/s2/icons/HelpCircle';
@@ -12,9 +13,9 @@ import UserGroup from '@react-spectrum/s2/icons/UserGroup';
 import SocialNetwork from '@react-spectrum/s2/icons/SocialNetwork';
 import Export from '@react-spectrum/s2/icons/Export';
 import Settings from '@react-spectrum/s2/icons/Settings';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AdobeMark } from './AdobeMark';
-import { AI_FIX_INBOX } from '../data/mock';
+import { AI_FIX_INBOX, STATUS_LABELS, type FixStatus } from '../data/mock';
 
 /**
  * 레이아웃·카드 + 인라인 강조색 — 뱃지 레퍼런스와 동일하게 연한 배경 톤에 맞춘 글자색
@@ -181,7 +182,112 @@ function BreadcrumbBar() {
 
 const AI_INBOX_TOTAL_COUNT = AI_FIX_INBOX.length;
 
+const INBOX_SORT: Record<FixStatus, number> = {
+  pending: 0,
+  changes_requested: 1,
+  rejected: 2,
+  approved: 3,
+};
+
+function fixStatusTone(status: FixStatus): 'warning' | 'success' | 'danger' | 'info' {
+  const m: Record<FixStatus, 'warning' | 'success' | 'danger' | 'info'> = {
+    pending: 'warning',
+    approved: 'success',
+    rejected: 'danger',
+    changes_requested: 'info',
+  };
+  return m[status];
+}
+
+function inboxItemsSorted() {
+  return [...AI_FIX_INBOX].sort((a, b) => INBOX_SORT[a.status] - INBOX_SORT[b.status]);
+}
+
+/** 알림 다이얼로그 본문 — `onDismiss`로 DialogContainer·닫기 버튼과 연동 */
+function InboxNotificationDialogBody({ onDismiss }: { onDismiss: () => void }) {
+  const navigate = useNavigate();
+  const items = inboxItemsSorted();
+
+  return (
+    <Content>
+      <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary, display: 'block', marginBottom: 12 }}>
+        검토가 필요한 AI 보정 항목입니다. 항목을 누르면 상세로 이동합니다.
+      </Text>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0,
+          maxHeight: 380,
+          overflowY: 'auto',
+          borderRadius: 8,
+          border: `1px solid ${CM.cardBorder}`,
+          backgroundColor: CM.breadcrumbBg,
+        }}
+      >
+        {items.length === 0 ? (
+          <div style={{ padding: 20, textAlign: 'center' }}>
+            <Text UNSAFE_style={{ fontSize: 13, color: CM.textMuted }}>표시할 Inbox 항목이 없습니다.</Text>
+          </div>
+        ) : (
+          items.map((row, i) => (
+            <button
+              key={row.id}
+              type="button"
+              onClick={() => {
+                onDismiss();
+                navigate(`/ai/inbox/${row.id}`);
+              }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: 6,
+                padding: '12px 14px',
+                border: 'none',
+                borderBottom: i < items.length - 1 ? `1px solid ${CM.cardBorder}` : 'none',
+                background: CM.panelBg,
+                cursor: 'pointer',
+                textAlign: 'left',
+                width: '100%',
+                boxSizing: 'border-box',
+                font: 'inherit',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', minWidth: 0 }}>
+                <Text UNSAFE_style={{ fontSize: 14, fontWeight: 700, color: CM.text, flex: 1, minWidth: 0 }}>{row.assetName}</Text>
+                <MutedBadge tone={fixStatusTone(row.status)} size="S">
+                  {STATUS_LABELS[row.status]}
+                </MutedBadge>
+              </div>
+              <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>
+                요청자 {row.requester} · {row.requestedAt}
+              </Text>
+            </button>
+          ))
+        )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16, gap: 8 }}>
+        <Button variant="secondary" onPress={() => onDismiss()}>
+          닫기
+        </Button>
+        <Button
+          variant="accent"
+          onPress={() => {
+            onDismiss();
+            navigate('/ai/inbox');
+          }}
+        >
+          Inbox 전체 보기
+        </Button>
+      </div>
+    </Content>
+  );
+}
+
 function TopChrome() {
+  const [inboxDialogOpen, setInboxDialogOpen] = useState(false);
+
   return (
     <header
       style={{
@@ -216,7 +322,7 @@ function TopChrome() {
             whiteSpace: 'nowrap',
           }}
         >
-          Asset Mate
+          Assets Mate
         </span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, marginLeft: 'auto' }}>
@@ -226,48 +332,61 @@ function TopChrome() {
         <ActionButton isQuiet aria-label="도움말">
           <HelpCircle />
         </ActionButton>
-        <div
-          style={{
-            position: 'relative',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+        <ActionButton
+          isQuiet
+          aria-label={AI_INBOX_TOTAL_COUNT > 0 ? `알림, AI Creative Inbox ${AI_INBOX_TOTAL_COUNT}건` : '알림'}
+          onPress={() => setInboxDialogOpen(true)}
         >
-          <ActionButton
-            isQuiet
-            aria-label={AI_INBOX_TOTAL_COUNT > 0 ? `알림, AI Creative Inbox ${AI_INBOX_TOTAL_COUNT}건` : '알림'}
+          <span
+            style={{
+              position: 'relative',
+              display: 'inline-flex',
+              width: 22,
+              height: 22,
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
           >
             <Bell />
-          </ActionButton>
-          {AI_INBOX_TOTAL_COUNT > 0 && (
-            <span
-              aria-hidden
-              style={{
-                position: 'absolute',
-                top: 4,
-                right: 4,
-                minWidth: 18,
-                height: 18,
-                padding: '0 5px',
-                boxSizing: 'border-box',
-                borderRadius: 999,
-                backgroundColor: '#DC2626',
-                color: '#ffffff',
-                fontSize: 10,
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: 1,
-                pointerEvents: 'none',
-                border: `2px solid ${CM.chromeBg}`,
-              }}
-            >
-              {AI_INBOX_TOTAL_COUNT > 99 ? '99+' : AI_INBOX_TOTAL_COUNT}
-            </span>
-          )}
-        </div>
+            {AI_INBOX_TOTAL_COUNT > 0 && (
+              <span
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  top: -5,
+                  right: -7,
+                  minWidth: 16,
+                  height: 16,
+                  padding: AI_INBOX_TOTAL_COUNT > 9 ? '0 4px' : '0',
+                  boxSizing: 'border-box',
+                  borderRadius: 999,
+                  backgroundColor: '#DC2626',
+                  color: '#ffffff',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: 1,
+                  pointerEvents: 'none',
+                  border: `2px solid ${CM.chromeBg}`,
+                  boxShadow: '0 0 0 1px rgba(0,0,0,0.06)',
+                }}
+              >
+                {AI_INBOX_TOTAL_COUNT > 99 ? '99+' : AI_INBOX_TOTAL_COUNT}
+              </span>
+            )}
+          </span>
+        </ActionButton>
+        <DialogContainer onDismiss={() => setInboxDialogOpen(false)}>
+          {inboxDialogOpen ? (
+            <Dialog size="M" isDismissible>
+              <Heading>AI Creative Inbox</Heading>
+              <InboxNotificationDialogBody onDismiss={() => setInboxDialogOpen(false)} />
+            </Dialog>
+          ) : null}
+        </DialogContainer>
         <div style={{ width: 1, height: 24, background: CM.chromeBorder, margin: '0 4px' }} />
         <ActionButton isQuiet size="S">
           Feedback

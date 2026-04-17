@@ -64,7 +64,7 @@ export function GenerativeExpandPanel({ assetFilename }: { assetFilename: string
   return (
     <div style={f({ flexDirection: 'column', gap: 16 })}>
       <Text UNSAFE_style={{ fontSize: 14, color: CM.textSecondary, lineHeight: 1.5 }}>
-        1:1 등 원본 비율에서 세로·가로 타깃으로 맞출 때 부족한 영역을 AI로 확장합니다. 원본 영역은 테두리로 구분합니다 (목업).
+        1:1 등 원본 비율에서 세로·가로 타깃으로 맞출 때 부족한 영역을 AI로 확장합니다. 원본 영역은 테두리로 구분합니다.
       </Text>
 
       <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
@@ -98,7 +98,7 @@ export function GenerativeExpandPanel({ assetFilename }: { assetFilename: string
       </AccentButton>
       {loading && (
         <div>
-          <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 8 }}>Expand Image API 처리 중… (목업)</Text>
+          <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 8 }}>Expand Image API 처리 중…</Text>
           <ProgressBar value={progress} />
         </div>
       )}

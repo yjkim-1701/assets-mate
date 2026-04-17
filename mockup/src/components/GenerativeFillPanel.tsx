@@ -81,7 +81,7 @@ export function GenerativeFillPanel({
   return (
     <div style={f({ flexDirection: 'column', gap: 16 })}>
       <Text UNSAFE_style={{ fontSize: 14, color: CM.textSecondary, lineHeight: 1.5 }}>
-        마스킹 영역을 지정한 뒤 제거(인페인트) 또는 프롬프트 교체 모드를 선택합니다. Fill API 연동 전 목업으로 후보 4종을 표시합니다.
+        마스킹 영역을 지정한 뒤 제거(인페인트) 또는 프롬프트 교체를 선택합니다. 처리가 완료되면 후보를 최대 네 가지로 비교할 수 있습니다.
       </Text>
 
       <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
@@ -98,7 +98,7 @@ export function GenerativeFillPanel({
           </Button>
         ))}
         <Button variant="secondary" size="S" onPress={() => { setMaskActive(true); setCandidates(null); setPicked(null); }}>
-          데모 마스크 적용
+          샘플 마스크 적용
         </Button>
         {maskActive && <MutedBadge tone="success" size="S">영역 지정됨</MutedBadge>}
       </div>
@@ -164,7 +164,7 @@ export function GenerativeFillPanel({
                   borderRadius: 6,
                 }}
               >
-                {tool === 'brush' ? '브러시' : tool === 'lasso' ? '올가미' : '사각'} 마스크 (목업)
+                {tool === 'brush' ? '브러시' : tool === 'lasso' ? '올가미' : '사각'} 마스크
               </div>
             )}
           </div>
@@ -184,7 +184,7 @@ export function GenerativeFillPanel({
           </AccentButton>
           {loading && (
             <div>
-              <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 8 }}>Fill Image API 처리 중… (목업)</Text>
+              <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 8 }}>Fill Image API 처리 중…</Text>
               <ProgressBar value={progress} />
             </div>
           )}

@@ -66,7 +66,7 @@ export default function BrandDashboard() {
               backgroundColor: CM.panelBg,
             }}
           >
-            템플릿 잠금 영역 (F-2.4) →
+            템플릿 잠금 영역 →
           </Link>
           <Link
             to="/brand/forbidden"
@@ -81,7 +81,7 @@ export default function BrandDashboard() {
               backgroundColor: CM.panelBg,
             }}
           >
-            금지 에셋 관리 (F-2.6) →
+            금지 에셋 관리 →
           </Link>
         </div>
         <div style={card}>

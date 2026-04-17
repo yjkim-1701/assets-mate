@@ -30,11 +30,11 @@ const card: React.CSSProperties = {
 };
 
 const TABS = [
-  { id: 'F-4.1', label: '에셋 공유 포털' },
-  { id: 'F-4.2', label: '리뷰 & 피드백' },
-  { id: 'F-4.3', label: '버전 비교' },
-  { id: 'F-4.4', label: '캠페인 워크스페이스' },
-  { id: 'F-4.5', label: '승인 대시보드' },
+  { id: 'share', label: '에셋 공유 포털' },
+  { id: 'review', label: '리뷰 & 피드백' },
+  { id: 'compare', label: '버전 비교' },
+  { id: 'workspace', label: '캠페인 워크스페이스' },
+  { id: 'approval', label: '승인 대시보드' },
 ] as const;
 
 const REVIEWS = [
@@ -115,7 +115,7 @@ export default function Collaboration() {
 
   const generateShareLink = () => {
     const token = Math.random().toString(36).slice(2, 11);
-    setGeneratedLink(`https://share.asset-mate.mock/p/${token}`);
+    setGeneratedLink(`https://share.asset-mate.app/p/${token}`);
   };
 
   const toggleCommentResolved = (id: string) => {
@@ -168,7 +168,7 @@ export default function Collaboration() {
     <>
       <PageHeader
         title="협업 & 승인"
-        description="F-4.1~F-4.5: 공유 포털·리뷰·버전 비교·캠페인 워크스페이스·승인 대시보드 (목 데이터)"
+        description="외부 파트너 공유 링크, 리뷰·버전 비교, 캠페인 일정, 승인 칸반까지 협업 전 과정을 한곳에서 관리합니다."
       />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
@@ -185,7 +185,7 @@ export default function Collaboration() {
           )}
         </div>
 
-        {/* F-4.1 에셋 공유 포털 */}
+        {/* 에셋 공유 포털 */}
         {activeTab === 0 && (
           <div style={f({ flexDirection: 'column', gap: 16 })}>
             <div style={{ ...card, cursor: 'default' }}>
@@ -193,7 +193,7 @@ export default function Collaboration() {
                 공유 패키지 구성
               </Text>
               <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', marginBottom: 12 }}>
-                에셋을 선택한 뒤 만료일·다운로드 한도·선택적 비밀번호로 공개 링크를 생성합니다. 에이전시는 AEM 계정 없이 링크로 미리보기·다운로드할 수 있습니다 (목업).
+                에셋을 선택한 뒤 만료일·다운로드 한도·선택적 비밀번호로 공개 링크를 생성합니다. 외부 협력자는 조직 계정 없이 링크로 미리보기와 다운로드를 할 수 있습니다.
               </Text>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8, marginBottom: 16 }}>
                 {ASSETS.slice(0, 8).map(a => (
@@ -294,7 +294,7 @@ export default function Collaboration() {
           </div>
         )}
 
-        {/* F-4.2 리뷰/피드백 루프 */}
+        {/* 리뷰·피드백 */}
         {activeTab === 1 && (
           <div style={f({ flexDirection: 'column', gap: 16 })}>
             <div style={f({ gap: 8, flexWrap: 'wrap' })}>
@@ -408,7 +408,7 @@ export default function Collaboration() {
                     ))}
                   </div>
                   <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 8, display: 'block' }}>
-                    포인트별 스레드 — 해결 여부를 전환할 수 있습니다 (목업).
+                    마크업 포인트별 스레드에서 논의하고, 해결 여부를 전환할 수 있습니다.
                   </Text>
                   <div style={f({ flexDirection: 'column', gap: 10 })}>
                     {threadComments.map(c => (
@@ -441,7 +441,7 @@ export default function Collaboration() {
           </div>
         )}
 
-        {/* F-4.3 버전 비교 */}
+        {/* 버전 비교 */}
         {activeTab === 2 && (
           <div style={f({ flexDirection: 'column', gap: 16 })}>
             <div style={f({ gap: 12, flexWrap: 'wrap', alignItems: 'center' })}>
@@ -535,7 +535,7 @@ export default function Collaboration() {
                               backgroundColor: 'rgba(251, 191, 36, 0.15)',
                               pointerEvents: 'none',
                             }}
-                            title="변경 영역 (mock 하이라이트)"
+                            title="변경 영역 하이라이트"
                           />
                         </div>
                       </div>
@@ -562,7 +562,7 @@ export default function Collaboration() {
                 ) : (
                   <div style={f({ flexDirection: 'column', gap: 8, alignItems: 'stretch' })}>
                     <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>
-                      슬라이더로 위 레이어를 드러내 비교합니다 (동일 목 이미지 데모).
+                      슬라이더로 겹친 레이어를 드러내 이전 버전과 비교합니다.
                     </Text>
                     <div
                       style={{
@@ -638,7 +638,7 @@ export default function Collaboration() {
           </div>
         )}
 
-        {/* F-4.4 캠페인 워크스페이스 */}
+        {/* 캠페인 워크스페이스 */}
         {activeTab === 3 && (
           <div style={f({ flexDirection: 'column', gap: 16 })}>
             {CAMPAIGNS.map(c => {
@@ -728,7 +728,7 @@ export default function Collaboration() {
           </div>
         )}
 
-        {/* F-4.5 승인 상태 대시보드 */}
+        {/* 승인 상태 대시보드 */}
         {activeTab === 4 && (
           <div style={f({ flexDirection: 'column', gap: 16 })}>
             <div style={f({ gap: 12, flexWrap: 'wrap', alignItems: 'center' })}>

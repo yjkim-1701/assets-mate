@@ -30,10 +30,10 @@ const card: React.CSSProperties = {
 };
 
 const TABS = [
-  { id: 'F-5.1', label: '리사이즈' },
-  { id: 'F-5.4', label: '소셜 캘린더' },
-  { id: 'F-5.5', label: '다채널 배포' },
-  { id: 'F-5.6', label: '배포 이력' },
+  { id: 'resize', label: '리사이즈' },
+  { id: 'calendar', label: '소셜 캘린더' },
+  { id: 'multi-channel', label: '다채널 배포' },
+  { id: 'history', label: '배포 이력' },
 ] as const;
 
 const glyphWrap: React.CSSProperties = {
@@ -146,7 +146,7 @@ export default function SocialResize() {
           ? '#SummerHero #브랜드'
           : ch.id.startsWith('yt')
             ? '여름 캠페인 티저 — 링크 인 바이오'
-            : `${ch.name}용 카피 (목업)`;
+            : `${ch.name}용 캡션`;
     }
     return o;
   });
@@ -313,7 +313,7 @@ export default function SocialResize() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'deploy-history-mock.csv';
+    a.download = 'deploy-history-export.csv';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -324,7 +324,7 @@ export default function SocialResize() {
     <>
       <PageHeader
         title="소셜 미디어"
-        description="리사이즈(F-5.1~5.3)·캘린더·다채널 배포·배포 이력 (목 데이터)"
+        description="채널별 비율에 맞춰 리사이즈하고, 게시 일정·다채널 배포·배포 이력을 한 화면에서 다룹니다."
       />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
@@ -391,7 +391,7 @@ export default function SocialResize() {
                 {needsExpandAny && (
                   <InlineAlert variant="informative">
                     <Text>
-                      선택한 채널 중 세로 비율(예: 9:16)이 원본과 달라 잘림이 예상됩니다. AI Expand로 상·하·좌·우를 채울 수 있습니다 (목업).
+                      선택한 채널 중 세로 비율(예: 9:16)이 원본과 달라 잘림이 예상됩니다. Generative Expand로 상·하·좌·우 영역을 채울 수 있습니다.
                     </Text>
                   </InlineAlert>
                 )}
@@ -399,7 +399,7 @@ export default function SocialResize() {
                 {needsExpandAny && (
                   <div style={card}>
                     <Text UNSAFE_style={{ fontSize: 15, fontWeight: 'bold', display: 'block', marginBottom: 10 }}>
-                      Generative Expand (F-3.4) — 타깃 프리셋에 맞춤
+                      Generative Expand — 타깃 프리셋에 맞춤
                     </Text>
                     <TextField label="확장 영역 프롬프트" value={expandPrompt} onChange={setExpandPrompt} />
                     <div style={{ marginTop: 12 }}>
@@ -409,13 +409,13 @@ export default function SocialResize() {
                     </div>
                     {expandBusy && (
                       <div style={{ marginTop: 12 }}>
-                        <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 6 }}>Expand Image API… (목업)</Text>
+                        <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, marginBottom: 6 }}>Expand Image API 연결 중…</Text>
                         <ProgressBar value={expandProgress} />
                       </div>
                     )}
                     {expandApplied && (
                       <Text UNSAFE_style={{ fontSize: 12, color: CM.success, marginTop: 10, display: 'block', fontWeight: 600 }}>
-                        적용됨: 세로 프리뷰에 확장 영역이 반영되었습니다 (시각적 목업).
+                        적용됨: 세로 프리뷰에 확장 영역이 반영되었습니다.
                       </Text>
                     )}
                   </div>
@@ -511,7 +511,7 @@ export default function SocialResize() {
                 일간
               </Button>
               <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary, marginLeft: 8 }}>
-                드래그하여 다른 날짜로 일정을 옮길 수 있습니다 (목업).
+                드래그하여 다른 날짜로 일정을 옮길 수 있습니다.
               </Text>
             </div>
 
@@ -813,8 +813,8 @@ export default function SocialResize() {
                   <InlineAlert variant={deployFailedCh ? 'notice' : 'positive'}>
                     <Text>
                       {deployFailedCh
-                        ? `일부 채널 실패: ${SOCIAL_CHANNELS.find(c => c.id === deployFailedCh)?.name}. 재시도할 수 있습니다 (목업).`
-                        : '모든 채널에 배포가 완료되었습니다 (목업).'}
+                        ? `일부 채널 실패: ${SOCIAL_CHANNELS.find(c => c.id === deployFailedCh)?.name}. 재시도할 수 있습니다.`
+                        : '모든 채널에 배포가 완료되었습니다.'}
                     </Text>
                   </InlineAlert>
                 </div>

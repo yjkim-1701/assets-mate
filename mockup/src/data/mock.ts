@@ -204,6 +204,46 @@ export const ASSETS: Asset[] = [
   },
 ];
 
+/** F-0.2 에셋 상세 — 라이선스 목업 */
+export type AssetLicenseInfo = {
+  licenseType: string;
+  expires: string;
+  terms: string;
+};
+
+const ASSET_LICENSE_BY_ID: Record<string, AssetLicenseInfo> = {
+  a1: {
+    licenseType: 'Rights Managed · 캠페인 전용',
+    expires: '2027-12-31',
+    terms: '지정 캠페인·채널 게시, 3자 재판매·템플릿 외 사용 금지',
+  },
+  a2: {
+    licenseType: '에이전시 제작 (Client)',
+    expires: '2026-09-30',
+    terms: '2026 Summer 캠페인 기간 한정, 리타게팅 광고 허용',
+  },
+  a3: {
+    licenseType: '내부 스톡',
+    expires: '제한 없음',
+    terms: '브랜드 검수 후 게시, 파생 작업 시 재승인',
+  },
+  a5: {
+    licenseType: '뉴스레터 전용',
+    expires: '2026-06-30',
+    terms: '이메일·링크드인만, 인쇄물 별도 문의',
+  },
+};
+
+export function getAssetLicense(assetId: string): AssetLicenseInfo {
+  return (
+    ASSET_LICENSE_BY_ID[assetId] ?? {
+      licenseType: '사내 표준 (RF)',
+      expires: '제한 없음',
+      terms: '내부·디지털 마케팅 사용, 무단 2차 가공 시 재검수',
+    }
+  );
+}
+
 export const CAMPAIGNS = [
   {
     id: 'c1',

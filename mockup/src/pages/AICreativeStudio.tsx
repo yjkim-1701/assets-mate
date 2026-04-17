@@ -242,7 +242,7 @@ export default function AICreativeStudio() {
                 </option>
               ))}
             </select>
-            <MutedBadge tone="neutral" size="S">F-3.5</MutedBadge>
+            <MutedBadge tone="neutral" size="S">브랜드 맞춤 모델</MutedBadge>
           </div>
           <Link
             to="/ai/custom-models"
@@ -375,7 +375,7 @@ export default function AICreativeStudio() {
               {loading && (
                 <div style={{ marginTop: 16 }}>
                   <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
-                    Firefly Instruct Edit 처리 중… (목 응답 {MOCK_AI_MS / 1000}초 · 명세 기준 10초 이내)
+                    Firefly Instruct Edit 처리 중… (예상 {MOCK_AI_MS / 1000}초 · 서비스 기준 10초 이내)
                   </Text>
                   <ProgressBar value={progress} />
                 </div>
@@ -500,7 +500,7 @@ export default function AICreativeStudio() {
         {activeTab === 1 && (
           <div style={card}>
             <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold', display: 'block', marginBottom: 12 }}>
-              Generative Fill (F-3.3)
+              Generative Fill
             </Text>
             <GenerativeFillPanel assetFilename={ASSET_FILENAME} studioModelId={studioModelId} />
           </div>
@@ -509,7 +509,7 @@ export default function AICreativeStudio() {
         {activeTab === 2 && (
           <div style={card}>
             <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold', display: 'block', marginBottom: 12 }}>
-              Generative Expand (F-3.4)
+              Generative Expand
             </Text>
             <GenerativeExpandPanel assetFilename={ASSET_FILENAME} />
             <div style={f({ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${CM.cardBorder}` })}>
@@ -517,7 +517,7 @@ export default function AICreativeStudio() {
                 소셜 리사이즈에서 채널 프리셋에 맞춰 동일한 Expand를 적용하려면 아래로 이동하세요.
               </Text>
               <Button variant="secondary" onPress={() => navigate('/social/resize')}>
-                소셜 리사이즈 (T5 연계)
+                소셜 리사이즈에서 동일 설정 적용
               </Button>
             </div>
           </div>

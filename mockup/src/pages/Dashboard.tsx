@@ -103,7 +103,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <PageHeader title="대시보드" description="Asset Mate에서 에셋 검색부터 배포까지 한 곳에서 관리합니다." />
+      <PageHeader title="대시보드" description="Assets Mate에서 에셋 검색부터 배포까지 한 곳에서 관리합니다." />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div>
           <Text UNSAFE_style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.05em', color: CM.textSecondary, display: 'block', marginBottom: 12 }}>
