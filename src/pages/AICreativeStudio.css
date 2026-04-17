@@ -1,0 +1,33 @@
+/* 12-column row: 비교 10 / 편집 이력 2 */
+.aiCreativeCompareGrid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.aiCreativeCompareMain {
+  grid-column: span 10;
+  display: flex;
+  gap: 21px;
+  align-items: stretch;
+  min-width: 0;
+  width: 100%;
+}
+
+.aiCreativeCompareHistory {
+  grid-column: span 2;
+  min-width: 0;
+}
+
+@media (max-width: 960px) {
+  .aiCreativeCompareGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aiCreativeCompareMain,
+  .aiCreativeCompareHistory {
+    grid-column: 1 / -1;
+  }
+}

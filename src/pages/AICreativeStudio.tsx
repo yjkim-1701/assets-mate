@@ -10,6 +10,7 @@ import { BRAND_CUSTOM_MODELS } from '../data/mock';
 import { SampleAssetImage } from '../components/SampleAssetImage';
 import { GenerativeFillPanel } from '../components/GenerativeFillPanel';
 import { GenerativeExpandPanel } from '../components/GenerativeExpandPanel';
+import './AICreativeStudio.css';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
 const card: React.CSSProperties = {
@@ -19,20 +20,24 @@ const card: React.CSSProperties = {
   border: `1px solid ${CM.cardBorder}`,
   boxShadow: CM.cardShadow,
 };
-/** AIFixApproval 비교 행과 동일 너비·이미지 높이 */
+/** 비교 + 편집 이력 행 — 상위에서 12컬럼 그리드(10+2)로 배치 */
 const compareRowWrap: React.CSSProperties = {
-  width: 'min(1082px, 92vw)',
-  marginLeft: 'auto',
-  marginRight: 'auto',
+  width: '100%',
+  maxWidth: '100%',
 };
 const imageBox: React.CSSProperties = {
   flex: 1,
-  height: 270,
+  width: '100%',
+  minWidth: 0,
+  minHeight: 200,
+  aspectRatio: '16 / 10',
+  maxHeight: 'min(52vh, 520px)',
   backgroundColor: CM.surfacePlaceholder,
   borderRadius: 12,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  overflow: 'hidden',
 };
 
 const ASSET_FILENAME = 'product_shot_01.jpg';
@@ -165,6 +170,8 @@ export default function AICreativeStudio() {
     () => readyModels.find(m => m.isDefault)?.id ?? readyModels[0]?.id ?? ''
   );
   const [promptRunError, setPromptRunError] = useState<string | null>(null);
+  /** AI 편집 실행(진행 바) 완료 직후에만 가드레일 완료 메시지 표시 */
+  const [showPostRunGuardrailMessage, setShowPostRunGuardrailMessage] = useState(false);
 
   /** 명령 필드(prompt)가 우선 — 우측 이력 패널「이 이미지로 교체」만 한 경우에도 가드레일이 같은 문장을 본다 */
   const latestGuardrail = useMemo(() => {
@@ -188,6 +195,8 @@ export default function AICreativeStudio() {
   );
   /** 편집 프리뷰가 원본이 아닐 때만 완료 가능 */
   const canFinalComplete = !loading && previewHasImage && previewIsEditedLook;
+  /** 세션에 편집 단계가 있고(원본만 남은 초기화 상태 제외), 처리 완료 후에만 노출 */
+  const showFinalCompleteButton = hasEdits && canFinalComplete;
 
   /** AI 생성 이력으로 교체한 경우 — 프리뷰 하단에 이력 번호·프롬프트만 표시 */
   const previewOverrideDescription = useMemo(() => {
@@ -229,6 +238,7 @@ export default function AICreativeStudio() {
       return;
     }
     setPromptRunError(null);
+    setShowPostRunGuardrailMessage(false);
     setHistoryPreviewOverrideFile(null);
     setPreviewReplaceRevision(0);
     setLoading(true);
@@ -257,6 +267,7 @@ export default function AICreativeStudio() {
       setActiveStepIndex(labelIndex);
       setProgress(100);
       setLoading(false);
+      setShowPostRunGuardrailMessage(true);
     }, MOCK_AI_MS);
   };
 
@@ -266,6 +277,7 @@ export default function AICreativeStudio() {
     setHistory(prev => {
       if (prev.length <= 1) return prev;
       const next = prev.slice(0, -1);
+      if (next.length <= 1) setShowPostRunGuardrailMessage(false);
       setActiveStepIndex(idx => Math.min(idx, next.length - 1));
       return next;
     });
@@ -337,10 +349,11 @@ export default function AICreativeStudio() {
         {activeTab === 0 && (
           <>
             <div style={compareRowWrap}>
-              <div style={f({ gap: 21, alignItems: 'flex-start' })}>
-              <div style={f({ flexDirection: 'column', gap: 8, flex: '1 1 0', minWidth: 0 })}>
+              <div className="aiCreativeCompareGrid">
+              <div className="aiCreativeCompareMain">
+              <div style={f({ flexDirection: 'column', gap: 8, flex: '1 1 0', minWidth: 0, width: '100%' })}>
                 <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center' }}>원본</Text>
-                <div style={{ ...imageBox, padding: 0, overflow: 'hidden' }}>
+                <div style={{ ...imageBox, padding: 0 }}>
                   <SampleAssetImage filename={ASSET_FILENAME} />
                 </div>
                 <div style={f({ justifyContent: 'center', width: '100%' })}>
@@ -349,7 +362,7 @@ export default function AICreativeStudio() {
                   </Button>
                 </div>
               </div>
-              <div style={f({ flexDirection: 'column', gap: 8, flex: '1 1 0', minWidth: 0 })}>
+              <div style={f({ flexDirection: 'column', gap: 8, flex: '1 1 0', minWidth: 0, width: '100%' })}>
                 <div style={f({ justifyContent: 'center', gap: 8, alignItems: 'center', flexWrap: 'wrap' })}>
                   <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold' }}>편집 프리뷰</Text>
                   {previewIsEditedLook && (
@@ -401,104 +414,11 @@ export default function AICreativeStudio() {
                 )}
               </div>
               </div>
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 20,
-                alignItems: 'stretch',
-              }}
-            >
-              <div style={{ ...card, flex: '1 1 400px', minWidth: 0 }}>
-                <div style={{ width: '100%' }}>
-                  <TextArea
-                    label="편집 명령 (자연어)"
-                    value={prompt}
-                    onChange={v => {
-                      setPrompt(v);
-                      setPromptRunError(null);
-                    }}
-                    description="한국어 또는 영어로 원하는 변경을 입력하세요. 아래 템플릿을 누를 때마다 문장이 이어 붙습니다(색상·배경·오브젝트 등 여러 항목을 조합할 수 있습니다). 우측「편집 이력」에서「이 이미지로 교체」한 경우에도 이 필드에 같은 문장이 채워집니다."
-                  />
-                </div>
-
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                    gap: 16,
-                    marginTop: 14,
-                    alignItems: 'start',
-                  }}
-                >
-                  {PROMPT_TEMPLATE_GROUPS.map(group => (
-                    <div key={group.category}>
-                      <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
-                        {group.category}
-                      </Text>
-                      <div style={f({ gap: 8, flexWrap: 'wrap' })}>
-                        {group.items.map(({ label, text }) => (
-                          <Button
-                            key={`${group.category}-${label}`}
-                            variant="secondary"
-                            size="S"
-                            onPress={() => {
-                              setPrompt(p => mergePromptFragment(p, text));
-                              setPromptRunError(null);
-                            }}
-                          >
-                            {label}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ marginTop: 16 }}>
-                  {promptRunError && (
-                    <div style={{ marginBottom: 12 }}>
-                      <InlineAlert variant="negative">
-                        <Text>{promptRunError}</Text>
-                      </InlineAlert>
-                    </div>
-                  )}
-                  <div style={f({ justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
-                    <Button variant="secondary" isDisabled={history.length <= 1} onPress={undoLastEdit}>
-                      마지막 편집 취소
-                    </Button>
-                    <AccentButton isDisabled={loading} onPress={runInstructEdit}>
-                      <MagicWand />
-                      <Text>AI 편집 실행</Text>
-                    </AccentButton>
-                    <Button
-                      variant="accent"
-                      isDisabled={!canFinalComplete}
-                      onPress={() => navigate('/ai/inbox')}
-                      UNSAFE_className="s2-success-fill"
-                    >
-                      <Checkmark />
-                      <Text>최종 확인 및 완료</Text>
-                    </Button>
-                  </div>
-                  {loading && (
-                    <div style={{ marginTop: 16 }}>
-                      <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
-                        Firefly Instruct Edit 처리 중… (예상 {MOCK_AI_MS / 1000}초 · 서비스 기준 10초 이내)
-                      </Text>
-                      <ProgressBar value={progress} />
-                    </div>
-                  )}
-                </div>
-              </div>
 
               <div
+                className="aiCreativeCompareHistory"
                 style={{
                   ...card,
-                  flex: '1 1 280px',
-                  minWidth: 0,
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 12,
@@ -600,42 +520,148 @@ export default function AICreativeStudio() {
                 )}
               </div>
             </div>
+            </div>
 
-            {!loading && (hasEdits || prompt.trim()) && (
-              <>
-                {latestGuardrail.ok ? (
-                  <InlineAlert variant="positive">브랜드 가드레일: 현재 편집 명령 기준 가이드와 충돌이 감지되지 않았습니다.</InlineAlert>
-                ) : (
-                  <InlineAlert variant="notice">
-                    <Text UNSAFE_style={{ fontWeight: 700, display: 'block', marginBottom: 6 }}>브랜드 가드레일 경고</Text>
-                    <ul style={{ margin: 0, paddingLeft: 20 }}>
-                      {latestGuardrail.violations.map(v => (
-                        <li key={v}>
-                          <Text>{v}</Text>
-                        </li>
-                      ))}
-                    </ul>
-                  </InlineAlert>
-                )}
-              </>
-            )}
-
-            {hasEdits && !loading && (
-              <div style={f({ gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' })}>
-                <Button
-                  variant="secondary"
-                    onPress={() => {
-                      setHistory([ORIGINAL_STEP]);
-                      setActiveStepIndex(0);
-                      setHistoryPreviewOverrideFile(null);
-                      setPreviewReplaceRevision(0);
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 20,
+                alignItems: 'stretch',
+              }}
+            >
+              <div style={{ ...card, flex: '1 1 400px', minWidth: 0 }}>
+                <div style={{ width: '100%' }}>
+                  <TextArea
+                    label="편집 명령 (자연어)"
+                    value={prompt}
+                    onChange={v => {
+                      setPrompt(v);
+                      setPromptRunError(null);
                     }}
+                    description="한국어 또는 영어로 원하는 변경을 입력하세요. 아래 템플릿을 누를 때마다 문장이 이어 붙습니다(색상·배경·오브젝트 등 여러 항목을 조합할 수 있습니다). 우측「편집 이력」에서「이 이미지로 교체」한 경우에도 이 필드에 같은 문장이 채워집니다."
+                  />
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    gap: 16,
+                    marginTop: 14,
+                    alignItems: 'flex-start',
+                    width: '100%',
+                  }}
                 >
-                  처음(원본)으로 초기화
-                </Button>
-                <Button variant="secondary">다른 후보 보기</Button>
+                  {PROMPT_TEMPLATE_GROUPS.map(group => (
+                    <div key={group.category} style={{ flex: '0 1 auto', minWidth: 0, maxWidth: '100%' }}>
+                      <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
+                        {group.category}
+                      </Text>
+                      <div style={f({ gap: 8, flexWrap: 'wrap' })}>
+                        {group.items.map(({ label, text }) => (
+                          <Button
+                            key={`${group.category}-${label}`}
+                            variant="secondary"
+                            size="S"
+                            onPress={() => {
+                              setPrompt(p => mergePromptFragment(p, text));
+                              setPromptRunError(null);
+                            }}
+                          >
+                            {label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: 16 }}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(0, 1fr) auto',
+                      gap: 12,
+                      alignItems: 'start',
+                      width: '100%',
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
+                      {promptRunError && (
+                        <InlineAlert variant="negative" UNSAFE_style={{ padding: '10px 14px' }}>
+                          <Text>{promptRunError}</Text>
+                        </InlineAlert>
+                      )}
+                      {loading && (
+                        <div>
+                          <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
+                            Firefly Instruct Edit 처리 중… (예상 {MOCK_AI_MS / 1000}초 · 서비스 기준 10초 이내)
+                          </Text>
+                          <ProgressBar value={progress} />
+                        </div>
+                      )}
+                      {!loading && showPostRunGuardrailMessage && (
+                        <>
+                          {latestGuardrail.ok ? (
+                            <InlineAlert variant="positive" UNSAFE_style={{ padding: '10px 14px' }}>
+                              편집 처리가 완료되었습니다. 브랜드 가드레일: 현재 편집 명령 기준 가이드와 충돌이 감지되지 않았습니다.
+                            </InlineAlert>
+                          ) : (
+                            <InlineAlert variant="notice" UNSAFE_style={{ padding: '10px 14px' }}>
+                              <Text UNSAFE_style={{ fontWeight: 700, display: 'block', marginBottom: 4 }}>
+                                편집 처리가 완료되었습니다. 브랜드 가드레일 경고
+                              </Text>
+                              <ul style={{ margin: 0, paddingLeft: 18 }}>
+                                {latestGuardrail.violations.map(v => (
+                                  <li key={v}>
+                                    <Text>{v}</Text>
+                                  </li>
+                                ))}
+                              </ul>
+                            </InlineAlert>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    <div style={f({ justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
+                      {hasEdits && !loading && (
+                        <Button
+                          variant="secondary"
+                          onPress={() => {
+                            setHistory([ORIGINAL_STEP]);
+                            setActiveStepIndex(0);
+                            setHistoryPreviewOverrideFile(null);
+                            setPreviewReplaceRevision(0);
+                            setShowPostRunGuardrailMessage(false);
+                          }}
+                        >
+                          처음(원본)으로 초기화
+                        </Button>
+                      )}
+                      <Button variant="secondary" isDisabled={history.length <= 1} onPress={undoLastEdit}>
+                        마지막 편집 취소
+                      </Button>
+                      <AccentButton isDisabled={loading} onPress={runInstructEdit}>
+                        <MagicWand />
+                        <Text>AI 편집 실행</Text>
+                      </AccentButton>
+                      {showFinalCompleteButton && (
+                        <Button
+                          variant="accent"
+                          onPress={() => navigate('/ai/inbox')}
+                          UNSAFE_className="s2-success-fill"
+                        >
+                          <Checkmark />
+                          <Text>최종 확인 및 완료</Text>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
 
             {lightbox && (
               <div
