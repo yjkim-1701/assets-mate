@@ -8,7 +8,7 @@ import Brand from '@react-spectrum/s2/icons/Brand';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import UserGroup from '@react-spectrum/s2/icons/UserGroup';
 import SocialNetwork from '@react-spectrum/s2/icons/SocialNetwork';
-import Export from '@react-spectrum/s2/icons/Export';
+import ImageBackgroundRemove from '@react-spectrum/s2/icons/ImageBackgroundRemove';
 import CheckmarkCircle from '@react-spectrum/s2/icons/CheckmarkCircle';
 import DevicePhone from '@react-spectrum/s2/icons/DevicePhone';
 import Send from '@react-spectrum/s2/icons/Send';
@@ -71,7 +71,7 @@ const MODULES: {
   {
     title: 'Asset Optimization',
     description: '포맷 변환·용량 최적화·배치 다운로드.',
-    Icon: Export,
+    Icon: ImageBackgroundRemove,
     to: '/optimize',
     accent: 'linear-gradient(135deg, #CFFAFE 0%, #ECFEFF 100%)',
   },

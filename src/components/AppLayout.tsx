@@ -11,7 +11,7 @@ import Brand from '@react-spectrum/s2/icons/Brand';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import UserGroup from '@react-spectrum/s2/icons/UserGroup';
 import SocialNetwork from '@react-spectrum/s2/icons/SocialNetwork';
-import Export from '@react-spectrum/s2/icons/Export';
+import ImageBackgroundRemove from '@react-spectrum/s2/icons/ImageBackgroundRemove';
 import Settings from '@react-spectrum/s2/icons/Settings';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AdobeMark } from './AdobeMark';
@@ -136,7 +136,7 @@ const NAV_WORKSPACE: NavItemProps[] = [
   { to: '/ai', Icon: MagicWand, label: 'AI Creative' },
   { to: '/collaboration', Icon: UserGroup, label: '캠페인 워크스페이스' },
   { to: '/social', Icon: SocialNetwork, label: '소셜 미디어' },
-  { to: '/optimize', Icon: Export, label: '에셋 최적화' },
+  { to: '/optimize', Icon: ImageBackgroundRemove, label: '에셋 최적화' },
 ];
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
