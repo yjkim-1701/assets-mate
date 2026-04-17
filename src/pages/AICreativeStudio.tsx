@@ -30,6 +30,8 @@ const imageBox: React.CSSProperties = {
 };
 
 const ASSET_FILENAME = 'campaign_summer_hero.jpg';
+/** Instruct Edit 완료 후 프리뷰·라이트박스에 표시하는 목업 결과 이미지 */
+const MOCK_PREVIEW_AFTER_FILENAME = 'campaign_summer_hero_after.png';
 const MOCK_AI_MS = 2800;
 
 const TABS = ['자연어 편집', 'Generative Fill', 'Generative Expand'];
@@ -82,14 +84,12 @@ type HistoryStep = {
   id: string;
   label: string;
   prompt: string;
-  previewStyle: React.CSSProperties;
 };
 
 const ORIGINAL_STEP: HistoryStep = {
   id: 'original',
   label: '원본',
   prompt: '',
-  previewStyle: {},
 };
 
 /** 템플릿 칩 클릭 시 기존 프롬프트에 문장을 이어 붙임 */
@@ -99,20 +99,6 @@ function mergePromptFragment(current: string, fragment: string): string {
   if (!b) return a;
   if (!a) return b;
   return `${a} ${b}`;
-}
-
-function mockPreviewStyleFromPrompt(prompt: string): React.CSSProperties {
-  const p = prompt.toLowerCase();
-  if (/따뜻|warm|sepia|빈티지/.test(p))
-    return { filter: 'saturate(1.14) sepia(0.14) hue-rotate(-6deg) contrast(1.03)' };
-  if (/차갑|cool|하늘|맑/.test(p)) return { filter: 'saturate(1.08) hue-rotate(10deg) brightness(1.04)' };
-  if (/채도|비비드|선명/.test(p)) return { filter: 'saturate(1.38) contrast(1.1)' };
-  if (/흐리|blur|배경을 흐리/.test(p)) return { filter: 'saturate(1.06) contrast(0.98) blur(0.4px)' };
-  if (/미니멀|프로|전문/.test(p)) return { filter: 'saturate(0.96) contrast(1.14) brightness(1.03)' };
-  if (/밝|활기/.test(p)) return { filter: 'brightness(1.09) saturate(1.12)' };
-  if (/어둡|무거운/.test(p)) return { filter: 'brightness(0.94) saturate(1.05)' };
-  if (/중앙|구도|크롭|여백/.test(p)) return { filter: 'saturate(1.1) contrast(1.05)' };
-  return { filter: 'saturate(1.12) hue-rotate(-8deg)' };
 }
 
 function evaluateBrandGuardrail(prompt: string): { ok: boolean; violations: string[] } {
@@ -143,6 +129,7 @@ export default function AICreativeStudio() {
   const [studioModelId, setStudioModelId] = useState(
     () => readyModels.find(m => m.isDefault)?.id ?? readyModels[0]?.id ?? ''
   );
+  const [promptRunError, setPromptRunError] = useState<string | null>(null);
 
   const latestGuardrail = useMemo(() => {
     const last = history[history.length - 1];
@@ -176,7 +163,12 @@ export default function AICreativeStudio() {
   }, [lightbox]);
 
   const runInstructEdit = () => {
-    if (!prompt.trim() || loading) return;
+    if (loading) return;
+    if (!prompt.trim()) {
+      setPromptRunError('편집 명령을 입력한 뒤 실행해 주세요. 아래 템플릿을 눌러 문장을 채울 수도 있습니다.');
+      return;
+    }
+    setPromptRunError(null);
     setLoading(true);
     setProgress(0);
     const start = Date.now();
@@ -195,7 +187,6 @@ export default function AICreativeStudio() {
         id: `step-${Date.now()}`,
         label: `${labelIndex}. ${prompt.length > 20 ? `${prompt.slice(0, 20)}…` : prompt}`,
         prompt: prompt.trim(),
-        previewStyle: mockPreviewStyleFromPrompt(prompt),
       };
       setHistory(prev => [...prev, newStep]);
       setActiveStepIndex(labelIndex);
@@ -302,7 +293,7 @@ export default function AICreativeStudio() {
                     <Text UNSAFE_style={{ color: CM.textSecondary, padding: 24, textAlign: 'center' }}>미리보기 생성 중…</Text>
                   ) : hasEdits && displayedStep.id !== 'original' ? (
                     <div style={{ width: '100%', height: '100%' }}>
-                      <SampleAssetImage filename={ASSET_FILENAME} style={displayedStep.previewStyle} />
+                      <SampleAssetImage filename={MOCK_PREVIEW_AFTER_FILENAME} alt="편집 프리뷰" />
                     </div>
                   ) : (
                     <Text UNSAFE_style={{ color: CM.textSecondary, padding: 16, textAlign: 'center' }}>
@@ -328,7 +319,10 @@ export default function AICreativeStudio() {
                 <TextArea
                   label="편집 명령 (자연어)"
                   value={prompt}
-                  onChange={setPrompt}
+                  onChange={v => {
+                    setPrompt(v);
+                    setPromptRunError(null);
+                  }}
                   description="한국어 또는 영어로 원하는 변경을 입력하세요. 아래 템플릿을 누를 때마다 문장이 이어 붙습니다(색상·배경·오브젝트 등 여러 항목을 조합할 수 있습니다)."
                 />
               </div>
@@ -353,7 +347,10 @@ export default function AICreativeStudio() {
                           key={`${group.category}-${label}`}
                           variant="secondary"
                           size="S"
-                          onPress={() => setPrompt(p => mergePromptFragment(p, text))}
+                          onPress={() => {
+                            setPrompt(p => mergePromptFragment(p, text));
+                            setPromptRunError(null);
+                          }}
                         >
                           {label}
                         </Button>
@@ -363,23 +360,32 @@ export default function AICreativeStudio() {
                 ))}
               </div>
 
-              <div style={f({ justifyContent: 'flex-end', marginTop: 16, gap: 8 })}>
-                <Button variant="secondary" isDisabled={history.length <= 1} onPress={undoLastEdit}>
-                  마지막 편집 취소
-                </Button>
-                <AccentButton isDisabled={!prompt.trim() || loading} onPress={runInstructEdit}>
-                  <MagicWand />
-                  <Text>AI 편집 실행</Text>
-                </AccentButton>
-              </div>
-              {loading && (
-                <div style={{ marginTop: 16 }}>
-                  <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
-                    Firefly Instruct Edit 처리 중… (예상 {MOCK_AI_MS / 1000}초 · 서비스 기준 10초 이내)
-                  </Text>
-                  <ProgressBar value={progress} />
+              <div style={{ marginTop: 16 }}>
+                {promptRunError && (
+                  <div style={{ marginBottom: 12 }}>
+                    <InlineAlert variant="negative">
+                      <Text>{promptRunError}</Text>
+                    </InlineAlert>
+                  </div>
+                )}
+                <div style={f({ justifyContent: 'flex-end', gap: 8 })}>
+                  <Button variant="secondary" isDisabled={history.length <= 1} onPress={undoLastEdit}>
+                    마지막 편집 취소
+                  </Button>
+                  <AccentButton isDisabled={loading} onPress={runInstructEdit}>
+                    <MagicWand />
+                    <Text>AI 편집 실행</Text>
+                  </AccentButton>
                 </div>
-              )}
+                {loading && (
+                  <div style={{ marginTop: 16 }}>
+                    <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
+                      Firefly Instruct Edit 처리 중… (예상 {MOCK_AI_MS / 1000}초 · 서비스 기준 10초 이내)
+                    </Text>
+                    <ProgressBar value={progress} />
+                  </div>
+                )}
+              </div>
             </div>
 
             {hasEdits && (
@@ -486,8 +492,8 @@ export default function AICreativeStudio() {
                   >
                     <div style={{ width: '100%', height: 'min(75vh, 820px)', position: 'relative' }}>
                       <SampleAssetImage
-                        filename={ASSET_FILENAME}
-                        style={lightbox === 'preview' ? displayedStep.previewStyle : undefined}
+                        filename={lightbox === 'preview' ? MOCK_PREVIEW_AFTER_FILENAME : ASSET_FILENAME}
+                        alt={lightbox === 'preview' ? '편집 프리뷰' : '원본'}
                       />
                     </div>
                   </div>

@@ -13,7 +13,7 @@ import UserGroup from '@react-spectrum/s2/icons/UserGroup';
 import SocialNetwork from '@react-spectrum/s2/icons/SocialNetwork';
 import ImageBackgroundRemove from '@react-spectrum/s2/icons/ImageBackgroundRemove';
 import Settings from '@react-spectrum/s2/icons/Settings';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import { AdobeMark } from './AdobeMark';
 import { AI_FIX_INBOX, STATUS_LABELS, type FixStatus } from '../data/mock';
 
@@ -287,6 +287,7 @@ function InboxNotificationDialogBody({ onDismiss }: { onDismiss: () => void }) {
 
 function TopChrome() {
   const [inboxDialogOpen, setInboxDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header
@@ -302,7 +303,9 @@ function TopChrome() {
         boxSizing: 'border-box',
       }}
     >
-      <div
+      <Link
+        to="/"
+        aria-label="대시보드로 이동"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -310,6 +313,11 @@ function TopChrome() {
           flex: '0 0 auto',
           width: 'fit-content',
           maxWidth: '100%',
+          textDecoration: 'none',
+          color: 'inherit',
+          cursor: 'pointer',
+          borderRadius: 8,
+          outlineOffset: 2,
         }}
       >
         <AdobeMark size={32} />
@@ -324,9 +332,9 @@ function TopChrome() {
         >
           Assets Mate
         </span>
-      </div>
+      </Link>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, marginLeft: 'auto' }}>
-        <ActionButton isQuiet aria-label="검색">
+        <ActionButton isQuiet aria-label="검색 및 탐색으로 이동" onPress={() => navigate('/search')}>
           <Search />
         </ActionButton>
         <ActionButton isQuiet aria-label="도움말">

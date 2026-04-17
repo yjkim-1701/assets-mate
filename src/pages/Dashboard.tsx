@@ -12,6 +12,10 @@ import ImageBackgroundRemove from '@react-spectrum/s2/icons/ImageBackgroundRemov
 import CheckmarkCircle from '@react-spectrum/s2/icons/CheckmarkCircle';
 import DevicePhone from '@react-spectrum/s2/icons/DevicePhone';
 import Send from '@react-spectrum/s2/icons/Send';
+import Eyedropper from '@react-spectrum/s2/icons/Eyedropper';
+import Logo from '@react-spectrum/s2/icons/Logo';
+import FontPicker from '@react-spectrum/s2/icons/FontPicker';
+import LayoutIcon from '@react-spectrum/s2/icons/Layout';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
@@ -75,6 +79,13 @@ const MODULES: {
     to: '/optimize',
     accent: 'linear-gradient(135deg, #CFFAFE 0%, #ECFEFF 100%)',
   },
+];
+
+const BRAND_HEALTH_METRICS: { name: string; score: number; Icon: ComponentType }[] = [
+  { name: '색상', score: 92, Icon: Eyedropper },
+  { name: '로고', score: 88, Icon: Logo },
+  { name: '폰트', score: 85, Icon: FontPicker },
+  { name: '레이아웃', score: 81, Icon: LayoutIcon },
 ];
 
 function StatCard({ label, value, accent, change }: { label: string; value: string | number; accent?: string; change?: string }) {
@@ -209,10 +220,23 @@ export default function Dashboard() {
             <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 16 })}>
               <MutedMeter value={87} variant="positive" label="종합 스코어" size="L" />
               <div style={f({ gap: 24 })}>
-                {[{ name: '색상', score: 92 }, { name: '로고', score: 88 }, { name: '폰트', score: 85 }, { name: '레이아웃', score: 81 }].map(c => (
-                  <div key={c.name} style={f({ flexDirection: 'column', alignItems: 'center', gap: 4 })}>
-                    <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>{c.name}</Text>
-                    <Text UNSAFE_style={{ fontSize: 18, fontWeight: 700 }}>{c.score}</Text>
+                {BRAND_HEALTH_METRICS.map(({ name, score, Icon: MetricIcon }) => (
+                  <div key={name} style={f({ flexDirection: 'column', alignItems: 'center', gap: 6 })}>
+                    <span
+                      aria-hidden
+                      style={{
+                        width: 24,
+                        height: 24,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: CM.textSecondary,
+                      }}
+                    >
+                      <MetricIcon />
+                    </span>
+                    <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>{name}</Text>
+                    <Text UNSAFE_style={{ fontSize: 18, fontWeight: 700 }}>{score}</Text>
                   </div>
                 ))}
               </div>
@@ -257,23 +281,27 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div style={f({ gap: 12, flexWrap: 'wrap' })}>
+        <div style={f({ gap: 12, flexWrap: 'wrap', alignItems: 'center' })}>
           <AccentButton onPress={() => navigate('/search')}>
             에셋 검색
           </AccentButton>
           <Button variant="secondary" onPress={() => navigate('/social/resize')}>
             소셜 리사이즈
           </Button>
-          <Button variant="secondary" onPress={() => navigate('/ai/inbox')}>
-            AI Creative Inbox
-            {pendingFixes > 0 && (
-              <>
-                {' '}
+          <Button
+            variant="secondary"
+            onPress={() => navigate('/ai/inbox')}
+            // S2 Button uses align-items: baseline when wrap+icon; custom label+badge reads top-heavy.
+            UNSAFE_style={{ alignItems: 'center' }}
+          >
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <span>AI Creative Inbox</span>
+              {pendingFixes > 0 ? (
                 <MutedBadge tone="accent" size="S">
                   {pendingFixes}
                 </MutedBadge>
-              </>
-            )}
+              ) : null}
+            </span>
           </Button>
         </div>
       </div>
