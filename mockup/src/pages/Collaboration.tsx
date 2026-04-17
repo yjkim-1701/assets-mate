@@ -1,9 +1,12 @@
-import { Text, Button, Badge, ProgressBar } from '@react-spectrum/s2';
+import { Text, Button } from '@react-spectrum/s2';
+import { MutedBadge } from '../components/MutedBadge';
+import { MutedProgressBar } from '../components/MutedProgressBar';
 import { useState } from 'react';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
 import { SampleAssetImage } from '../components/SampleAssetImage';
 import { CAMPAIGNS } from '../data/mock';
+import { BADGE_TOKENS } from '../theme/tokens';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
 const card: React.CSSProperties = {
@@ -52,13 +55,13 @@ export default function Collaboration() {
                 <div style={f({ justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 })}>
                   <div style={f({ gap: 12, alignItems: 'center' })}>
                     <Text UNSAFE_style={{ fontSize: 18, fontWeight: 'bold' }}>{c.name}</Text>
-                    <Badge variant={c.status === 'active' ? 'positive' : 'informative'} size="S">
+                    <MutedBadge tone={c.status === 'active' ? 'success' : 'info'} size="S">
                       {c.status === 'active' ? '진행 중' : '완료'}
-                    </Badge>
+                    </MutedBadge>
                   </div>
                   <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>{c.assets}개 에셋 · {c.pending}건 대기</Text>
                 </div>
-                <ProgressBar value={c.progress} label={`진행률 ${c.progress}%`} />
+                <MutedProgressBar value={c.progress} label={`진행률 ${c.progress}%`} />
               </div>
             ))}
           </div>
@@ -91,9 +94,12 @@ export default function Collaboration() {
                     <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold' }}>{r.asset}</Text>
                     <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>리뷰어: {r.reviewer} · {r.submitted}</Text>
                   </div>
-                  <Badge variant={r.status === 'approved' ? 'positive' : r.status === 'changes' ? 'notice' : 'informative'} size="S">
+                  <MutedBadge
+                    tone={r.status === 'approved' ? 'success' : r.status === 'changes' ? 'warning' : 'info'}
+                    size="S"
+                  >
                     {r.status === 'approved' ? '승인' : r.status === 'changes' ? '수정요청' : '대기'}
-                  </Badge>
+                  </MutedBadge>
                   <div style={f({ gap: 8 })}>
                     <Button variant="secondary" size="S">리뷰</Button>
                     {r.status === 'pending' && <AccentButton size="S">승인</AccentButton>}
@@ -106,17 +112,31 @@ export default function Collaboration() {
 
         {activeTab === 2 && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-            {[
-              { label: '전체 대기', count: 12, color: CM.accentIndigo },
-              { label: '승인 완료', count: 45, color: CM.success },
-              { label: '수정 요청', count: 5, color: CM.warning },
-              { label: '거절', count: 2, color: CM.danger },
-            ].map(stat => (
-              <div key={stat.label} style={{ backgroundColor: CM.activeNav, borderRadius: 12, padding: 20, textAlign: 'center' }}>
-                <Text UNSAFE_style={{ fontSize: 32, fontWeight: 'bold', color: stat.color, display: 'block' }}>{stat.count}</Text>
-                <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>{stat.label}</Text>
-              </div>
-            ))}
+            {(
+              [
+                { label: '전체 대기', count: 12, tone: 'accent' as const },
+                { label: '승인 완료', count: 45, tone: 'success' as const },
+                { label: '수정 요청', count: 5, tone: 'warning' as const },
+                { label: '거절', count: 2, tone: 'danger' as const },
+              ] as const
+            ).map(stat => {
+              const t = BADGE_TOKENS[stat.tone];
+              return (
+                <div
+                  key={stat.label}
+                  style={{
+                    backgroundColor: t.bg,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 12,
+                    padding: 20,
+                    textAlign: 'center',
+                  }}
+                >
+                  <Text UNSAFE_style={{ fontSize: 32, fontWeight: 'bold', color: t.text, display: 'block' }}>{stat.count}</Text>
+                  <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>{stat.label}</Text>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

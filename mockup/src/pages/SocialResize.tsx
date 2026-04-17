@@ -1,4 +1,5 @@
-import { Text, Button, Badge, Checkbox } from '@react-spectrum/s2';
+import { Text, Button, Checkbox } from '@react-spectrum/s2';
+import { MutedBadge } from '../components/MutedBadge';
 import Camera from '@react-spectrum/s2/icons/Camera';
 import User from '@react-spectrum/s2/icons/User';
 import Video from '@react-spectrum/s2/icons/Video';
@@ -106,7 +107,7 @@ export default function SocialResize() {
             <div style={f({ flexDirection: 'column', gap: 4 })}>
               <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold' }}>campaign_summer_hero.jpg</Text>
               <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>3840×2160 · 4.2 MB · 2026 Summer Campaign</Text>
-              <Badge variant="positive" size="S">브랜드 스코어: 92</Badge>
+              <MutedBadge tone="success" size="S">브랜드 스코어: 92</MutedBadge>
             </div>
           </div>
         </div>
@@ -155,7 +156,7 @@ export default function SocialResize() {
                       <SampleAssetImage filename="campaign_summer_hero.jpg" />
                       {needsExpand && (
                         <div style={{ position: 'absolute', top: 8, right: 8 }}>
-                          <Badge variant="accent" size="S">AI Expand</Badge>
+                          <MutedBadge tone="accent" size="S">AI Expand</MutedBadge>
                         </div>
                       )}
                     </div>

@@ -1,4 +1,6 @@
-import { Text, Button, Badge, Checkbox, Meter } from '@react-spectrum/s2';
+import { Text, Button, Checkbox } from '@react-spectrum/s2';
+import { MutedBadge } from '../components/MutedBadge';
+import { MutedMeter } from '../components/MutedMeter';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
@@ -25,10 +27,17 @@ const STATUS_TABS: { key: string; label: string }[] = [
 ];
 
 function StatusBadge({ status }: { status: FixStatus }) {
-  const variants: Record<FixStatus, 'notice' | 'positive' | 'negative' | 'informative'> = {
-    pending: 'notice', approved: 'positive', rejected: 'negative', changes_requested: 'informative',
+  const tone: Record<FixStatus, 'warning' | 'success' | 'danger' | 'info'> = {
+    pending: 'warning',
+    approved: 'success',
+    rejected: 'danger',
+    changes_requested: 'info',
   };
-  return <Badge variant={variants[status]} size="S">{STATUS_LABELS[status]}</Badge>;
+  return (
+    <MutedBadge tone={tone[status]} size="S">
+      {STATUS_LABELS[status]}
+    </MutedBadge>
+  );
 }
 
 export default function AIFixInbox() {
@@ -66,7 +75,9 @@ export default function AIFixInbox() {
           {selected.size > 0 && (
             <div style={f({ gap: 8 })}>
               <AccentButton size="S">일괄 승인 ({selected.size})</AccentButton>
-              <Button variant="negative" size="S">일괄 거절 ({selected.size})</Button>
+              <Button variant="secondary" size="S" UNSAFE_className="s2-soft-danger">
+                일괄 거절 ({selected.size})
+              </Button>
             </div>
           )}
         </div>
@@ -97,7 +108,9 @@ export default function AIFixInbox() {
                   </div>
                   <div style={f({ gap: 6 })}>
                     {fix.violations.map(v => (
-                      <Badge key={v} variant="negative" size="S">{v}</Badge>
+                      <MutedBadge key={v} tone="danger" size="S">
+                        {v}
+                      </MutedBadge>
                     ))}
                   </div>
                   <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>
@@ -110,8 +123,12 @@ export default function AIFixInbox() {
                     <Text UNSAFE_style={{ fontSize: 13, color: CM.textMuted }}>→</Text>
                     <Text UNSAFE_style={{ fontSize: 13, color: CM.success, fontWeight: 600 }}>{fix.scoreAfter}</Text>
                   </div>
-                  <Meter value={fix.scoreAfter} size="S"
-                    variant={fix.scoreAfter >= 85 ? 'positive' : 'notice'} label="" />
+                  <MutedMeter
+                    value={fix.scoreAfter}
+                    size="S"
+                    variant={fix.scoreAfter >= 85 ? 'positive' : 'notice'}
+                    label=""
+                  />
                 </div>
               </div>
             </div>

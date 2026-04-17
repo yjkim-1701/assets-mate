@@ -1,5 +1,8 @@
 import type { ComponentType } from 'react';
-import { Text, Button, Badge, ProgressBar, Meter } from '@react-spectrum/s2';
+import { Text, Button } from '@react-spectrum/s2';
+import { MutedBadge } from '../components/MutedBadge';
+import { MutedMeter } from '../components/MutedMeter';
+import { MutedProgressBar } from '../components/MutedProgressBar';
 import Search from '@react-spectrum/s2/icons/Search';
 import Brand from '@react-spectrum/s2/icons/Brand';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
@@ -35,42 +38,42 @@ const MODULES: {
     description: '비주얼·시맨틱 검색으로 에셋을 빠르게 찾습니다.',
     Icon: Search,
     to: '/search',
-    accent: 'linear-gradient(135deg, #6E90C8 0%, #9BB8E0 100%)',
+    accent: 'linear-gradient(135deg, #DBEAFE 0%, #E0E7FF 100%)',
   },
   {
     title: 'Brand Dashboard',
     description: '브랜드 일관성·라이선스·위반 현황을 한눈에 봅니다.',
     Icon: Brand,
     to: '/brand',
-    accent: 'linear-gradient(135deg, #5E9A8E 0%, #8FC9B8 100%)',
+    accent: 'linear-gradient(135deg, #D1FAE5 0%, #ECFDF5 100%)',
   },
   {
     title: 'AI Creative',
     description: 'Firefly 기반 편집, Inbox 승인, 브랜드 자동 보정.',
     Icon: MagicWand,
     to: '/ai/inbox',
-    accent: 'linear-gradient(135deg, #9088C0 0%, #B8B0DC 100%)',
+    accent: 'linear-gradient(135deg, #EDE9FE 0%, #F5F3FF 100%)',
   },
   {
     title: 'Campaign Workspace',
     description: '캠페인별 에셋·리뷰·승인 워크플로를 관리합니다.',
     Icon: UserGroup,
     to: '/collaboration',
-    accent: 'linear-gradient(135deg, #C89888 0%, #DCC0B0 100%)',
+    accent: 'linear-gradient(135deg, #FFEDD5 0%, #FFF7ED 100%)',
   },
   {
     title: 'Social Media',
     description: '채널별 리사이즈·프리뷰·일괄 내보내기.',
     Icon: SocialNetwork,
     to: '/social/resize',
-    accent: 'linear-gradient(135deg, #D0A878 0%, #E8C8A0 100%)',
+    accent: 'linear-gradient(135deg, #FEF3C7 0%, #FFFBEB 100%)',
   },
   {
     title: 'Asset Optimization',
     description: '포맷 변환·용량 최적화·배치 다운로드.',
     Icon: Export,
     to: '/optimize',
-    accent: 'linear-gradient(135deg, #78A8C8 0%, #A8D8D4 100%)',
+    accent: 'linear-gradient(135deg, #CFFAFE 0%, #ECFEFF 100%)',
   },
 ];
 
@@ -149,8 +152,8 @@ export default function Dashboard() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#ffffff',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2)',
+                    color: '#1E3A8A',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)',
                   }}
                 >
                   <span style={{ display: 'flex', width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
@@ -190,7 +193,7 @@ export default function Dashboard() {
                       {c.assets}개 에셋 · {c.pending}건 대기
                     </Text>
                   </div>
-                  <ProgressBar value={c.progress} label={`${c.progress}%`} />
+                  <MutedProgressBar value={c.progress} label={`${c.progress}%`} />
                 </div>
               ))}
             </div>
@@ -204,7 +207,7 @@ export default function Dashboard() {
               </Button>
             </div>
             <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 16 })}>
-              <Meter value={87} variant="positive" label="종합 스코어" size="L" />
+              <MutedMeter value={87} variant="positive" label="종합 스코어" size="L" />
               <div style={f({ gap: 24 })}>
                 {[{ name: '색상', score: 92 }, { name: '로고', score: 88 }, { name: '폰트', score: 85 }, { name: '레이아웃', score: 81 }].map(c => (
                   <div key={c.name} style={f({ flexDirection: 'column', alignItems: 'center', gap: 4 })}>
@@ -266,9 +269,9 @@ export default function Dashboard() {
             {pendingFixes > 0 && (
               <>
                 {' '}
-                <Badge size="S" variant="accent">
+                <MutedBadge tone="accent" size="S">
                   {pendingFixes}
-                </Badge>
+                </MutedBadge>
               </>
             )}
           </Button>

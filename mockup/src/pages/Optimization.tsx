@@ -1,4 +1,5 @@
-import { Text, Button, Badge, Checkbox } from '@react-spectrum/s2';
+import { Text, Button, Checkbox } from '@react-spectrum/s2';
+import { MutedBadge } from '../components/MutedBadge';
 import { useState } from 'react';
 import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
@@ -87,7 +88,7 @@ export default function Optimization() {
                       <Text UNSAFE_style={{ fontSize: 14, fontWeight: 500, flex: 1 }}>{asset.name}</Text>
                       <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>{asset.dim}</Text>
                       <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>{asset.size}</Text>
-                      <Badge variant="informative" size="S">{asset.type.toUpperCase()}</Badge>
+                      <MutedBadge variant="informative" size="S">{asset.type.toUpperCase()}</MutedBadge>
                     </div>
                   </div>
                 ))}

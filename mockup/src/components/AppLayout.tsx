@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
-import { Text, Badge, ActionButton } from '@react-spectrum/s2';
+import { Text, ActionButton } from '@react-spectrum/s2';
+import { MutedBadge } from './MutedBadge';
 import Search from '@react-spectrum/s2/icons/Search';
 import HelpCircle from '@react-spectrum/s2/icons/HelpCircle';
 import Bell from '@react-spectrum/s2/icons/Bell';
@@ -15,7 +16,10 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { AdobeMark } from './AdobeMark';
 import { AI_FIX_INBOX } from '../data/mock';
 
-/** 배경·보더는 유지하고, 붉·녹·주황·파랑 등은 파스텔·무디 톤(스크린샷 CI 대시보드 느낌) */
+/**
+ * 레이아웃·카드 + 인라인 강조색 — 뱃지 레퍼런스와 동일하게 연한 배경 톤에 맞춘 글자색
+ * (BADGE_TOKENS / theme/tokens.ts 와 정합)
+ */
 const CM = {
   chromeBg: '#ffffff',
   chromeBorder: '#E5E7EB',
@@ -23,34 +27,29 @@ const CM = {
   mainBg: '#F9FAFB',
   sidebarBg: '#ffffff',
   sidebarBorder: '#E5E7EB',
-  /** 활성 네비: 어두운 칩 대신 연한 회색 배경 + 진한 글자 */
   activeNav: '#F3F4F6',
   activeNavText: '#111827',
   sectionLabel: '#6B7280',
   text: '#111827',
   textSecondary: '#6B7280',
   textMuted: '#9CA3AF',
-  /** 무디 블루 (배지·링크) */
-  primaryBlue: '#5B7DB8',
-  /** 틸/에메랄드 계열 성공색 (채도 낮춤) */
-  success: '#4A9288',
-  successBg: '#ECF5F3',
-  /** 더스트 로즈/코랄 계열 경고·에러 */
-  danger: '#C97B74',
-  /** 뮤티드 앰버 */
-  warning: '#C49B6A',
-  dangerBg: '#FDF1F0',
-  warningBg: '#FFF6ED',
-  /** 주황 배너용 짙은 글자 (파스텔 배경 위) */
-  warningText: '#A67C52',
+  primaryBlue: '#1D4ED8',
+  success: '#047857',
+  successBg: '#ECFDF5',
+  danger: '#991B1B',
+  warning: '#B45309',
+  dangerBg: '#FEF2F2',
+  warningBg: '#FFFBEB',
+  warningText: '#92400E',
+  info: '#1D4ED8',
+  infoBg: '#EFF6FF',
   cardBorder: '#E5E7EB',
   cardBorderHover: '#D1D5DB',
   cardShadow: '0 1px 2px rgba(15, 23, 42, 0.05)',
   panelBg: '#ffffff',
-  accentIndigo: '#7B82B8',
-  accentViolet: '#9B8EBF',
-  /** 썸네일·플레이스홀더 배경 */
-  surfacePlaceholder: '#E8EAEF',
+  accentIndigo: '#4338CA',
+  accentViolet: '#6D28D9',
+  surfacePlaceholder: '#EEF2F6',
 } as const;
 
 function pathToPageLabel(pathname: string): string {
@@ -114,9 +113,9 @@ function SidebarNavItem({ to, Icon, label, badge }: NavItemProps) {
       </span>
       <span style={{ flex: 1 }}>{label}</span>
       {badge != null && badge > 0 && (
-        <Badge size="S" variant={isActive ? 'positive' : 'accent'}>
+        <MutedBadge size="S" tone={isActive ? 'success' : 'accent'}>
           {badge}
-        </Badge>
+        </MutedBadge>
       )}
     </NavLink>
   );

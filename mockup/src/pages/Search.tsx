@@ -1,4 +1,5 @@
-import { Text, SearchField, Button, Badge, Checkbox, TagGroup, Tag } from '@react-spectrum/s2';
+import { Text, SearchField, Button, Checkbox } from '@react-spectrum/s2';
+import { MutedBadge } from '../components/MutedBadge';
 import Video from '@react-spectrum/s2/icons/Video';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -16,8 +17,12 @@ const card: React.CSSProperties = {
 };
 
 function ScoreBadge({ score }: { score: number }) {
-  const variant = score >= 80 ? 'positive' : score >= 60 ? 'notice' : 'negative';
-  return <Badge variant={variant} size="S">{score}</Badge>;
+  const tone = score >= 80 ? 'success' : score >= 60 ? 'warning' : 'danger';
+  return (
+    <MutedBadge tone={tone} size="S">
+      {score}
+    </MutedBadge>
+  );
 }
 
 const TABS = ['통합 검색', '비주얼 검색', '색상 검색', '시맨틱 검색'];
@@ -48,9 +53,12 @@ export default function Search() {
         </div>
 
         {query && (
-          <TagGroup label="적용된 필터">
-            <Tag id="q">검색어: {query}</Tag>
-          </TagGroup>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>적용된 필터</Text>
+            <MutedBadge tone="info" size="S">
+              검색어: {query}
+            </MutedBadge>
+          </div>
         )}
 
         <div style={f({ gap: 20 })}>
@@ -132,7 +140,9 @@ export default function Search() {
                       <ScoreBadge score={asset.brandScore} />
                     </div>
                     <div style={f({ marginTop: 4, gap: 4 })}>
-                      <Badge size="S" variant="informative">{asset.campaign}</Badge>
+                      <MutedBadge variant="informative" size="S">
+                        {asset.campaign}
+                      </MutedBadge>
                     </div>
                   </div>
                 </div>

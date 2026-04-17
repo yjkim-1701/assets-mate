@@ -1,4 +1,6 @@
-import { Text, Button, Badge, Meter, TextArea } from '@react-spectrum/s2';
+import { Text, Button, TextArea } from '@react-spectrum/s2';
+import { MutedBadge } from '../components/MutedBadge';
+import { MutedMeter } from '../components/MutedMeter';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import Star from '@react-spectrum/s2/icons/Star';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -30,10 +32,12 @@ export default function AIFixApproval() {
   const navigate = useNavigate();
   const fix = AI_FIX_INBOX.find(f => f.id === fixId) || AI_FIX_INBOX[0];
 
-  const statusVariant = {
-    pending: 'notice' as const, approved: 'positive' as const,
-    rejected: 'negative' as const, changes_requested: 'informative' as const,
-  };
+  const statusTone = {
+    pending: 'warning',
+    approved: 'success',
+    rejected: 'danger',
+    changes_requested: 'info',
+  } as const;
 
   return (
     <>
@@ -46,9 +50,9 @@ export default function AIFixApproval() {
         <div style={card}>
           <div style={f({ justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 })}>
             <div style={f({ gap: 12, alignItems: 'center' })}>
-              <Badge variant={statusVariant[fix.status]} size="L">
+              <MutedBadge tone={statusTone[fix.status]} size="L">
                 {STATUS_LABELS[fix.status]}
-              </Badge>
+              </MutedBadge>
               <Text UNSAFE_style={{ fontSize: 18, fontWeight: 'bold' }}>{fix.assetName}</Text>
             </div>
             <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>
@@ -57,7 +61,9 @@ export default function AIFixApproval() {
           </div>
           <div style={f({ gap: 8, marginBottom: 16 })}>
             {fix.violations.map(v => (
-              <Badge key={v} variant="negative" size="S">{v} 위반</Badge>
+              <MutedBadge key={v} tone="danger" size="S">
+                {v} 위반
+              </MutedBadge>
             ))}
           </div>
         </div>
@@ -83,14 +89,16 @@ export default function AIFixApproval() {
                 >
                   <Text UNSAFE_style={{ color: CM.textSecondary, textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>원본 이미지</Text>
                   {fix.violations.map(v => (
-                    <Badge key={v} variant="negative" size="S">● {v} 위반</Badge>
+                    <MutedBadge key={v} tone="danger" size="S">
+                      ● {v} 위반
+                    </MutedBadge>
                   ))}
                 </div>
               </div>
             </div>
             <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 4 })}>
               <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>브랜드 스코어</Text>
-              <Meter value={fix.scoreBefore} variant="negative" label={`${fix.scoreBefore}/100`} size="L" />
+              <MutedMeter value={fix.scoreBefore} variant="negative" label={`${fix.scoreBefore}/100`} size="L" />
             </div>
           </div>
 
@@ -101,9 +109,9 @@ export default function AIFixApproval() {
           <div style={f({ flexDirection: 'column', gap: 12, flex: 1 })}>
             <div style={f({ justifyContent: 'center', gap: 8, alignItems: 'center' })}>
               <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold' }}>수정 후</Text>
-              <Badge variant="informative" size="S">후보 1/3</Badge>
+              <MutedBadge variant="informative" size="S">후보 1/3</MutedBadge>
             </div>
-            <div style={{ ...imageBox, border: `2px solid ${CM.success}`, color: CM.textSecondary, padding: 0, overflow: 'hidden' }}>
+            <div style={{ ...imageBox, border: '2px solid #A7F3D0', color: CM.textSecondary, padding: 0, overflow: 'hidden' }}>
               <div style={{ width: '100%', height: '100%', position: 'relative' }}>
                 <SampleAssetImage filename={fix.assetName} style={{ filter: 'saturate(1.08) contrast(1.02)' }} />
                 <div
@@ -123,16 +131,18 @@ export default function AIFixApproval() {
                     <Star />
                   </span>
                   <Text UNSAFE_style={{ color: '#fff', fontWeight: 600 }}>AI 수정 결과</Text>
-                  <Badge variant="accent" size="S">
-                    <MagicWand />
-                    <Text>AI Generated</Text>
-                  </Badge>
+                  <MutedBadge tone="accent" size="S">
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <MagicWand />
+                      <Text>AI Generated</Text>
+                    </span>
+                  </MutedBadge>
                 </div>
               </div>
             </div>
             <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 4 })}>
               <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>예상 브랜드 스코어</Text>
-              <Meter value={fix.scoreAfter} variant="positive" label={`${fix.scoreAfter}/100`} size="L" />
+              <MutedMeter value={fix.scoreAfter} variant="positive" label={`${fix.scoreAfter}/100`} size="L" />
             </div>
           </div>
         </div>
@@ -150,7 +160,9 @@ export default function AIFixApproval() {
         </div>
 
         <div style={f({ gap: 12, justifyContent: 'flex-end' })}>
-          <Button variant="negative" onPress={() => navigate('/ai/inbox')}>Reject</Button>
+          <Button variant="secondary" UNSAFE_className="s2-soft-danger" onPress={() => navigate('/ai/inbox')}>
+            Reject
+          </Button>
           <Button variant="secondary" onPress={() => navigate('/ai/inbox')}>Request Changes</Button>
           <AccentButton onPress={() => navigate('/ai/inbox')}>✓ Approve</AccentButton>
         </div>

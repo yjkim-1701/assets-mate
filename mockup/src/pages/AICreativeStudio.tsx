@@ -1,4 +1,5 @@
-import { Text, Button, Badge, TextArea, InlineAlert } from '@react-spectrum/s2';
+import { Text, Button, TextArea, InlineAlert } from '@react-spectrum/s2';
+import { MutedBadge } from '../components/MutedBadge';
 import { AccentButton } from '../components/AccentButton';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import Star from '@react-spectrum/s2/icons/Star';
@@ -87,13 +88,15 @@ export default function AICreativeStudio() {
             <div style={f({ justifyContent: 'center', gap: 8, alignItems: 'center' })}>
               <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold' }}>수정본</Text>
               {hasResult && (
-                <Badge variant="accent" size="S">
-                  <MagicWand />
-                  <Text>AI Generated</Text>
-                </Badge>
+                <MutedBadge tone="accent" size="S">
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <MagicWand />
+                    <Text>AI Generated</Text>
+                  </span>
+                </MutedBadge>
               )}
             </div>
-            <div style={hasResult ? { ...imageBox, border: `2px solid ${CM.accentViolet}`, padding: 0, overflow: 'hidden' } : imageBox}>
+            <div style={hasResult ? { ...imageBox, border: '2px solid #DDD6FE', padding: 0, overflow: 'hidden' } : imageBox}>
               {hasResult ? (
                 <div style={{ width: '100%', height: '100%', position: 'relative' }}>
                   <SampleAssetImage filename="campaign_summer_hero.jpg" style={{ filter: 'saturate(1.12) hue-rotate(-8deg)' }} />
@@ -107,7 +110,7 @@ export default function AICreativeStudio() {
                       justifyContent: 'center',
                       gap: 8,
                       background: 'linear-gradient(to top, rgba(88, 60, 120, 0.35), transparent 50%)',
-                      color: CM.accentViolet,
+                      color: '#5B21B6',
                     }}
                   >
                     <span style={{ display: 'flex', width: 40, height: 40, opacity: 0.95 }}>

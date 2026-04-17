@@ -1,5 +1,7 @@
 import type { ComponentType } from 'react';
-import { Text, Badge, Meter } from '@react-spectrum/s2';
+import { Text } from '@react-spectrum/s2';
+import { MutedBadge } from '../components/MutedBadge';
+import { MutedMeter } from '../components/MutedMeter';
 import Color from '@react-spectrum/s2/icons/Color';
 import Logo from '@react-spectrum/s2/icons/Logo';
 import TextIcon from '@react-spectrum/s2/icons/Text';
@@ -34,9 +36,13 @@ const LICENSES_EXPIRING = [
 ];
 
 function SeverityBadge({ severity }: { severity: string }) {
-  const variant = severity === 'high' ? 'negative' : severity === 'medium' ? 'notice' : 'informative';
+  const tone = severity === 'high' ? 'danger' : severity === 'medium' ? 'warning' : 'info';
   const label = severity === 'high' ? '높음' : severity === 'medium' ? '보통' : '낮음';
-  return <Badge variant={variant} size="S">{label}</Badge>;
+  return (
+    <MutedBadge tone={tone} size="S">
+      {label}
+    </MutedBadge>
+  );
 }
 
 export default function BrandDashboard() {
@@ -62,8 +68,11 @@ export default function BrandDashboard() {
                   </span>
                   <Text UNSAFE_style={{ fontSize: 14, fontWeight: 600 }}>{cat.name}</Text>
                 </div>
-                <Meter value={cat.score} label={`${cat.score}/100`}
-                  variant={cat.score >= 90 ? 'positive' : cat.score >= 80 ? 'informative' : 'notice'} />
+                <MutedMeter
+                  value={cat.score}
+                  label={`${cat.score}/100`}
+                  variant={cat.score >= 90 ? 'positive' : cat.score >= 80 ? 'informative' : 'notice'}
+                />
               </div>
             );
             })}
@@ -74,7 +83,7 @@ export default function BrandDashboard() {
           <div style={card}>
             <div style={f({ justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 })}>
               <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold' }}>위반 에셋 목록</Text>
-              <Badge variant="negative" size="S">{BRAND_VIOLATIONS.length}건</Badge>
+              <MutedBadge tone="danger" size="S">{BRAND_VIOLATIONS.length}건</MutedBadge>
             </div>
             <div style={f({ flexDirection: 'column', gap: 12 })}>
               {BRAND_VIOLATIONS.map(v => (
@@ -98,7 +107,7 @@ export default function BrandDashboard() {
           <div style={card}>
             <div style={f({ justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 })}>
               <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold' }}>만료 임박 라이선스</Text>
-              <Badge variant="notice" size="S">{LICENSES_EXPIRING.length}건</Badge>
+              <MutedBadge tone="warning" size="S">{LICENSES_EXPIRING.length}건</MutedBadge>
             </div>
             <div style={f({ flexDirection: 'column', gap: 12 })}>
               {LICENSES_EXPIRING.map((lic, i) => (
@@ -121,9 +130,9 @@ export default function BrandDashboard() {
                       <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary }}>{lic.type}</Text>
                     </div>
                   </div>
-                  <Badge variant={lic.daysLeft <= 7 ? 'negative' : 'notice'} size="S">
+                  <MutedBadge tone={lic.daysLeft <= 7 ? 'danger' : 'warning'} size="S">
                     D-{lic.daysLeft}
-                  </Badge>
+                  </MutedBadge>
                 </div>
               ))}
             </div>
@@ -135,7 +144,15 @@ export default function BrandDashboard() {
           <div style={f({ gap: 32, justifyContent: 'center', alignItems: 'flex-end', height: 120 })}>
             {[78, 82, 85, 83, 86, 87].map((val, i) => (
               <div key={i} style={f({ flexDirection: 'column', alignItems: 'center', gap: 4 })}>
-                <div style={{ width: 40, height: val, backgroundColor: val >= 85 ? CM.success : CM.warning, borderRadius: 4 }} />
+                <div
+                  style={{
+                    width: 40,
+                    height: val,
+                    backgroundColor: val >= 85 ? '#A7F3D0' : '#FDE68A',
+                    borderRadius: 4,
+                    border: `1px solid ${val >= 85 ? '#6EE7B7' : '#FCD34D'}`,
+                  }}
+                />
                 <Text UNSAFE_style={{ fontSize: 11, color: CM.textMuted }}>{['11월', '12월', '1월', '2월', '3월', '4월'][i]}</Text>
                 <Text UNSAFE_style={{ fontSize: 12, fontWeight: 'bold' }}>{val}</Text>
               </div>
