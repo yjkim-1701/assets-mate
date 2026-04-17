@@ -1,7 +1,8 @@
-# Asset Mate - 정보 구조 & 사이트맵
+# Assets Mate - 정보 구조 & 사이트맵
 
-> 작성일: 2026-04-16
-> 상태: 확정
+> 작성일: 2026-04-16  
+> 상태: 확정  
+> 문서 인덱스: [README.md](./README.md)  
 > 선행 문서: [01-brainstorming.md](./01-brainstorming.md), [02-feature-specification.md](./02-feature-specification.md)
 
 ---
@@ -9,7 +10,7 @@
 ## 1. 전체 사이트맵
 
 ```
-Asset Mate
+Assets Mate
 ├── 메인 대시보드 (/)
 │
 ├── 검색 & 탐색 (/search)
@@ -69,7 +70,7 @@ Asset Mate
 
 ```
 ┌──────────────────────┐
-│  Asset Mate 로고      │
+│  Assets Mate 로고      │
 ├──────────────────────┤
 │  📊 대시보드          │
 │  🔍 검색 & 탐색       │

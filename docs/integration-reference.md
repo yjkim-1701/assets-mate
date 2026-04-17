@@ -1,3 +1,9 @@
+# AEM·Firefly 연동 레퍼런스 (외부 링크)
+
+본 문서는 **외부 공식 링크** 모음입니다. 프로젝트 내부 문서: [문서 인덱스](./README.md) · [통합 구현 TODO (API / MCP)](./06-todo-integration.md) · [기능 구현 현황](./05-implement-status.md).
+
+---
+
 ### 1) Assets 관련 공식 API 문서
 
 #### 핵심 공식 문서

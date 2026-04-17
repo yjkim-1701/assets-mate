@@ -4,9 +4,20 @@
 
 **Assets Mate**는 Adobe AEM Assets를 보강하는 애드온 플랫폼을 목표로 한 제품입니다. AEM이 기본 제공하지 않거나 부족한 영역(고급 검색, 브랜드 거버넌스, Firefly 기반 AI 크리에이티브, 협업·승인, 소셜 리사이즈·배포, 최적화 등)을 메우고, 마케터와 외부 에이전시가 에셋을 검색·검증·협업·변환·배포하기 쉽게 만드는 것이 방향입니다.
 
-배포 형태는 **하이브리드**(독립 웹앱 + AEM UI 내 임베디드 확장)로 설계되어 있습니다. 이 저장소의 **`mockup/`** 폴더는 그 비전을 **React 기반 정적 목업(UI 프로토타입)**으로 시각화한 것입니다. 백엔드, Firefly·AEM 실 API, 실제 검색·AI 연동은 포함하지 않으며, 화면·플로·UX 검증용입니다.
+배포 형태는 **하이브리드**(독립 웹앱 + AEM UI 내 임베디드 확장)로 설계되어 있습니다. 이 저장소 **루트의 Vite + React 앱**(`src/`, `public/`)이 그 비전을 **정적 목 데이터 기반 UI 프로토타입**으로 시각화합니다. 백엔드, Firefly·AEM 실 API, 실제 검색·AI 연동은 포함하지 않으며, 화면·플로·UX 검증용입니다.
 
-## 이 폴더에서 쓰는 기술
+## 저장소 구조
+
+| 경로 | 설명 |
+|------|------|
+| `src/` | React 페이지·컴포넌트·`data/mock.ts` 등 목업 소스 |
+| `public/` | 정적 자산·샘플 이미지 (`public/sample/` 등) |
+| `scripts/` | 샘플 이미지 생성 등 보조 스크립트 |
+| `docs/` | 기획·명세·IA·UI 가이드·구현 현황·연동 TODO·레퍼런스 ([`docs/README.md`](docs/README.md) 인덱스) |
+| `docs/presentaion/` | 핵심 기능 소개용 HTML·스크린샷 |
+| `docs/memory/` | 세션 요약·플래닝 로그 (참고) |
+
+## 이 프로젝트에서 쓰는 기술
 
 | 구분 | 내용 |
 |------|------|
@@ -19,8 +30,9 @@
 
 ## 실행 방법
 
+저장소 루트에서:
+
 ```bash
-cd mockup
 npm install
 npm run dev
 ```
@@ -30,25 +42,27 @@ npm run dev
 - **린트:** `npm run lint`
 - **샘플 이미지 생성(스크립트):** `npm run generate:sample-images`
 
-구현 범위·기능 ID 대비 완료 여부는 저장소 루트의 [`docs/05-implement-status.md`](../docs/05-implement-status.md)를 기준으로 합니다.
+구현 범위·기능 ID 대비 완료 여부는 [`docs/05-implement-status.md`](docs/05-implement-status.md)를 기준으로 합니다. 목업 이후 **실연동·백로그**는 [`docs/06-todo-integration.md`](docs/06-todo-integration.md)를 참고하세요.
 
 ---
 
-## 문서 (`../docs/`) 요약
+## 문서 (`docs/`) 요약
 
-프로젝트 기획·설계·연동 참고는 모두 상위 **`docs/`** 디렉터리에 있습니다. 각 파일의 역할은 아래와 같습니다.
+프로젝트 기획·설계·연동 참고는 [`docs/`](docs/) 디렉터리에 있습니다. 전체 목록·문서 간 관계는 **[`docs/README.md`](docs/README.md)**를 보세요.
 
 | 문서 | 요약 |
 |------|------|
-| [`01-brainstorming.md`](../docs/01-brainstorming.md) | 브레인스토밍 결과. 제품 정의, 타겟 사용자·니즈, **6개 테마**(고급 검색, 브랜드 거버넌스, AI/Firefly, 협업·승인, 소셜 리사이즈, 최적화)별 아이디어·차별점, 핵심 시나리오, 목업 화면 목록, AEM 대비 차별화·향후 확장 아이디어. |
-| [`02-feature-specification.md`](../docs/02-feature-specification.md) | **상세 기능 정의서.** 공통(F-0.x)과 테마별 기능 ID(F-1.x ~ F-6.x)로 요구사항을 정리. 각 기능의 목적·입출력·UI·수용 기준 수준의 스펙. |
-| [`03-information-architecture.md`](../docs/03-information-architecture.md) | **정보 구조·사이트맵.** 글로벌 내비(사이드바·헤더·서브), 화면별 레이아웃, 핵심 사용자 플로(캠페인 런칭·에이전시 협업·브랜드+AI·다채널·AI 변형 등), 역할별 접근, 반응형, 공통 UI 패턴(에셋 카드·필터·액션 바). |
-| [`04-ui-design-guide.md`](../docs/04-ui-design-guide.md) | **UI 디자인 가이드.** Spectrum 2 기반 색·타이포·컴포넌트 매핑, 아이콘·간격·라이트/다크, 화면별 컴포넌트 구성, 목업용 `package.json`·Vite·루트 구조 참고. |
-| [`05-implement-status.md`](../docs/05-implement-status.md) | **기능 구현 현황.** `02-feature-specification` 대비 `mockup/` 구현 상태(완료·부분·미구현), 테마별 표와 추후 백엔드·Adobe 연동 과제, 관련 소스 경로 정리. |
-| [`integration-reference.md`](../docs/integration-reference.md) | **외부 연동 레퍼런스.** AEM Assets HTTP/OpenAPI·Dynamic Media, Firefly API 공식 문서 링크, AEM MCP 엔드포인트 요약, Firefly MCP 공개 문서 유무 등 **통합 조사 메모**. |
-| [`sample-images.md`](../docs/sample-images.md) | **목업 샘플 이미지·영상 가이드.** 스톡/AI 자산 선택 원칙, `mock.ts` 등 데이터와 연결된 파일명·용도, 자산별 키워드·프롬프트, 보관·데모 전 체크리스트. |
+| [`docs/README.md`](docs/README.md) | **`docs/` 인덱스.** 폴더 구성, 문서 간 선행 관계, 목업 소스(`src/`) 위치 안내. |
+| [`docs/01-brainstorming.md`](docs/01-brainstorming.md) | 브레인스토밍 결과. 제품 정의, 타겟 사용자·니즈, **6개 테마**(고급 검색, 브랜드 거버넌스, AI/Firefly, 협업·승인, 소셜 리사이즈, 최적화)별 아이디어·차별점, 핵심 시나리오, 목업 화면 목록, AEM 대비 차별화·향후 확장 아이디어. |
+| [`docs/02-feature-specification.md`](docs/02-feature-specification.md) | **상세 기능 정의서.** 공통(F-0.x)과 테마별 기능 ID(F-1.x ~ F-6.x)로 요구사항을 정리. 각 기능의 목적·입출력·UI·수용 기준 수준의 스펙. |
+| [`docs/03-information-architecture.md`](docs/03-information-architecture.md) | **정보 구조·사이트맵.** 글로벌 내비(사이드바·헤더·서브), 화면별 레이아웃, 핵심 사용자 플로(캠페인 런칭·에이전시 협업·브랜드+AI·다채널·AI 변형 등), 역할별 접근, 반응형, 공통 UI 패턴(에셋 카드·필터·액션 바). |
+| [`docs/04-ui-design-guide.md`](docs/04-ui-design-guide.md) | **UI 디자인 가이드.** Spectrum 2 기반 색·타이포·컴포넌트 매핑, 아이콘·간격·라이트/다크, 화면별 컴포넌트 구성, 루트 `package.json`·Vite·`App.tsx` 구조 참고. |
+| [`docs/05-implement-status.md`](docs/05-implement-status.md) | **기능 구현 현황.** `02-feature-specification` 대비 저장소 루트 목업(`src/`) 구현 상태(완료·부분·미구현), 테마별 표와 추후 백엔드·Adobe 연동 과제, 관련 소스 경로 정리. |
+| [`docs/06-todo-integration.md`](docs/06-todo-integration.md) | **통합 구현 TODO (API / MCP).** 목업 완료 이후 실데이터·연동을 위한 백로그. AEM Assets REST·OpenAPI·Dynamic Media, AEM Remote MCP, Firefly HTTP API를 **우선 소비**할 항목과 **앱에서 직접 구현**할 항목의 구분, 기능 ID(F-x.x) 매핑, `integration-reference`와의 역할 분담. |
+| [`docs/integration-reference.md`](docs/integration-reference.md) | **외부 연동 레퍼런스.** AEM Assets HTTP/OpenAPI·Dynamic Media, Firefly API 공식 문서 링크, AEM MCP 엔드포인트 요약, Firefly MCP 공개 문서 유무 등 **통합 조사 메모**. |
+| [`docs/sample-images.md`](docs/sample-images.md) | **목업 샘플 이미지·영상 가이드.** 스톡/AI 자산 선택 원칙, `mock.ts` 등 데이터와 연결된 파일명·용도, 자산별 키워드·프롬프트, 보관·데모 전 체크리스트. |
 
-더 깊은 맥락은 루트의 기획 메모(`memory/` 등)와 함께 위 문서를 순서대로 읽는 것을 권장합니다.
+더 깊은 맥락은 [`docs/memory/`](docs/memory/)의 기획 메모와 함께 위 문서를 순서대로 읽는 것을 권장합니다.
 
 ---
 

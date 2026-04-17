@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Assets Mate — 핵심 기능 소개</title>
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --slide-bg: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #c41230;
+      --border: #e5e7eb;
+      --bullet: #1d4ed8;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .deck {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+    .slide {
+      background: var(--slide-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+      margin-bottom: 28px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      min-height: 420px;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+    }
+    .slide--title {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 48px 32px;
+      background: linear-gradient(165deg, #ffffff 0%, #f8fafc 100%);
+    }
+    .slide--title .logo-mark {
+      width: 56px;
+      height: 56px;
+      background: var(--accent);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.5rem;
+    }
+    .slide--title h2 {
+      font-size: 1.85rem;
+      margin: 0 0 12px;
+      font-weight: 700;
+    }
+    .slide--title p {
+      color: var(--muted);
+      max-width: 36rem;
+      margin: 0;
+      font-size: 1rem;
+    }
+    .slide__shot {
+      flex: 1.15;
+      min-width: 0;
+      background: #eef2f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .slide__shot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: top center;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .slide__body {
+      flex: 0.85;
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 260px;
+    }
+    .slide__rank {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .slide__body h2 {
+      font-size: 1.35rem;
+      margin: 0 0 14px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .slide__body ul {
+      margin: 0;
+      padding-left: 1.15rem;
+      color: var(--text);
+      font-size: 0.92rem;
+    }
+    .slide__body li {
+      margin-bottom: 8px;
+    }
+    .slide__body li::marker {
+      color: var(--bullet);
+    }
+    .footnote {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 900px) {
+      .slide {
+        flex-direction: column;
+        aspect-ratio: auto;
+        min-height: 0;
+      }
+      .slide__shot {
+        flex: none;
+        max-height: 48vh;
+      }
+      .slide__body {
+        flex: none;
+        padding: 20px 22px 24px;
+      }
+    }
+    @media print {
+      body {
+        background: #fff;
+      }
+      .deck {
+        max-width: none;
+        padding: 0;
+      }
+      .slide {
+        page-break-after: always;
+        break-after: page;
+        box-shadow: none;
+        margin-bottom: 0;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <header>
+      <h1>Assets Mate mockup — 핵심 가치</h1>
+      <p class="subtitle">
+        목 데이터 기반 UI 프로토타입에서 제품 차별화에 가장 기여한다고 보는 기능 5가지를 우선순위 순으로 정리했습니다. 각 슬라이드는 실제 화면 캡처와 요약 설명을 나란히 배치했습니다.
+      </p>
+    </header>
+
+    <section class="slide slide--title" aria-label="표지">
+      <div class="logo-mark">A</div>
+      <h2>Assets Mate</h2>
+      <p>검색부터 브랜드 거버넌스, AI 크리에이티브, 협업·승인까지 한 환경에서 다루는 에셋 운영 mockup의 핵심 기능을 소개합니다.</p>
+    </section>
+
+    <section class="slide" aria-label="슬라이드 1">
+      <div class="slide__shot">
+        <img src="assets/slide-03-ai-inbox.png" alt="AI Creative Inbox 화면" width="1280" height="720" />
+      </div>
+      <div class="slide__body">
+        <span class="slide__rank">Priority 1</span>
+        <h2>AI Creative Inbox — 브랜드 자동 보정과 승인 허브</h2>
+        <ul>
+          <li>가이드에 맞춰 자동 보정된 결과를 한곳에서 검토하고 승인·거절·수정 요청을 처리합니다.</li>
+          <li>위반 유형(색상, 로고 여백 등) 태그와 보정 전·후 브랜드 점수로 개선 폭을 숫자로 확인합니다.</li>
+          <li>Firefly·생성형 AI와 연결될 때의 중심 워크플로를 목업으로 보여 주는 앱의 대표 차별점입니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="슬라이드 2">
+      <div class="slide__shot">
+        <img src="assets/slide-02-search.png" alt="검색 및 탐색 화면" width="1280" height="720" />
+      </div>
+      <div class="slide__body">
+        <span class="slide__rank">Priority 2</span>
+        <h2>고급 검색·발견 — 비주얼·시맨틱·복합 필터</h2>
+        <ul>
+          <li>통합 검색 탭에서 키워드와 캠페인·채널·시즌·승인 상태 등을 조합해 원하는 에셋만 빠르게 좁힙니다.</li>
+          <li>비주얼 유사도, 색상, 시맨틱, 다국어 그룹, 중복 탐지, 텍소노미 등 탐색 모드를 한 화면에서 전환할 수 있습니다.</li>
+          <li>DAM의 본질인 “찾기” 경험을 이 제품이 어디까지 지원하는지 보여 주는 축입니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="슬라이드 3">
+      <div class="slide__shot">
+        <img src="assets/slide-04-brand.png" alt="브랜드 거버넌스 화면" width="1280" height="720" />
+      </div>
+      <div class="slide__body">
+        <span class="slide__rank">Priority 3</span>
+        <h2>브랜드 거버넌스 — 스코어·위반·라이선스</h2>
+        <ul>
+          <li>색상·로고·폰트·레이아웃 항목별 브랜드 건강도와 종합 점수로 일관성을 한눈에 봅니다.</li>
+          <li>위반 에셋 목록에서 심각도·설명을 확인하고 AI 수정으로 바로 대응할 수 있는 흐름을 제공합니다.</li>
+          <li>만료 임박 라이선스와 기간별 스코어 추이로 법적·브랜드 리스크를 운영 관점에서 다룹니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="슬라이드 4">
+      <div class="slide__shot">
+        <img src="assets/slide-05-collaboration.png" alt="협업 및 승인 칸반 화면" width="1280" height="720" />
+      </div>
+      <div class="slide__body">
+        <span class="slide__rank">Priority 4</span>
+        <h2>협업·승인 — 칸반과 일괄 처리</h2>
+        <ul>
+          <li>미제출·검토 중·수정 요청·승인됨 단계로 에셋 상태를 시각화하고 담당자·기한을 카드에 표시합니다.</li>
+          <li>기한 초과 등 이슈를 바로 보이게 하고, 일괄 승인·일괄 수정 요청으로 처리량을 높입니다.</li>
+          <li>외부 공유·리뷰·버전 비교·캠페인 워크스페이스와 같은 협업 모듈과 같은 내비게이션 아래에 모여 있습니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="슬라이드 5">
+      <div class="slide__shot">
+        <img src="assets/slide-01-dashboard.png" alt="메인 대시보드 화면" width="1280" height="720" />
+      </div>
+      <div class="slide__body">
+        <span class="slide__rank">Priority 5</span>
+        <h2>통합 대시보드 — 운영 가시성과 모듈 진입</h2>
+        <ul>
+          <li>에셋 수, 승인 대기, AI 수정 대기, 라이선스 만료 임박 등 핵심 지표를 카드로 요약합니다.</li>
+          <li>캠페인 진행률·브랜드 건강도로 팀 상태를 빠르게 파악할 수 있습니다.</li>
+          <li>검색·브랜드·AI·협업·소셜·최적화로 이어지는 모듈 카드가 한 화면에 있어 제품 범위를 한 번에 전달합니다.</li>
+        </ul>
+        <p class="footnote">캡처: 로컬 Vite 개발 서버(<code>http://localhost:5173</code>) · 2026-04-17</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

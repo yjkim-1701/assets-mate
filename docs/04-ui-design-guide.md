@@ -1,7 +1,8 @@
-# Asset Mate - UI 디자인 가이드
+# Assets Mate - UI 디자인 가이드
 
-> 작성일: 2026-04-16
-> 상태: 확정
+> 작성일: 2026-04-16  
+> 상태: 확정  
+> 문서 인덱스: [README.md](./README.md)  
 > 선행 문서: [03-information-architecture.md](./03-information-architecture.md)
 
 ---
@@ -10,7 +11,7 @@
 
 ### Adobe Spectrum 2 (React Spectrum S2)
 
-Asset Mate는 Adobe의 공식 디자인 시스템 [Spectrum 2](https://react-spectrum.adobe.com/)를 기반으로 한다. AEM UI와의 시각적 일관성을 확보하고, 접근성/다국어/반응형 등 기본 품질을 보장한다.
+Assets Mate는 Adobe의 공식 디자인 시스템 [Spectrum 2](https://react-spectrum.adobe.com/)를 기반으로 한다. AEM UI와의 시각적 일관성을 확보하고, 접근성/다국어/반응형 등 기본 품질을 보장한다.
 
 **핵심 원칙**
 - Spectrum 2 토큰과 컴포넌트를 최대한 활용한다
@@ -465,7 +466,9 @@ Provider
 
 ---
 
-## 9. 목업 프로젝트 설정
+## 9. 목업 프로젝트 설정 (저장소 루트)
+
+아래 스니펫은 **참고용 예시**이다. 실제 버전·의존성은 저장소 루트의 `package.json`, `vite.config.ts`, `src/App.tsx`를 따른다.
 
 ### package.json 주요 의존성
 

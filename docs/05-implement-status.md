@@ -1,8 +1,9 @@
-# Asset Mate — 기능 구현 현황
+# Assets Mate — 기능 구현 현황
 
 > 작성일: 2026-04-17  
 > 기준 문서: [02-feature-specification.md](./02-feature-specification.md)  
-> 구현 범위: 저장소 내 **`mockup/`** (React + 정적 목 데이터 UI 프로토타입). 백엔드·Firefly API·실제 검색/AI 연동은 포함하지 않음.
+> 문서 인덱스: [README.md](./README.md)  
+> 구현 범위: 저장소 **루트**의 Vite 앱 **`src/`** 등 (React + 정적 목 데이터 UI 프로토타입). 백엔드·Firefly API·실제 검색/AI 연동은 포함하지 않음.
 
 ---
 
@@ -16,7 +17,7 @@
 
 ---
 
-## 구현 완료 항목 (mockup 기준)
+## 구현 완료 항목 (저장소 루트 목업 기준)
 
 아래는 상세 표에서 **목업 기능 상태**가 **완료**인 기능입니다. (전체 36개 — 세부는 절별 표 참고)
 
@@ -124,17 +125,18 @@
 | **부분** | 0 |
 | **미구현** | 0 |
 
-- **완료**는 목업(`mockup/`) 안에서 플로·화면이 갖춰진 경우이며, **추후 구현 예정**에 적은 백엔드·Adobe·알고리즘 연동은 포함하지 않음.
+- **완료**는 목업(저장소 루트 `src/` UI) 안에서 플로·화면이 갖춰진 경우이며, **추후 구현 예정**에 적은 백엔드·Adobe·알고리즘 연동은 포함하지 않음.
 - 실서비스 착수 시 본 표의 **추후 구현 예정**을 기준으로 백로그·마일스톤을 잡고, 완료 시 해당 셀을 비우거나 별도 문서로 이관할 것.
 
 ---
 
-## 관련 파일 (mockup)
+## 관련 파일 (저장소 루트 목업)
 
 | 영역 | 주요 경로 |
 |------|-----------|
-| 라우팅 | `mockup/src/App.tsx` |
-| 페이지 | `mockup/src/pages/*.tsx` (AI: `AICreativeStudio`, `BrandVariations`, `BrandCustomModel` 등) |
-| 컴포넌트 | `mockup/src/components/GenerativeFillPanel.tsx`, `GenerativeExpandPanel.tsx` |
-| 레이아웃·내비 | `mockup/src/components/AppLayout.tsx` |
-| 목 데이터 | `mockup/src/data/mock.ts` (`SOCIAL_CALENDAR_EVENTS`, `DEPLOY_HISTORY`, `CHANNEL_HEX` 등) |
+| 라우팅 | `src/App.tsx` |
+| 페이지 | `src/pages/*.tsx` (AI: `AICreativeStudio`, `BrandVariations`, `BrandCustomModel` 등) |
+| 컴포넌트 | `src/components/GenerativeFillPanel.tsx`, `GenerativeExpandPanel.tsx` |
+| 레이아웃·내비 | `src/components/AppLayout.tsx` |
+| 목 데이터 | `src/data/mock.ts` (`SOCIAL_CALENDAR_EVENTS`, `DEPLOY_HISTORY`, `CHANNEL_HEX` 등) |
+| 정적 샘플 | `public/sample/` (에셋 파일; 빌드 URL은 `/sample/...`) |

@@ -1,7 +1,8 @@
-# Asset Mate - 상세 기능 정의서
+# Assets Mate - 상세 기능 정의서
 
-> 작성일: 2026-04-16
-> 상태: 확정
+> 작성일: 2026-04-16  
+> 상태: 확정  
+> 문서 인덱스: [README.md](./README.md)  
 > 선행 문서: [01-brainstorming.md](./01-brainstorming.md)
 
 ---

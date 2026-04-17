@@ -1,6 +1,7 @@
-# Asset Mate — 통합 구현 TODO (API / MCP)
+# Assets Mate — 통합 구현 TODO (API / MCP)
 
 > 작성일: 2026-04-17  
+> 문서 인덱스: [README.md](./README.md)  
 > 기준 문서: [02-feature-specification.md](./02-feature-specification.md), [05-implement-status.md](./05-implement-status.md)  
 > 참조: [integration-reference.md](./integration-reference.md)
 
@@ -8,7 +9,7 @@
 
 ## 1. 목적
 
-- 목업(`mockup/`)은 완료되었으나 **실데이터·백엔드·외부 연동**은 미구현이다. ([05-implement-status.md](./05-implement-status.md))
+- 목업(저장소 루트 `src/` UI)은 완료되었으나 **실데이터·백엔드·외부 연동**은 미구현이다. ([05-implement-status.md](./05-implement-status.md))
 - 본 문서는 **이미 제공되는 Adobe AEM Assets API / MCP, Firefly API**를 우선 소비해야 하는 항목과, **명세상 제공되지 않아 애플리케이션에서 직접 구현**해야 하는 항목을 구분한다.
 - 공식 링크·엔드포인트는 [integration-reference.md](./integration-reference.md)를 따른다.
 
@@ -159,3 +160,4 @@
 | [02-feature-specification.md](./02-feature-specification.md) | 기능·인수 조건·Firefly API 이름 |
 | [05-implement-status.md](./05-implement-status.md) | 목업 대비 “추후 구현 예정” |
 | [integration-reference.md](./integration-reference.md) | 공식 URL·MCP 엔드포인트·요약 표 |
+| [README.md](./README.md) | `docs/` 문서 인덱스·폴더 구성·선행 관계 |

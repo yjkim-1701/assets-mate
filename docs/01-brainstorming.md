@@ -1,7 +1,8 @@
-# Asset Mate - 브레인스토밍 결과 문서
+# Assets Mate - 브레인스토밍 결과 문서
 
-> 작성일: 2026-04-16
-> 상태: 확정
+> 작성일: 2026-04-16  
+> 상태: 확정  
+> 문서 인덱스: [README.md](./README.md)
 
 ---
 
@@ -9,7 +10,7 @@
 
 ### 제품명
 
-**Asset Mate**
+**Assets Mate**
 
 ### 제품 정의
 
@@ -29,6 +30,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 - React Spectrum S2 (`@react-spectrum/s2`) - Adobe 공식 디자인 시스템
 - Style Macros (`unplugin-parcel-macros`)
 - React Router (다중 페이지)
+- UI 소스는 저장소 **루트**의 Vite 프로젝트 (`src/`, `public/`)에 위치한다.
 
 ---
 
@@ -93,7 +95,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 #### 차별점 (vs AEM 기본 검색)
 
 - AEM 기본: 키워드 기반 텍스트 검색 + 기본 메타데이터 필터
-- Asset Mate: AI 비주얼 검색 + 시맨틱 검색 + 색상 검색 + 다국어 그룹핑 + 텍소노미 트리
+- Assets Mate: AI 비주얼 검색 + 시맨틱 검색 + 색상 검색 + 다국어 그룹핑 + 텍소노미 트리
 
 ---
 
@@ -115,7 +117,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 #### 차별점 (vs AEM 기본)
 
 - AEM 기본: 수동 승인 워크플로, 메타데이터 기반 상태 관리
-- Asset Mate: AI 자동 브랜드 검사 + 스코어링 + 라이선스 추적 + 게이트 자동화
+- Assets Mate: AI 자동 브랜드 검사 + 스코어링 + 라이선스 추적 + 게이트 자동화
 
 ---
 
@@ -157,7 +159,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 #### 차별점
 
 - AEM 기본: Firefly 연동 없음, 별도 Creative Cloud 앱에서 수동 편집 필요
-- Asset Mate: DAM 내에서 바로 AI 편집 + 브랜드 검사 연계 자동 수정 + 커스텀 모델 브랜드 일관성
+- Assets Mate: DAM 내에서 바로 AI 편집 + 브랜드 검사 연계 자동 수정 + 커스텀 모델 브랜드 일관성
 
 ---
 
@@ -179,7 +181,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 #### 차별점 (vs AEM 기본)
 
 - AEM 기본: 내부 사용자 중심 리뷰, 기본 코멘트 기능
-- Asset Mate: 외부 에이전시 포털 + 비주얼 마크업 + 캠페인 워크스페이스 + 게스트 접근
+- Assets Mate: 외부 에이전시 포털 + 비주얼 마크업 + 캠페인 워크스페이스 + 게스트 접근
 
 ---
 
@@ -214,7 +216,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 #### 차별점
 
 - AEM 기본: Dynamic Media 스마트 크롭 (제한적), 소셜 채널 배포 미지원
-- Asset Mate: 전 채널 원클릭 리사이즈 + 프리뷰 + 캘린더 + 배포 + 이력 추적
+- Assets Mate: 전 채널 원클릭 리사이즈 + 프리뷰 + 캘린더 + 배포 + 이력 추적
 
 ---
 
@@ -234,7 +236,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 #### 차별점
 
 - AEM 기본: Dynamic Media 렌디션 (서버 설정 필요), 수동 프로필 구성
-- Asset Mate: 채널 인식 자동 최적화 + Theme 4 리사이징과 통합 + 배치 처리
+- Assets Mate: 채널 인식 자동 최적화 + Theme 4 리사이징과 통합 + 배치 처리
 
 ---
 
@@ -340,7 +342,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 
 ## 6. AEM Assets 대비 차별화 요약
 
-| 영역 | AEM Assets 기본 | Asset Mate 강화 |
+| 영역 | AEM Assets 기본 | Assets Mate 강화 |
 |------|----------------|-----------------|
 | 검색 | 키워드 + 메타데이터 필터 | AI 비주얼 검색, 시맨틱 검색, 색상 검색, 텍소노미 |
 | 브랜드 관리 | 수동 승인 워크플로 | AI 자동 검사, 스코어카드, 라이선스 추적 |
