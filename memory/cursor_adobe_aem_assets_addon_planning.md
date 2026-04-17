@@ -501,7 +501,7 @@ App.tsx 라우트에도 Inbox를 추가합니다.
 
 | 화면 | 설명 |
 |------|------|
-| **AI 수정 Inbox** (`/ai/inbox`) | AI 수정 결과 리스트. 상태 필터(대기/승인/거절/수정요청), 일괄 승인/거절, 미처리 건수 배지 |
+| **AI Creative Inbox** (`/ai/inbox`) | AI 수정 결과 리스트. 상태 필터(대기/승인/거절/수정요청), 일괄 승인/거절, 미처리 건수 배지 |
 | **AI 수정 승인 상세** (`/ai/inbox/:fixId`) | 전/후 비교 + 후보 선택 + 사유 입력 + Approve/Reject/Request Changes |
 
 ### 변경된 화면
@@ -620,8 +620,8 @@ cd mockup && npm run dev
 | **대시보드** | 전체 현황 (KPI, 캠페인, 브랜드 건강도, 최근 활동) | `/` |
 | **검색 & 탐색** | 통합/비주얼/색상/시맨틱 검색 + 필터 패널 + 에셋 그리드 | `/search` |
 | **브랜드 거버넌스** | 종합 스코어, 카테고리별 Meter, 위반 목록, 라이선스 만료 | `/brand` |
-| **AI Creative** | AI 수정 Inbox (상태 필터, 일괄 승인/거절) | `/ai/inbox` |
-| | AI 수정 승인 상세 (전/후 비교, 후보 선택, Approve/Reject/Request Changes) | `/ai/inbox/:fixId` |
+| **AI Creative** | AI Creative Inbox (상태 필터, 일괄 승인/거절) | `/ai/inbox` |
+| | AI Creative 승인 상세 (전/후 비교, 후보 선택, Approve/Reject/Request Changes) | `/ai/inbox/:fixId` |
 | | AI Creative Studio (자연어 편집, 프롬프트 템플릿, 브랜드 가드레일) | `/ai/studio` |
 | **협업 & 승인** | 캠페인 워크스페이스, 리뷰/승인, 승인 현황 (3탭) | `/collaboration` |
 | **소셜 리사이즈** | 8개 채널 선택, 비율별 프리뷰, AI Expand 표시 | `/social/resize` |
@@ -630,7 +630,7 @@ cd mockup && npm run dev
 ### 인터랙티브 기능
 - 사이드바 내비게이션 (활성 상태 하이라이트, AI Inbox 미처리 배지)
 - 검색 필터링 (실시간 에셋 검색)
-- AI 수정 Inbox 상태 필터 및 체크박스 일괄 선택
+- AI Creative Inbox 상태 필터 및 체크박스 일괄 선택
 - 소셜 채널 체크박스 선택/해제 및 동적 프리뷰 생성
 - AI Creative Studio 프롬프트 템플릿 클릭 및 편집 실행
 - 에셋 최적화 포맷 선택 및 에셋 체크박스 선택

@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { Text, ActionButton } from '@react-spectrum/s2';
 import { MutedBadge } from './MutedBadge';
 import Search from '@react-spectrum/s2/icons/Search';
@@ -111,7 +111,7 @@ function SidebarNavItem({ to, Icon, label, badge }: NavItemProps) {
       >
         <Icon />
       </span>
-      <span style={{ flex: 1 }}>{label}</span>
+      <span style={{ flex: 1, minWidth: 0 }}>{label}</span>
       {badge != null && badge > 0 && (
         <MutedBadge size="S" tone={isActive ? 'success' : 'accent'}>
           {badge}
@@ -121,8 +121,6 @@ function SidebarNavItem({ to, Icon, label, badge }: NavItemProps) {
   );
 }
 
-const pendingCount = AI_FIX_INBOX.filter(f => f.status === 'pending').length;
-
 const NAV_MAIN: NavItemProps[] = [
   { to: '/', Icon: Home, label: '대시보드' },
   { to: '/search', Icon: Search, label: '검색 & 탐색' },
@@ -130,7 +128,7 @@ const NAV_MAIN: NavItemProps[] = [
 ];
 
 const NAV_WORKSPACE: NavItemProps[] = [
-  { to: '/ai', Icon: MagicWand, label: 'AI Creative', badge: pendingCount },
+  { to: '/ai', Icon: MagicWand, label: 'AI Creative' },
   { to: '/collaboration', Icon: UserGroup, label: '캠페인 워크스페이스' },
   { to: '/social', Icon: SocialNetwork, label: '소셜 미디어' },
   { to: '/optimize', Icon: Export, label: '에셋 최적화' },
@@ -177,6 +175,8 @@ function BreadcrumbBar() {
   );
 }
 
+const AI_INBOX_TOTAL_COUNT = AI_FIX_INBOX.length;
+
 function TopChrome() {
   return (
     <header
@@ -222,9 +222,48 @@ function TopChrome() {
         <ActionButton isQuiet aria-label="도움말">
           <HelpCircle />
         </ActionButton>
-        <ActionButton isQuiet aria-label="알림">
-          <Bell />
-        </ActionButton>
+        <div
+          style={{
+            position: 'relative',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <ActionButton
+            isQuiet
+            aria-label={AI_INBOX_TOTAL_COUNT > 0 ? `알림, AI Creative Inbox ${AI_INBOX_TOTAL_COUNT}건` : '알림'}
+          >
+            <Bell />
+          </ActionButton>
+          {AI_INBOX_TOTAL_COUNT > 0 && (
+            <span
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: 4,
+                right: 4,
+                minWidth: 18,
+                height: 18,
+                padding: '0 5px',
+                boxSizing: 'border-box',
+                borderRadius: 999,
+                backgroundColor: '#DC2626',
+                color: '#ffffff',
+                fontSize: 10,
+                fontWeight: 700,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1,
+                pointerEvents: 'none',
+                border: `2px solid ${CM.chromeBg}`,
+              }}
+            >
+              {AI_INBOX_TOTAL_COUNT > 99 ? '99+' : AI_INBOX_TOTAL_COUNT}
+            </span>
+          )}
+        </div>
         <div style={{ width: 1, height: 24, background: CM.chromeBorder, margin: '0 4px' }} />
         <ActionButton isQuiet size="S">
           Feedback
@@ -281,7 +320,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function PageHeader({ title, description }: { title: string; description?: string }) {
+export function PageHeader({ title, description }: { title: string; description?: ReactNode }) {
   return (
     <div
       style={{
@@ -293,10 +332,16 @@ export function PageHeader({ title, description }: { title: string; description?
       <Text UNSAFE_style={{ fontSize: 22, fontWeight: 700, color: CM.text, display: 'block', letterSpacing: '-0.02em' }}>
         {title}
       </Text>
-      {description && (
-        <Text UNSAFE_style={{ fontSize: 14, color: CM.textSecondary, marginTop: 6, display: 'block', lineHeight: 1.45 }}>
-          {description}
-        </Text>
+      {description != null && description !== '' && (
+        <div style={{ marginTop: 6 }}>
+          {typeof description === 'string' ? (
+            <Text UNSAFE_style={{ fontSize: 14, color: CM.textSecondary, display: 'block', lineHeight: 1.45 }}>
+              {description}
+            </Text>
+          ) : (
+            description
+          )}
+        </div>
       )}
     </div>
   );

@@ -372,7 +372,7 @@
 브랜드 검사 위반 감지
   → AI 수정 요청 (개별 or 일괄)
   → Firefly AI 수정 실행 → 수정 후보 생성
-  → AI 수정 Inbox에 결과 등록 (상태: 대기)
+  → AI Creative Inbox에 결과 등록 (상태: 대기)
   → 담당자가 Inbox에서 전/후 비교 확인
   → Approve: 수정본이 원본을 대체 → 브랜드 재검사 자동 실행
   → Reject: 수정 폐기, 위반 상태 유지 (수동 수정 필요)
@@ -391,11 +391,11 @@
 | 전/후 비교 | 수정 전/후를 Side-by-Side로 비교, 변경 부분 하이라이트 |
 | 수정 후보 | 각 위반 항목별 최대 3개의 수정 후보 제안 |
 | 일괄 수정 | 다수 에셋의 동일 유형 위반을 일괄로 AI 수정 |
-| **AI 수정 Inbox** | AI 수정 결과를 리스트로 모아 보여주는 대기 큐 |
+| **AI Creative Inbox** | AI 수정 결과를 리스트로 모아 보여주는 대기 큐 |
 | **승인 워크플로** | Approve / Reject / Request Changes 3단계 |
 | Firefly API | Image-to-Image Instruct Edit (Image5), Fill Image API |
 
-**AI 수정 Inbox 상세**
+**AI 수정 Creative 상세**
 
 | 항목 | 설명 |
 |------|------|

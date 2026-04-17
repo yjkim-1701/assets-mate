@@ -313,7 +313,7 @@ Provider
 │           └── Button ("적용 & 저장", variant="accent")
 ```
 
-### 8.4 AI 수정 Inbox
+### 8.4 AI Creative Inbox
 
 ```
 Provider

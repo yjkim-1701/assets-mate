@@ -265,7 +265,7 @@ export default function Dashboard() {
             소셜 리사이즈
           </Button>
           <Button variant="secondary" onPress={() => navigate('/ai/inbox')}>
-            AI 수정 Inbox
+            AI Creative Inbox
             {pendingFixes > 0 && (
               <>
                 {' '}

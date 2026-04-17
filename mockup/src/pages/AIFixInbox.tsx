@@ -7,6 +7,7 @@ import { PageHeader, CM } from '../components/AppLayout';
 import { AccentButton } from '../components/AccentButton';
 import { SampleAssetImage } from '../components/SampleAssetImage';
 import { AI_FIX_INBOX, STATUS_LABELS, type FixStatus } from '../data/mock';
+import { BADGE_TOKENS, type MutedTone } from '../theme/tokens';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
 const row: React.CSSProperties = {
@@ -25,6 +26,33 @@ const STATUS_TABS: { key: string; label: string }[] = [
   { key: 'rejected', label: '거절' },
   { key: 'changes_requested', label: '수정요청' },
 ];
+
+/** 필터 탭 선택 색 — `BADGE_TOKENS` (헤더 뱃지와 동일 계열) */
+function filterTabTone(key: string): MutedTone {
+  const m: Record<string, MutedTone> = {
+    all: 'neutral',
+    pending: 'warning',
+    approved: 'success',
+    rejected: 'danger',
+    changes_requested: 'info',
+  };
+  return m[key] ?? 'neutral';
+}
+
+/** 기본 뱃지형 탭 대비 ~1.3배 (패딩·글자·모서리) */
+const filterTabBase: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 8,
+  padding: '4px 11px',
+  fontSize: 16,
+  fontWeight: 600,
+  lineHeight: 1.25,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  boxSizing: 'border-box' as const,
+};
 
 function StatusBadge({ status }: { status: FixStatus }) {
   const tone: Record<FixStatus, 'warning' | 'success' | 'danger' | 'info'> = {
@@ -46,7 +74,6 @@ export default function AIFixInbox() {
   const navigate = useNavigate();
 
   const filtered = activeFilter === 'all' ? AI_FIX_INBOX : AI_FIX_INBOX.filter(f => f.status === activeFilter);
-  const pendingCount = AI_FIX_INBOX.filter(f => f.status === 'pending').length;
 
   const toggleSelect = (id: string) => {
     const next = new Set(selected);
@@ -56,19 +83,30 @@ export default function AIFixInbox() {
 
   return (
     <>
-      <PageHeader title="AI 수정 Inbox" description={`AI가 수정한 에셋의 승인 대기 현황 · ${pendingCount}건 대기 중`} />
+      <PageHeader title="AI Creative Inbox" />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <div style={f({ gap: 8, alignItems: 'center' })}>
+        <div style={f({ gap: 10, alignItems: 'center' })}>
           {STATUS_TABS.map(tab => {
             const count = tab.key === 'all' ? AI_FIX_INBOX.length : AI_FIX_INBOX.filter(f => f.status === tab.key).length;
-            return activeFilter === tab.key ? (
-              <AccentButton key={tab.key} size="S" onPress={() => setActiveFilter(tab.key)}>
+            const isActive = activeFilter === tab.key;
+            const tone = filterTabTone(tab.key);
+            const t = BADGE_TOKENS[tone];
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveFilter(tab.key)}
+                style={{
+                  ...filterTabBase,
+                  border: `1px solid ${t.border}`,
+                  backgroundColor: t.bg,
+                  color: t.text,
+                  fontWeight: isActive ? 700 : 600,
+                  boxShadow: isActive ? `0 0 0 2px ${t.text}` : 'none',
+                }}
+              >
                 {tab.label} ({count})
-              </AccentButton>
-            ) : (
-              <Button key={tab.key} variant="secondary" size="S" onPress={() => setActiveFilter(tab.key)}>
-                {tab.label} ({count})
-              </Button>
+              </button>
             );
           })}
           <div style={{ flex: 1 }} />

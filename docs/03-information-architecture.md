@@ -27,7 +27,7 @@ Asset Mate
 │   └── 금지 에셋 관리 (/brand/restricted)
 │
 ├── AI Creative (Firefly) (/ai)
-│   ├── AI 수정 Inbox (/ai/inbox)
+│   ├── AI Creative Inbox (/ai/inbox)
 │   ├── AI 수정 승인 상세 (/ai/inbox/:fixId)
 │   ├── AI Creative Studio (/ai/studio/:assetId)
 │   ├── 브랜드 위반 AI 수정 (/ai/brand-fix/:assetId)
@@ -249,13 +249,13 @@ Asset Mate
 └────────┴────────────────────────────────────────┘
 ```
 
-### 3.7 AI 수정 Inbox
+### 3.7 AI Creative Inbox
 
 ```
 ┌─────────────────────────────────────────────────┐
 │  Header                                          │
 ├────────┬────────────────────────────────────────┤
-│        │  AI 수정 Inbox                           │
+│        │  AI Creative Inbox                           │
 │        │  필터: [전체|대기|승인|거절|수정요청]        │
 │        │  정렬: [최신순|위반유형|요청자]              │
 │ Side   ├────────────────────────────────────────┤
@@ -470,7 +470,7 @@ Asset Mate
 대시보드 → 브랜드 대시보드
   → 브랜드 검사 상세 (개별 에셋)
   → [위반 에셋] AI 수정 요청 (Firefly)
-  → AI 수정 Inbox에 Pending 등록
+  → AI Creative Inbox에 Pending 등록
   → Inbox에서 전/후 비교 확인
   → Approve / Reject / Request Changes
   → 라이선스 관리 (만료 추적)

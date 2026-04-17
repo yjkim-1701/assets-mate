@@ -272,7 +272,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 관리자가 전체 에셋의 브랜드 준수도 확인
   → 스코어카드로 위반 에셋 식별
   → 위반 에셋에 대해 Firefly AI 일괄 보정 요청
-  → AI 수정 Inbox에 결과 등록 (Pending)
+  → AI Creative Inbox에 결과 등록 (Pending)
   → Inbox에서 전/후 비교 확인 → 일괄 Approve / Reject
   → 라이선스 만료 임박 에셋 확인
 ```
@@ -322,7 +322,7 @@ Adobe AEM Assets의 기능을 강화하는 Addon 플랫폼. AEM Assets가 기본
 | 8 | 브랜드 검사 상세 | T2 | 개별 에셋 브랜드 규정 검사 결과 |
 | 9 | 라이선스 관리 | T2 | 만료 임박 라이선스 목록, 타임라인 |
 | 10 | AI Creative Studio | T3 | AI 편집 메인 화면 (자연어 입력 + 편집 캔버스) |
-| 11 | AI 수정 Inbox | T3 | AI 수정 결과 대기 리스트 (필터/정렬/일괄 승인) |
+| 11 | AI Creative Inbox | T3 | AI 수정 결과 대기 리스트 (필터/정렬/일괄 승인) |
 | 12 | AI 수정 승인 상세 | T3 | 전/후 비교 + Approve/Reject/Request Changes |
 | 13 | 브랜드 위반 AI 수정 (요청) | T3 | 위반 항목 선택 → AI 수정 실행 → Inbox로 보내기 |
 | 14 | AI 변형 생성 | T3 | 에셋 기반 시즌/무드/배경 변형 생성 + 후보 선택 |
