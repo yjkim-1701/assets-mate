@@ -265,7 +265,7 @@ Provider (background="base")
 │           └── Button × 3 (검색, 리사이즈, 리뷰)
 ```
 
-### 8.2 통합 검색
+### 8.2 필터 검색
 
 ```
 Provider
@@ -273,7 +273,7 @@ Provider
 │   ├── NavGroup (사이드바)
 │   └── Flex (메인, direction="column")
 │       ├── ActionBar (헤더)
-│       ├── Tabs (검색 모드: 통합/비주얼/색상/시맨틱)
+│       ├── Tabs (검색 모드: 필터/비주얼/색상/시맨틱)
 │       ├── SearchField (대형 검색바)
 │       ├── TagGroup (적용된 필터 태그)
 │       └── Flex (필터 패널 + 결과)
@@ -285,6 +285,24 @@ Provider
 │           │   └── Picker (언어)
 │           └── CardView (에셋 그리드)
 │               └── Card × N (에셋 카드)
+```
+
+### 8.2.1 AI 검색 (대화형, 명세 F-1.8)
+
+```
+Provider
+├── Flex (메인)
+│   ├── Tabs (… AI 검색 탭 선택 시)
+│   └── Grid (2열: 채팅 열 | 결과 열)
+│       ├── Flex (채팅 열, direction="column")
+│       │   ├── ScrollView (대화 스레드: 사용자/어시스턴트 말풍선)
+│       │   ├── ButtonGroup (참조 에셋 빠른 선택, 목업)
+│       │   └── Flex (TextField 메시지 + Button 보내기)
+│       └── Flex (결과 열, direction="column")
+│           ├── Flex (도구: 조건·대화 초기화, 그리드/리스트)
+│           ├── TagGroup (파싱된 SearchIntent 칩, 개별 제거)
+│           ├── Text (건수 안내)
+│           └── CardView (에셋 그리드, 유사도·매칭 이유 배지)
 ```
 
 ### 8.3 AI Creative Studio

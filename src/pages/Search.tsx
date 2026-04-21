@@ -1,11 +1,28 @@
 import { Text, SearchField, Button, Checkbox, TextField } from '@react-spectrum/s2';
 import { MutedBadge } from '../components/MutedBadge';
 import Video from '@react-spectrum/s2/icons/Video';
-import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import Add from '@react-spectrum/s2/icons/Add';
+import Send from '@react-spectrum/s2/icons/Send';
+import { useState, useMemo, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
 import { SampleAssetImage } from '../components/SampleAssetImage';
 import { ASSETS, type Asset } from '../data/mock';
+import {
+  buildTaxonomyCounts,
+  colorMatches,
+  matchesTaxonomyPrefix,
+  mockVisualSimilarity,
+  semanticScore,
+} from '../lib/assetSearch';
+import {
+  applyIntentToAssets,
+  emptySearchIntent,
+  intentHasActiveConstraints,
+  parseChatToIntent,
+  summarizeIntent,
+  type SearchIntent,
+} from '../data/searchIntentMock';
 
 const f = (extra?: React.CSSProperties): React.CSSProperties => ({ display: 'flex', ...extra });
 const card: React.CSSProperties = {
@@ -17,7 +34,8 @@ const card: React.CSSProperties = {
 };
 
 const TABS: { id: string; label: string }[] = [
-  { id: 'integrated', label: '통합 검색' },
+  { id: 'ai_chat', label: 'AI 검색' },
+  { id: 'integrated', label: '필터 검색' },
   { id: 'visual', label: '비주얼 유사도' },
   { id: 'color', label: '색상 검색' },
   { id: 'semantic', label: '시맨틱 검색' },
@@ -65,70 +83,34 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
-function buildTaxonomyCounts(assets: Asset[]): Map<string, number> {
-  const m = new Map<string, number>();
-  for (const a of assets) {
-    for (let d = 1; d <= a.taxonomyPath.length; d++) {
-      const key = a.taxonomyPath.slice(0, d).join('/');
-      m.set(key, (m.get(key) ?? 0) + 1);
-    }
-  }
-  return m;
-}
-
-function matchesTaxonomyPrefix(path: string[], prefix: string[]): boolean {
-  if (prefix.length === 0) return true;
-  if (path.length < prefix.length) return false;
-  return prefix.every((p, i) => path[i] === p);
-}
-
-function mockVisualSimilarity(a: Asset, ref: Asset | null): number {
-  if (!ref) return 100;
-  let s = 100 - 14 * Math.abs(a.visualBucket - ref.visualBucket);
-  if (a.campaign === ref.campaign) s += 6;
-  return Math.max(0, Math.min(100, Math.round(s)));
-}
-
-function colorMatches(asset: Asset, swatches: string[], dominance: number): boolean {
-  if (swatches.length === 0) return true;
-  const tol = Math.max(0.2, 1 - dominance / 120);
-  return asset.dominantColors.some(dc => {
-    const dh = dc.replace('#', '').toLowerCase();
-    return swatches.some(sw => {
-      const sh = sw.replace('#', '').toLowerCase();
-      if (dh === sh) return true;
-      let match = 0;
-      for (let i = 0; i < Math.min(dh.length, sh.length); i++) if (dh[i] === sh[i]) match++;
-      return match / 6 >= tol;
-    });
-  });
-}
-
-function semanticScore(query: string, asset: Asset): { ok: boolean; reasons: string[] } {
-  const q = query.trim().toLowerCase();
-  if (!q) return { ok: true, reasons: [] };
-  const tokens = q.split(/\s+/).filter(Boolean);
-  const reasons: string[] = [];
-  for (const h of asset.semanticHints) {
-    const hl = h.toLowerCase();
-    if (tokens.some(t => hl.includes(t) || t.length >= 2 && hl.includes(t.slice(0, 2)))) reasons.push(h);
-  }
-  if (asset.name.toLowerCase().includes(q)) reasons.push('파일명');
-  if (asset.campaign.toLowerCase().includes(q)) reasons.push('캠페인');
-  const ok = reasons.length > 0 || tokens.some(t => asset.taxonomyPath.some(p => p.toLowerCase().includes(t)));
-  if (!ok && tokens.some(t => asset.taxonomyPath.join(' ').toLowerCase().includes(t))) reasons.push('분류');
-  return { ok: ok || reasons.length > 0, reasons: reasons.length ? reasons : ['메타/태그'] };
-}
-
 type SavedFilter = { name: string; payload: string };
+
+const TAB_INDEX = {
+  ai_chat: 0,
+  integrated: 1,
+  visual: 2,
+  color: 3,
+  semantic: 4,
+  multilang: 5,
+  duplicate: 6,
+  taxonomy: 7,
+} as const;
 
 export default function Search() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState(0);
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<number>(() => {
+    const c = searchParams.get('campaign');
+    if (c && ASSETS.some(a => a.campaign === c)) return TAB_INDEX.integrated;
+    return TAB_INDEX.ai_chat;
+  });
   const [query, setQuery] = useState('');
   const [gridMode, setGridMode] = useState<'grid' | 'list'>('grid');
 
-  const [selCampaigns, setSelCampaigns] = useState<Set<string>>(new Set());
+  const [selCampaigns, setSelCampaigns] = useState<Set<string>>(() => {
+    const c = searchParams.get('campaign');
+    return c && ASSETS.some(a => a.campaign === c) ? new Set([c]) : new Set();
+  });
   const [selChannels, setSelChannels] = useState<Set<string>>(new Set());
   const [selSeasons, setSelSeasons] = useState<Set<string>>(new Set());
   const [selStatus, setSelStatus] = useState<Set<string>>(new Set());
@@ -153,6 +135,22 @@ export default function Search() {
 
   const [duplicateKeep, setDuplicateKeep] = useState<Record<string, string>>({});
 
+  const [aiMessages, setAiMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([]);
+  const [searchIntent, setSearchIntent] = useState<SearchIntent>(() => emptySearchIntent());
+  const [aiInput, setAiInput] = useState('');
+  const [aiUploadFile, setAiUploadFile] = useState<File | null>(null);
+  const [aiUploadPreview, setAiUploadPreview] = useState<string | null>(null);
+  const aiImageInputRef = useRef<HTMLInputElement>(null);
+  const aiTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const clearAiUpload = useCallback(() => {
+    setAiUploadPreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setAiUploadFile(null);
+  }, []);
+
   const campaigns = useMemo(() => [...new Set(ASSETS.map(a => a.campaign))], []);
 
   const taxonomyCounts = useMemo(() => buildTaxonomyCounts(ASSETS), []);
@@ -174,6 +172,13 @@ export default function Search() {
       if (suggestTimer.current) clearTimeout(suggestTimer.current);
     };
   }, [semanticQuery]);
+
+  useEffect(() => {
+    const el = aiTextareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(Math.max(el.scrollHeight, 40), 168)}px`;
+  }, [aiInput]);
 
   const toggle = (set: React.Dispatch<React.SetStateAction<Set<string>>>, key: string) => {
     set(prev => {
@@ -222,6 +227,8 @@ export default function Search() {
   const taxonomyFiltered = useMemo(() => {
     return ASSETS.filter(a => matchesTaxonomyPrefix(a.taxonomyPath, taxonomyPrefix));
   }, [taxonomyPrefix]);
+
+  const aiSearchResults = useMemo(() => applyIntentToAssets(ASSETS, searchIntent), [searchIntent]);
 
   const langGroups = useMemo(() => {
     const m = new Map<string, Asset[]>();
@@ -307,6 +314,40 @@ export default function Search() {
     e.preventDefault();
     setDragOver(false);
     setVisualRefId('a1');
+  };
+
+  const onAiImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !file.type.startsWith('image/')) return;
+    setAiUploadPreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+    setAiUploadFile(file);
+  };
+
+  const sendAiChat = () => {
+    const t = aiInput.trim();
+    if (!t && !aiUploadFile) return;
+    let nextIntent = t ? parseChatToIntent(searchIntent, t) : { ...searchIntent };
+    if (aiUploadFile) {
+      nextIntent = {
+        ...nextIntent,
+        uploadedImageFileName: aiUploadFile.name,
+        uploadedImageMockRefId: 'a1',
+        ...(!t ? { referenceAssetId: null as string | null } : {}),
+      };
+    }
+    setSearchIntent(nextIntent);
+    const userText = t || (aiUploadFile ? `이미지 업로드: ${aiUploadFile.name}` : '');
+    setAiMessages(prev => [
+      ...prev,
+      { role: 'user', text: userText },
+      { role: 'assistant', text: summarizeIntent(nextIntent) },
+    ]);
+    setAiInput('');
+    clearAiUpload();
   };
 
   const renderAssetCard = (
@@ -601,6 +642,360 @@ export default function Search() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {tabId === 'ai_chat' && (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(280px, 360px) 1fr',
+              gap: 20,
+              alignItems: 'stretch',
+            }}
+          >
+            <div style={{ ...card, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 420 }}>
+              <Text UNSAFE_style={{ fontSize: 15, fontWeight: 'bold' }}>AI 검색 (대화)</Text>
+              <Text UNSAFE_style={{ fontSize: 12, color: CM.textMuted }}>
+                예: 「2026 Summer 캠페인 인스타용 히어로 느낌」·「a1이랑 비슷한 배너」·「뉴스레터」·「파랑 톤」·+ 첨부 후 여러 줄 입력·비행기 아이콘으로 전송
+              </Text>
+              <div
+                style={{
+                  flex: 1,
+                  overflowY: 'auto',
+                  border: `1px solid ${CM.cardBorder}`,
+                  borderRadius: 8,
+                  padding: 10,
+                  backgroundColor: CM.mainBg,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                  minHeight: 200,
+                }}
+              >
+                {aiMessages.map((msg, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                      maxWidth: '92%',
+                      padding: '8px 12px',
+                      borderRadius: 10,
+                      backgroundColor: msg.role === 'user' ? CM.infoBg : CM.panelBg,
+                      border: `1px solid ${CM.cardBorder}`,
+                      fontSize: 13,
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {msg.text}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <input ref={aiImageInputRef} type="file" accept="image/*" hidden onChange={onAiImageChange} />
+                {aiUploadPreview && aiUploadFile && (
+                  <div
+                    style={{
+                      ...f({ gap: 10, alignItems: 'center' }),
+                      padding: 10,
+                      borderRadius: 8,
+                      backgroundColor: CM.panelBg,
+                      border: `1px solid ${CM.cardBorder}`,
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: 72,
+                        height: 72,
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                        border: `1px solid ${CM.cardBorder}`,
+                        flexShrink: 0,
+                        backgroundColor: CM.surfacePlaceholder,
+                      }}
+                    >
+                      <img src={aiUploadPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <Text UNSAFE_style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+                        첨부 이미지
+                      </Text>
+                      <span
+                        title={aiUploadFile.name}
+                        style={{
+                          fontSize: 12,
+                          color: CM.textSecondary,
+                          display: 'block',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {aiUploadFile.name}
+                      </span>
+                      <Text UNSAFE_style={{ fontSize: 11, color: CM.textMuted, marginTop: 4, display: 'block' }}>
+                        아래에 메시지를 입력한 뒤 오른쪽 비행기(전송) 버튼으로 전송하면 검색에 반영됩니다.
+                      </Text>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label="첨부 이미지 제거"
+                      onClick={clearAiUpload}
+                      style={{
+                        alignSelf: 'flex-start',
+                        marginTop: 2,
+                        padding: '6px 10px',
+                        borderRadius: 6,
+                        border: `1px solid ${CM.cardBorder}`,
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        backgroundColor: CM.panelBg,
+                        color: CM.textSecondary,
+                      }}
+                    >
+                      제거
+                    </button>
+                  </div>
+                )}
+                <div
+                  style={{
+                    ...f({ alignItems: 'flex-end', gap: 6 }),
+                    padding: '6px 8px 6px 12px',
+                    borderRadius: 12,
+                    border: `1px solid ${CM.cardBorder}`,
+                    backgroundColor: CM.panelBg,
+                    boxShadow: CM.cardShadow,
+                  }}
+                >
+                  <textarea
+                    ref={aiTextareaRef}
+                    value={aiInput}
+                    onChange={e => setAiInput(e.target.value)}
+                    placeholder="메시지를 입력하세요."
+                    rows={1}
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      minHeight: 40,
+                      maxHeight: 168,
+                      resize: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      background: 'transparent',
+                      fontSize: 14,
+                      fontFamily: 'inherit',
+                      lineHeight: 1.5,
+                      padding: '10px 4px 10px 0',
+                      color: CM.text,
+                    }}
+                  />
+                  <div
+                    style={{
+                      ...f({ alignItems: 'center', gap: 2 }),
+                      flexShrink: 0,
+                      paddingBottom: 4,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      aria-label="이미지 첨부"
+                      onClick={() => aiImageInputRef.current?.click()}
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 8,
+                        border: 'none',
+                        background: 'transparent',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: CM.textSecondary,
+                      }}
+                    >
+                      <span style={{ display: 'flex', width: 20, height: 20 }}>
+                        <Add />
+                      </span>
+                    </button>
+                    <div
+                      style={{
+                        width: 1,
+                        height: 22,
+                        backgroundColor: CM.cardBorder,
+                        margin: '0 4px',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <button
+                      type="button"
+                      aria-label="메시지 보내기"
+                      onClick={sendAiChat}
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 10,
+                        border: `1px solid ${CM.cardBorder}`,
+                        backgroundColor: '#E5E7EB',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: CM.text,
+                        boxShadow: '0 1px 2px rgba(15, 23, 42, 0.05)',
+                      }}
+                    >
+                      <span style={{ display: 'flex', width: 20, height: 20 }}>
+                        <Send />
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ ...card, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={f({ justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 })}>
+                <Text UNSAFE_style={{ fontSize: 15, fontWeight: 'bold' }}>적용 조건 · 결과</Text>
+                <div style={f({ gap: 8 })}>
+                  <Button
+                    variant="secondary"
+                    size="S"
+                    onPress={() => {
+                      setSearchIntent(emptySearchIntent());
+                      setAiMessages([]);
+                      clearAiUpload();
+                    }}
+                  >
+                    조건·대화 초기화
+                  </Button>
+                  <Button variant={gridMode === 'grid' ? 'accent' : 'secondary'} size="S" onPress={() => setGridMode('grid')}>
+                    그리드
+                  </Button>
+                  <Button variant={gridMode === 'list' ? 'accent' : 'secondary'} size="S" onPress={() => setGridMode('list')}>
+                    리스트
+                  </Button>
+                </div>
+              </div>
+              <div style={f({ gap: 6, flexWrap: 'wrap', alignItems: 'center' })}>
+                {searchIntent.campaigns.map(c => (
+                  <MutedBadge key={`c-${c}`} tone="neutral" size="S">
+                    캠페인: {c}
+                    <button
+                      type="button"
+                      aria-label={`${c} 조건 제거`}
+                      style={{ marginLeft: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}
+                      onClick={() => setSearchIntent(prev => ({ ...prev, campaigns: prev.campaigns.filter(x => x !== c) }))}
+                    >
+                    ×
+                  </button>
+                  </MutedBadge>
+                ))}
+                {searchIntent.channels.map(ch => (
+                  <MutedBadge key={`ch-${ch}`} tone="neutral" size="S">
+                    채널: {ch}
+                    <button
+                      type="button"
+                      aria-label={`${ch} 조건 제거`}
+                      style={{ marginLeft: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}
+                      onClick={() => setSearchIntent(prev => ({ ...prev, channels: prev.channels.filter(x => x !== ch) }))}
+                    >
+                    ×
+                    </button>
+                  </MutedBadge>
+                ))}
+                {searchIntent.hexColors.map(hx => (
+                  <MutedBadge key={hx} tone="info" size="S">
+                    색: {hx}
+                    <button
+                      type="button"
+                      aria-label={`색 ${hx} 제거`}
+                      style={{ marginLeft: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}
+                      onClick={() => setSearchIntent(prev => ({ ...prev, hexColors: prev.hexColors.filter(x => x !== hx) }))}
+                    >
+                    ×
+                    </button>
+                  </MutedBadge>
+                ))}
+                {searchIntent.taxonomyPrefix.length > 0 && (
+                  <MutedBadge tone="accent" size="S">
+                    분류: {searchIntent.taxonomyPrefix.join(' › ')}
+                    <button
+                      type="button"
+                      aria-label="텍소노미 조건 제거"
+                      style={{ marginLeft: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}
+                      onClick={() => setSearchIntent(prev => ({ ...prev, taxonomyPrefix: [] }))}
+                    >
+                    ×
+                    </button>
+                  </MutedBadge>
+                )}
+                {searchIntent.uploadedImageFileName && (
+                  <MutedBadge tone="accent" size="S">
+                    업로드: {searchIntent.uploadedImageFileName}
+                    <button
+                      type="button"
+                      aria-label="업로드 이미지 조건 제거"
+                      style={{ marginLeft: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}
+                      onClick={() =>
+                        setSearchIntent(prev => ({
+                          ...prev,
+                          uploadedImageFileName: null,
+                          uploadedImageMockRefId: null,
+                        }))
+                      }
+                    >
+                    ×
+                    </button>
+                  </MutedBadge>
+                )}
+                {searchIntent.referenceAssetId && (
+                  <MutedBadge tone="accent" size="S">
+                    참조: {searchIntent.referenceAssetId}
+                    <button
+                      type="button"
+                      aria-label="참조 에셋 제거"
+                      style={{ marginLeft: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}
+                      onClick={() => setSearchIntent(prev => ({ ...prev, referenceAssetId: null }))}
+                    >
+                    ×
+                    </button>
+                  </MutedBadge>
+                )}
+                {searchIntent.textQuery.trim() && (
+                  <MutedBadge tone="info" size="S">
+                    키워드 누적
+                    <button
+                      type="button"
+                      aria-label="키워드 초기화"
+                      style={{ marginLeft: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}
+                      onClick={() => setSearchIntent(prev => ({ ...prev, textQuery: '' }))}
+                    >
+                    ×
+                    </button>
+                  </MutedBadge>
+                )}
+              </div>
+              <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>
+                {aiSearchResults.results.length}개 에셋 (교집합 필터 · 목업 규칙 파싱)
+                {!intentHasActiveConstraints(searchIntent) && ' · 조건이 없으면 전체 목록을 보여 줍니다.'}
+              </Text>
+              <div
+                style={
+                  gridMode === 'grid'
+                    ? { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }
+                    : { display: 'flex', flexDirection: 'column', gap: 8 }
+                }
+              >
+                {aiSearchResults.results.map(a => {
+                  const meta = aiSearchResults.metaById[a.id];
+                  return renderAssetCard(a, {
+                    similarity: meta?.similarity,
+                    matchReasons: meta?.matchReasons,
+                  });
+                })}
+              </div>
+            </div>
           </div>
         )}
 

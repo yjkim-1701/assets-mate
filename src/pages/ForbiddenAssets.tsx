@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Text, Button, InlineAlert } from '@react-spectrum/s2';
 import { PageHeader, CM } from '../components/AppLayout';
 import { MutedBadge } from '../components/MutedBadge';
@@ -7,6 +7,7 @@ import { AccentButton } from '../components/AccentButton';
 import {
   FORBIDDEN_ASSETS,
   FORBIDDEN_REASON_LABELS,
+  getForbiddenRowPrimaryCampaign,
   type ForbiddenAssetRow,
 } from '../data/mock';
 
@@ -19,10 +20,117 @@ const card: React.CSSProperties = {
   boxShadow: CM.cardShadow,
 };
 
+function sortCampaignGroupKeys(keys: string[]): string[] {
+  return [...keys].sort((a, b) => {
+    if (a === '캠페인 미지정') return 1;
+    if (b === '캠페인 미지정') return -1;
+    return a.localeCompare(b, 'ko');
+  });
+}
+
+function ForbiddenTableRow({
+  row,
+  selected,
+  toggle,
+  simulateDownloadBlock,
+}: {
+  row: ForbiddenAssetRow;
+  selected: Set<string>;
+  toggle: (id: string) => void;
+  simulateDownloadBlock: (name: string) => void;
+}) {
+  return (
+    <tr style={{ borderBottom: `1px solid ${CM.cardBorder}` }}>
+      <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
+        <input
+          type="checkbox"
+          checked={selected.has(row.id)}
+          onChange={() => toggle(row.id)}
+          aria-label={`${row.assetName} 선택`}
+        />
+      </td>
+      <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
+        <div style={f({ gap: 10, alignItems: 'center' })}>
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 8,
+              overflow: 'hidden',
+              backgroundColor: CM.surfacePlaceholder,
+              flexShrink: 0,
+            }}
+          >
+            <SampleAssetImage filename={row.assetName} />
+          </div>
+          <div style={f({ flexDirection: 'column', gap: 4 })}>
+            <div style={f({ gap: 6, alignItems: 'center', flexWrap: 'wrap' })}>
+              <Text UNSAFE_style={{ fontWeight: 600 }}>{row.assetName}</Text>
+              <MutedBadge tone="danger" size="S">
+                사용 금지
+              </MutedBadge>
+            </div>
+            <Text UNSAFE_style={{ fontSize: 11, color: CM.textMuted }}>{row.assetId}</Text>
+          </div>
+        </div>
+      </td>
+      <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
+        <MutedBadge tone="warning" size="S">
+          {FORBIDDEN_REASON_LABELS[row.reason]}
+        </MutedBadge>
+      </td>
+      <td style={{ padding: '12px 8px', verticalAlign: 'top', color: CM.textSecondary }}>{row.forbiddenAt}</td>
+      <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
+        {row.replacementName ? (
+          <div style={f({ flexDirection: 'column', gap: 4 })}>
+            <Text UNSAFE_style={{ fontSize: 13 }}>{row.replacementName}</Text>
+            <Button variant="secondary" size="S" onPress={() => {}}>
+              대체로 이동
+            </Button>
+          </div>
+        ) : (
+          <Text UNSAFE_style={{ fontSize: 12, color: CM.textMuted }}>제안 없음</Text>
+        )}
+      </td>
+      <td style={{ padding: '12px 8px', verticalAlign: 'top', maxWidth: 220 }}>
+        {row.usedIn.map((u, i) => (
+          <div key={i} style={{ marginBottom: 4 }}>
+            <Text UNSAFE_style={{ fontSize: 12 }}>
+              {u.type === 'campaign' ? '캠페인' : '페이지'} · {u.name}
+            </Text>
+          </div>
+        ))}
+      </td>
+      <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
+        <Button variant="accent" size="S" onPress={() => simulateDownloadBlock(row.assetName)}>
+          다운로드 시도
+        </Button>
+      </td>
+    </tr>
+  );
+}
+
 export default function ForbiddenAssets() {
   const [rows, setRows] = useState<ForbiddenAssetRow[]>(() => [...FORBIDDEN_ASSETS]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [banner, setBanner] = useState<string | null>(null);
+  const [listMode, setListMode] = useState<'flat' | 'byCampaign'>('flat');
+
+  const rowsByCampaign = useMemo(() => {
+    const m = new Map<string, ForbiddenAssetRow[]>();
+    for (const row of rows) {
+      const c = getForbiddenRowPrimaryCampaign(row);
+      const arr = m.get(c) ?? [];
+      arr.push(row);
+      m.set(c, arr);
+    }
+    return m;
+  }, [rows]);
+
+  const campaignKeysSorted = useMemo(
+    () => sortCampaignGroupKeys([...rowsByCampaign.keys()]),
+    [rowsByCampaign]
+  );
 
   const toggle = (id: string) => {
     setSelected(prev => {
@@ -81,98 +189,96 @@ export default function ForbiddenAssets() {
           </Text>
         </div>
 
+        <div style={f({ gap: 12, alignItems: 'center', flexWrap: 'wrap' })}>
+          <Text UNSAFE_style={{ fontSize: 14, fontWeight: 600 }}>목록 보기</Text>
+          <div style={f({ gap: 8 })}>
+            <Button variant={listMode === 'flat' ? 'accent' : 'secondary'} size="S" onPress={() => setListMode('flat')}>
+              전체
+            </Button>
+            <Button
+              variant={listMode === 'byCampaign' ? 'accent' : 'secondary'}
+              size="S"
+              onPress={() => setListMode('byCampaign')}
+            >
+              캠페인별
+            </Button>
+          </div>
+          <Text UNSAFE_style={{ fontSize: 12, color: CM.textMuted }}>
+            캠페인별은 참조의 첫 캠페인을 기준으로 묶습니다.
+          </Text>
+        </div>
+
         <div style={card}>
           <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold', display: 'block', marginBottom: 16 }}>
             금지 목록 ({rows.length})
           </Text>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead>
-                <tr style={{ textAlign: 'left', borderBottom: `1px solid ${CM.cardBorder}` }}>
-                  <th style={{ padding: '10px 8px', width: 36 }} />
-                  <th style={{ padding: '10px 8px' }}>에셋</th>
-                  <th style={{ padding: '10px 8px' }}>사유</th>
-                  <th style={{ padding: '10px 8px' }}>금지 일시</th>
-                  <th style={{ padding: '10px 8px' }}>대체 에셋</th>
-                  <th style={{ padding: '10px 8px' }}>참조</th>
-                  <th style={{ padding: '10px 8px' }}>액션</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map(row => (
-                  <tr key={row.id} style={{ borderBottom: `1px solid ${CM.cardBorder}` }}>
-                    <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
-                      <input
-                        type="checkbox"
-                        checked={selected.has(row.id)}
-                        onChange={() => toggle(row.id)}
-                        aria-label={`${row.assetName} 선택`}
-                      />
-                    </td>
-                    <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
-                      <div style={f({ gap: 10, alignItems: 'center' })}>
-                        <div
-                          style={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: 8,
-                            overflow: 'hidden',
-                            backgroundColor: CM.surfacePlaceholder,
-                            flexShrink: 0,
-                          }}
-                        >
-                          <SampleAssetImage filename={row.assetName} />
-                        </div>
-                        <div style={f({ flexDirection: 'column', gap: 4 })}>
-                          <div style={f({ gap: 6, alignItems: 'center', flexWrap: 'wrap' })}>
-                            <Text UNSAFE_style={{ fontWeight: 600 }}>{row.assetName}</Text>
-                            <MutedBadge tone="danger" size="S">
-                              사용 금지
-                            </MutedBadge>
-                          </div>
-                          <Text UNSAFE_style={{ fontSize: 11, color: CM.textMuted }}>{row.assetId}</Text>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
-                      <MutedBadge tone="warning" size="S">
-                        {FORBIDDEN_REASON_LABELS[row.reason]}
-                      </MutedBadge>
-                    </td>
-                    <td style={{ padding: '12px 8px', verticalAlign: 'top', color: CM.textSecondary }}>
-                      {row.forbiddenAt}
-                    </td>
-                    <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
-                      {row.replacementName ? (
-                        <div style={f({ flexDirection: 'column', gap: 4 })}>
-                          <Text UNSAFE_style={{ fontSize: 13 }}>{row.replacementName}</Text>
-                          <Button variant="secondary" size="S" onPress={() => {}}>
-                            대체로 이동
-                          </Button>
-                        </div>
-                      ) : (
-                        <Text UNSAFE_style={{ fontSize: 12, color: CM.textMuted }}>제안 없음</Text>
-                      )}
-                    </td>
-                    <td style={{ padding: '12px 8px', verticalAlign: 'top', maxWidth: 220 }}>
-                      {row.usedIn.map((u, i) => (
-                        <div key={i} style={{ marginBottom: 4 }}>
-                          <Text UNSAFE_style={{ fontSize: 12 }}>
-                            {u.type === 'campaign' ? '캠페인' : '페이지'} · {u.name}
-                          </Text>
-                        </div>
-                      ))}
-                    </td>
-                    <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
-                      <Button variant="accent" size="S" onPress={() => simulateDownloadBlock(row.assetName)}>
-                        다운로드 시도
-                      </Button>
-                    </td>
+          {listMode === 'flat' ? (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', borderBottom: `1px solid ${CM.cardBorder}` }}>
+                    <th style={{ padding: '10px 8px', width: 36 }} />
+                    <th style={{ padding: '10px 8px' }}>에셋</th>
+                    <th style={{ padding: '10px 8px' }}>사유</th>
+                    <th style={{ padding: '10px 8px' }}>금지 일시</th>
+                    <th style={{ padding: '10px 8px' }}>대체 에셋</th>
+                    <th style={{ padding: '10px 8px' }}>참조</th>
+                    <th style={{ padding: '10px 8px' }}>액션</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {rows.map(row => (
+                    <ForbiddenTableRow
+                      key={row.id}
+                      row={row}
+                      selected={selected}
+                      toggle={toggle}
+                      simulateDownloadBlock={simulateDownloadBlock}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div style={f({ flexDirection: 'column', gap: 20 })}>
+              {campaignKeysSorted.map(campaign => (
+                <div key={campaign}>
+                  <div style={f({ alignItems: 'center', gap: 10, marginBottom: 10 })}>
+                    <Text UNSAFE_style={{ fontSize: 15, fontWeight: 700 }}>{campaign}</Text>
+                    <MutedBadge tone="neutral" size="S">
+                      {(rowsByCampaign.get(campaign) ?? []).length}건
+                    </MutedBadge>
+                  </div>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                      <thead>
+                        <tr style={{ textAlign: 'left', borderBottom: `1px solid ${CM.cardBorder}` }}>
+                          <th style={{ padding: '10px 8px', width: 36 }} />
+                          <th style={{ padding: '10px 8px' }}>에셋</th>
+                          <th style={{ padding: '10px 8px' }}>사유</th>
+                          <th style={{ padding: '10px 8px' }}>금지 일시</th>
+                          <th style={{ padding: '10px 8px' }}>대체 에셋</th>
+                          <th style={{ padding: '10px 8px' }}>참조</th>
+                          <th style={{ padding: '10px 8px' }}>액션</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(rowsByCampaign.get(campaign) ?? []).map(row => (
+                          <ForbiddenTableRow
+                            key={row.id}
+                            row={row}
+                            selected={selected}
+                            toggle={toggle}
+                            simulateDownloadBlock={simulateDownloadBlock}
+                          />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           {rows.length === 0 && (
             <Text UNSAFE_style={{ fontSize: 14, color: CM.textSecondary, padding: 24 }}>
               등록된 금지 에셋이 없습니다.

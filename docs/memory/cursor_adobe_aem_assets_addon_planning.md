@@ -619,7 +619,7 @@ npm run dev
 | 메뉴 | 화면 | 경로 |
 |------|------|------|
 | **대시보드** | 전체 현황 (KPI, 캠페인, 브랜드 건강도, 최근 활동) | `/` |
-| **검색 & 탐색** | 통합/비주얼/색상/시맨틱 검색 + 필터 패널 + 에셋 그리드 | `/search` |
+| **검색 & 탐색** | 필터/비주얼/색상/시맨틱 검색 + 필터 패널 + 에셋 그리드 | `/search` |
 | **브랜드 거버넌스** | 종합 스코어, 카테고리별 Meter, 위반 목록, 라이선스 만료 | `/brand` |
 | **AI Creative** | AI Creative Inbox (상태 필터, 일괄 승인/거절) | `/ai/inbox` |
 | | AI Creative 승인 상세 (전/후 비교, 후보 선택, Approve/Reject/Request Changes) | `/ai/inbox/:fixId` |

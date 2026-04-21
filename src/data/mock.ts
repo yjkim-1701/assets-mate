@@ -446,7 +446,131 @@ export const BRAND_VIOLATIONS = [
   { id: 'v2', assetId: 'a3', assetName: 'social_post_03.png', type: 'logo', description: '로고 여백 부족 - 최소 여백 24px 미달 (현재 12px)', severity: 'high', scoreBefore: 45, scoreAfter: 88 },
   { id: 'v3', assetId: 'a7', assetName: 'infographic_stats.png', type: 'text', description: '브랜드 폰트 미사용 - Arial 대신 Noto Sans KR 사용 필요', severity: 'medium', scoreBefore: 52, scoreAfter: 85 },
   { id: 'v4', assetId: 'a2', assetName: 'promo_banner_v2.png', type: 'background', description: '배경 톤 불일치 - 브랜드 톤보다 차가운 색상 사용', severity: 'low', scoreBefore: 68, scoreAfter: 94 },
+] as const;
+
+export type BrandViolation = (typeof BRAND_VIOLATIONS)[number];
+
+const ASSET_CAMPAIGN_BY_ID: Record<string, string> = Object.fromEntries(ASSETS.map(a => [a.id, a.campaign]));
+
+/** 에셋 ID로 캠페인명 조회 (목업 ASSETS에 없으면 미분류) */
+export function getCampaignForAsset(assetId: string): string {
+  return ASSET_CAMPAIGN_BY_ID[assetId] ?? '미분류';
+}
+
+export function groupBrandViolationsByCampaign(
+  violations: readonly BrandViolation[]
+): Map<string, BrandViolation[]> {
+  const m = new Map<string, BrandViolation[]>();
+  for (const v of violations) {
+    const c = getCampaignForAsset(v.assetId);
+    const arr = m.get(c) ?? [];
+    arr.push(v);
+    m.set(c, arr);
+  }
+  return m;
+}
+
+/** 만료 임박 라이선스 — 브랜드 거버넌스 캠페인 그룹용 */
+export type LicenseExpiringRow = {
+  id: string;
+  assetName: string;
+  daysLeft: number;
+  type: string;
+  campaign: string;
+  /** 목업 에셋과 연결되는 경우 */
+  assetId?: string | null;
+};
+
+export const LICENSES_EXPIRING: LicenseExpiringRow[] = [
+  {
+    id: 'lex1',
+    assetName: 'stock_lifestyle_01.png',
+    daysLeft: 7,
+    type: '스톡 이미지',
+    campaign: '2026 Summer',
+    assetId: null,
+  },
+  {
+    id: 'lex2',
+    assetName: 'social_post_03.png',
+    daysLeft: 14,
+    type: '모델 초상권',
+    campaign: 'Brand Refresh',
+    assetId: 'a3',
+  },
+  {
+    id: 'lex3',
+    assetName: 'bg_texture_03.jpg',
+    daysLeft: 30,
+    type: '스톡 이미지',
+    campaign: 'Q2 Newsletter',
+    assetId: null,
+  },
 ];
+
+export type CampaignGovernanceSummary = {
+  campaign: string;
+  avgBrandScore: number;
+  assetCount: number;
+  violationCount: number;
+  licensesExpiringCount: number;
+};
+
+/** 캠페인별 평균 브랜드 스코어·위반 건수·만료 임박 라이선스 건수 */
+export function buildCampaignGovernanceSummaries(): CampaignGovernanceSummary[] {
+  const scoresByCampaign = new Map<string, number[]>();
+  for (const a of ASSETS) {
+    if (!scoresByCampaign.has(a.campaign)) scoresByCampaign.set(a.campaign, []);
+    scoresByCampaign.get(a.campaign)!.push(a.brandScore);
+  }
+  const violationCountBy = new Map<string, number>();
+  for (const v of BRAND_VIOLATIONS) {
+    const c = getCampaignForAsset(v.assetId);
+    violationCountBy.set(c, (violationCountBy.get(c) ?? 0) + 1);
+  }
+  const licenseCountBy = new Map<string, number>();
+  for (const row of LICENSES_EXPIRING) {
+    licenseCountBy.set(row.campaign, (licenseCountBy.get(row.campaign) ?? 0) + 1);
+  }
+  const names = new Set<string>([
+    ...scoresByCampaign.keys(),
+    ...violationCountBy.keys(),
+    ...licenseCountBy.keys(),
+  ]);
+  const out: CampaignGovernanceSummary[] = [];
+  for (const campaign of names) {
+    const scores = scoresByCampaign.get(campaign) ?? [];
+    const avgBrandScore = scores.length
+      ? Math.round(scores.reduce((s, x) => s + x, 0) / scores.length)
+      : 0;
+    out.push({
+      campaign,
+      avgBrandScore,
+      assetCount: scores.length,
+      violationCount: violationCountBy.get(campaign) ?? 0,
+      licensesExpiringCount: licenseCountBy.get(campaign) ?? 0,
+    });
+  }
+  out.sort(
+    (a, b) =>
+      b.violationCount - a.violationCount ||
+      b.licensesExpiringCount - a.licensesExpiringCount ||
+      a.campaign.localeCompare(b.campaign, 'ko')
+  );
+  return out;
+}
+
+export function groupLicensesByCampaign(
+  rows: readonly LicenseExpiringRow[]
+): Map<string, LicenseExpiringRow[]> {
+  const m = new Map<string, LicenseExpiringRow[]>();
+  for (const row of rows) {
+    const arr = m.get(row.campaign) ?? [];
+    arr.push(row);
+    m.set(row.campaign, arr);
+  }
+  return m;
+}
 
 export const AI_FIX_INBOX = [
   { id: 'f1', assetId: 'a3', assetName: 'social_post_03.png', violations: ['색상 톤', '로고 여백'], requester: 'Kim', requestedAt: '2026-04-16 14:30', status: 'pending' as const, scoreBefore: 45, scoreAfter: 88 },
@@ -758,6 +882,11 @@ export type ForbiddenAssetRow = {
   replacementName: string | null;
   usedIn: { name: string; type: 'campaign' | 'page' }[];
 };
+
+/** 금지 목록 캠페인 그룹 — 첫 번째 캠페인 참조를 대표 캠페인으로 사용 */
+export function getForbiddenRowPrimaryCampaign(row: ForbiddenAssetRow): string {
+  return row.usedIn.find(u => u.type === 'campaign')?.name ?? '캠페인 미지정';
+}
 
 export const FORBIDDEN_ASSETS: ForbiddenAssetRow[] = [
   {
