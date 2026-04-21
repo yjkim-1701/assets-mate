@@ -146,6 +146,8 @@ export default function Search() {
     imageFileName?: string;
   };
   const [aiMessages, setAiMessages] = useState<AiChatMessage[]>([]);
+  /** AI 검색 탭에서 전송으로 검색을 한 번이라도 실행했을 때만 우측 결과 리스트 표시 */
+  const [aiSearchRan, setAiSearchRan] = useState(false);
   const [searchIntent, setSearchIntent] = useState<SearchIntent>(() => emptySearchIntent());
   const [aiInput, setAiInput] = useState('');
   const [aiUploadFile, setAiUploadFile] = useState<File | null>(null);
@@ -380,6 +382,7 @@ export default function Search() {
     ]);
     setAiInput('');
     clearAiUpload();
+    setAiSearchRan(true);
   };
 
   const renderAssetCard = (
@@ -973,6 +976,7 @@ export default function Search() {
                     onPress={() => {
                       setSearchIntent(emptySearchIntent());
                       setAiMessages([]);
+                      setAiSearchRan(false);
                       clearAiUpload();
                     }}
                   >
@@ -1085,10 +1089,18 @@ export default function Search() {
                   </MutedBadge>
                 )}
               </div>
-              <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>
-                {aiSearchResults.results.length}개 에셋 (교집합 필터 · 목업 규칙 파싱)
-                {!intentHasActiveConstraints(searchIntent) && ' · 조건이 없으면 전체 목록을 보여 줍니다.'}
-              </Text>
+              {aiSearchRan ? (
+                <>
+                  <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>
+                    {aiSearchResults.results.length}개 에셋 (교집합 필터 · 목업 규칙 파싱)
+                    {!intentHasActiveConstraints(searchIntent) && ' · 조건이 없으면 전체 목록을 보여 줍니다.'}
+                  </Text>
+                </>
+              ) : (
+                <Text UNSAFE_style={{ fontSize: 13, color: CM.textMuted }}>
+                  왼쪽에서 메시지를 전송하면 검색이 실행되고, 여기에 결과 목록이 표시됩니다.
+                </Text>
+              )}
               </div>
               <div
                 style={{
@@ -1098,21 +1110,41 @@ export default function Search() {
                   WebkitOverflowScrolling: 'touch',
                 }}
               >
-                <div
-                  style={
-                    gridMode === 'grid'
-                      ? { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }
-                      : { display: 'flex', flexDirection: 'column', gap: 8 }
-                  }
-                >
-                  {aiSearchResults.results.map(a => {
-                    const meta = aiSearchResults.metaById[a.id];
-                    return renderAssetCard(a, {
-                      similarity: meta?.similarity,
-                      matchReasons: meta?.matchReasons,
-                    });
-                  })}
-                </div>
+                {aiSearchRan ? (
+                  <div
+                    style={
+                      gridMode === 'grid'
+                        ? { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }
+                        : { display: 'flex', flexDirection: 'column', gap: 8 }
+                    }
+                  >
+                    {aiSearchResults.results.map(a => {
+                      const meta = aiSearchResults.metaById[a.id];
+                      return renderAssetCard(a, {
+                        similarity: meta?.similarity,
+                        matchReasons: meta?.matchReasons,
+                      });
+                    })}
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      height: '100%',
+                      minHeight: 160,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 24,
+                      border: `1px dashed ${CM.cardBorder}`,
+                      borderRadius: 10,
+                      backgroundColor: CM.mainBg,
+                    }}
+                  >
+                    <Text UNSAFE_style={{ fontSize: 13, color: CM.textMuted, textAlign: 'center', lineHeight: 1.6 }}>
+                      아직 검색 결과가 없습니다. AI 검색 대화에서 전송 버튼을 눌러 조건을 반영하세요.
+                    </Text>
+                  </div>
+                )}
               </div>
             </div>
           </div>
