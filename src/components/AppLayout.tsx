@@ -11,6 +11,7 @@ import Brand from '@react-spectrum/s2/icons/Brand';
 import UserGroup from '@react-spectrum/s2/icons/UserGroup';
 import SocialNetwork from '@react-spectrum/s2/icons/SocialNetwork';
 import ImageBackgroundRemove from '@react-spectrum/s2/icons/ImageBackgroundRemove';
+import Upload from '@react-spectrum/s2/icons/Upload';
 import Settings from '@react-spectrum/s2/icons/Settings';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import { AdobeMark } from './AdobeMark';
@@ -55,6 +56,7 @@ const CM = {
 function pathToPageLabel(pathname: string): string {
   if (pathname === '/') return '대시보드';
   if (pathname === '/settings') return '설정';
+  if (pathname === '/assets/upload') return '에셋 업로드';
   if (pathname.startsWith('/search')) return '검색 & 탐색';
   if (pathname === '/brand/template-locks') return '템플릿 잠금 영역';
   if (pathname === '/brand/forbidden') return '금지 에셋 관리';
@@ -130,6 +132,7 @@ function SidebarNavItem({ to, Icon, label, badge }: NavItemProps) {
 
 const NAV_MAIN: NavItemProps[] = [
   { to: '/', Icon: Home, label: '대시보드' },
+  { to: '/assets/upload', Icon: Upload, label: '에셋 업로드' },
   { to: '/search', Icon: Search, label: '검색 & 탐색' },
   { to: '/brand', Icon: Brand, label: '브랜드 거버넌스' },
 ];

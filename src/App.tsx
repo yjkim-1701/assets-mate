@@ -11,6 +11,7 @@ import Collaboration from './pages/Collaboration';
 import SocialResize from './pages/SocialResize';
 import Optimization from './pages/Optimization';
 import AssetDetail from './pages/AssetDetail';
+import AssetUpload from './pages/AssetUpload';
 import TemplateLocks from './pages/TemplateLocks';
 import ForbiddenAssets from './pages/ForbiddenAssets';
 import BrandCustomModel from './pages/BrandCustomModel';
@@ -39,6 +40,7 @@ function App() {
             <Route path="/social/resize" element={<SocialResize />} />
             <Route path="/social" element={<SocialResize />} />
             <Route path="/optimize" element={<Optimization />} />
+            <Route path="/assets/upload" element={<AssetUpload />} />
             <Route path="/assets/:assetId" element={<AssetDetail />} />
             <Route path="/settings" element={<Dashboard />} />
           </Routes>

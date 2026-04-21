@@ -23,6 +23,8 @@ export type Asset = {
   /** F-1.6 중복 그룹 */
   duplicateGroupId: string | null;
   assetKind: 'photo' | 'illustration' | 'banner' | 'logo' | 'video' | 'document';
+  /** AI 생성·NL 편집 유래 시 누적된 생성/편집 프롬프트 (비-AI 에셋은 생략 또는 null) */
+  generationPrompt?: string | null;
 };
 
 export const ASSETS: Asset[] = [
@@ -43,6 +45,8 @@ export const ASSETS: Asset[] = [
     taxonomyPath: ['마케팅 자산', '캠페인', '2026 Summer', '히어로 배너'],
     dominantColors: ['#1D4ED8', '#FBBF24', '#0F172A'],
     semanticHints: ['봄 시즌', '아웃도어', '라이프스타일', '히어로', '캠페인'],
+    generationPrompt:
+      '제품 히어로 샷, 자연광, 미니멀 배경 | 편집: 로고 대비 살짝 올리고 하단 여백 확보',
     visualBucket: 1,
     langGroupId: 'lg-summer-hero',
     duplicateGroupId: 'dup-near-1',
@@ -91,6 +95,7 @@ export const ASSETS: Asset[] = [
     langGroupId: null,
     duplicateGroupId: 'dup-near-2',
     assetKind: 'photo',
+    generationPrompt: '인스타 피드용 정사각형, 밝은 톤 | 편집: 헤드라인 영역 여백 조정',
   },
   {
     id: 'a4',

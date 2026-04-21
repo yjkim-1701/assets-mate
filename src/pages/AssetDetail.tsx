@@ -310,6 +310,35 @@ export default function AssetDetail() {
                 <MetaRow label="분류" value={asset.taxonomyPath.join(' › ')} />
                 <MetaRow label="승인 상태" value={asset.status} />
               </dl>
+              {asset.generationPrompt != null && asset.generationPrompt !== '' && (
+                <div
+                  style={{
+                    marginTop: 14,
+                    padding: 12,
+                    borderRadius: 8,
+                    backgroundColor: CM.infoBg,
+                    border: `1px solid ${CM.cardBorder}`,
+                  }}
+                >
+                  <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, display: 'block', marginBottom: 6 }}>
+                    생성·편집 프롬프트 (메타)
+                  </Text>
+                  <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
+                    {asset.generationPrompt}
+                  </Text>
+                  <div style={{ marginTop: 10 }}>
+                    <Button
+                      variant="secondary"
+                      size="S"
+                      onPress={() => {
+                        void navigator.clipboard.writeText(asset.generationPrompt ?? '');
+                      }}
+                    >
+                      복사
+                    </Button>
+                  </div>
+                </div>
+              )}
               <div style={{ marginTop: 12 }}>
                 <Text UNSAFE_style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, display: 'block' }}>태그 (인라인 편집)</Text>
                 <TextField label="쉼표로 구분" value={tagsDraft} onChange={setTagsDraft} />
