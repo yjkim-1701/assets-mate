@@ -202,6 +202,50 @@ export const ASSETS: Asset[] = [
     duplicateGroupId: null,
     assetKind: 'banner',
   },
+  {
+    id: 'a9',
+    name: 'adhoc_signage_draft.png',
+    type: 'image',
+    size: '1.1 MB',
+    dim: '1200×628',
+    campaign: '미배정',
+    lang: 'ko',
+    brandScore: 58,
+    status: 'review',
+    modified: '2026-04-08',
+    season: 'year-round',
+    channels: ['display'],
+    format: 'png',
+    taxonomyPath: ['마케팅 자산', '미분류'],
+    dominantColors: ['#64748B', '#E2E8F0', '#0F172A'],
+    semanticHints: ['간판', '초안', '캠페인 미지정'],
+    visualBucket: 2,
+    langGroupId: null,
+    duplicateGroupId: null,
+    assetKind: 'banner',
+  },
+  {
+    id: 'a10',
+    name: 'event_photo_misc.jpg',
+    type: 'image',
+    size: '2.0 MB',
+    dim: '2400×1600',
+    campaign: '미배정',
+    lang: 'ko',
+    brandScore: 72,
+    status: 'approved',
+    modified: '2026-04-09',
+    season: 'spring',
+    channels: ['instagram'],
+    format: 'jpeg',
+    taxonomyPath: ['마케팅 자산', '미분류'],
+    dominantColors: ['#F59E0B', '#FFFBEB', '#1E293B'],
+    semanticHints: ['이벤트', '현장', '캠페인 미지정'],
+    visualBucket: 1,
+    langGroupId: null,
+    duplicateGroupId: null,
+    assetKind: 'photo',
+  },
 ];
 
 /** F-0.2 에셋 상세 — 라이선스 목업 */
@@ -446,6 +490,7 @@ export const BRAND_VIOLATIONS = [
   { id: 'v2', assetId: 'a3', assetName: 'social_post_03.png', type: 'logo', description: '로고 여백 부족 - 최소 여백 24px 미달 (현재 12px)', severity: 'high', scoreBefore: 45, scoreAfter: 88 },
   { id: 'v3', assetId: 'a7', assetName: 'infographic_stats.png', type: 'text', description: '브랜드 폰트 미사용 - Arial 대신 Noto Sans KR 사용 필요', severity: 'medium', scoreBefore: 52, scoreAfter: 85 },
   { id: 'v4', assetId: 'a2', assetName: 'promo_banner_v2.png', type: 'background', description: '배경 톤 불일치 - 브랜드 톤보다 차가운 색상 사용', severity: 'low', scoreBefore: 68, scoreAfter: 94 },
+  { id: 'v5', assetId: 'a9', assetName: 'adhoc_signage_draft.png', type: 'layout', description: '캠페인 미배정 자산 — 템플릿 잠금 영역 밖 게시 이력', severity: 'medium', scoreBefore: 58, scoreAfter: 82 },
 ] as const;
 
 export type BrandViolation = (typeof BRAND_VIOLATIONS)[number];
@@ -505,6 +550,14 @@ export const LICENSES_EXPIRING: LicenseExpiringRow[] = [
     type: '스톡 이미지',
     campaign: 'Q2 Newsletter',
     assetId: null,
+  },
+  {
+    id: 'lex4',
+    assetName: 'event_photo_misc.jpg',
+    daysLeft: 21,
+    type: '스톡 이미지',
+    campaign: '미배정',
+    assetId: 'a10',
   },
 ];
 
@@ -578,6 +631,10 @@ export const AI_FIX_INBOX = [
   { id: 'f3', assetId: 'a7', assetName: 'infographic_stats.png', violations: ['색상', '텍스트'], requester: 'Lee', requestedAt: '2026-04-16 11:00', status: 'rejected' as const, scoreBefore: 52, scoreAfter: 82 },
   { id: 'f4', assetId: 'a6', assetName: 'video_teaser_15s.mp4', violations: ['색상 톤'], requester: 'Kim', requestedAt: '2026-04-15 16:00', status: 'changes_requested' as const, scoreBefore: 78, scoreAfter: 90 },
 ];
+
+export function findAiFixInboxEntryByAssetId(assetId: string) {
+  return AI_FIX_INBOX.find(f => f.assetId === assetId) ?? null;
+}
 
 export const SOCIAL_CHANNELS = [
   { id: 'ig-feed', name: 'Instagram 피드', width: 1080, height: 1080 },

@@ -77,7 +77,9 @@ export default function AIFixApproval() {
       <PageHeader title="AI 수정 승인 상세" description={fix.assetName} />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div style={f({ gap: 8 })}>
-          <Button variant="secondary" size="S" onPress={() => navigate('/ai/inbox')}>← Inbox로 돌아가기</Button>
+          <Button variant="secondary" size="S" onPress={() => navigate(-1)}>
+            ← 이전 화면으로
+          </Button>
         </div>
 
         <div style={card}>
@@ -247,32 +249,26 @@ export default function AIFixApproval() {
           </div>
         )}
 
-        <div style={f({ flexDirection: 'column', alignItems: 'center', gap: 12 })}>
-          <div style={f({ justifyContent: 'center', gap: 8 })}>
-            <Button
-              variant="secondary"
-              size="S"
-              onPress={() =>
-                setCandidateIndex(i => (i - 1 + CURATED_CANDIDATE_COUNT) % CURATED_CANDIDATE_COUNT)
-              }
-            >
-              ◀ 이전 후보
-            </Button>
-            <Text UNSAFE_style={{ fontSize: 14, fontWeight: 600, padding: '6px 12px' }}>
-              후보 {candidateIndex + 1} / {CURATED_CANDIDATE_COUNT}
-            </Text>
-            <Button
-              variant="secondary"
-              size="S"
-              onPress={() => setCandidateIndex(i => (i + 1) % CURATED_CANDIDATE_COUNT)}
-            >
-              다음 후보 ▶
-            </Button>
-          </div>
-          <AccentButton size="S" onPress={() => navigate(`/ai/brand-fix/${fix.assetId}`)}>
-            <MagicWand />
-            <Text>AI 프롬프트로 직접 수정하기</Text>
-          </AccentButton>
+        <div style={f({ justifyContent: 'center', gap: 8 })}>
+          <Button
+            variant="secondary"
+            size="S"
+            onPress={() =>
+              setCandidateIndex(i => (i - 1 + CURATED_CANDIDATE_COUNT) % CURATED_CANDIDATE_COUNT)
+            }
+          >
+            ◀ 이전 후보
+          </Button>
+          <Text UNSAFE_style={{ fontSize: 14, fontWeight: 600, padding: '6px 12px' }}>
+            후보 {candidateIndex + 1} / {CURATED_CANDIDATE_COUNT}
+          </Text>
+          <Button
+            variant="secondary"
+            size="S"
+            onPress={() => setCandidateIndex(i => (i + 1) % CURATED_CANDIDATE_COUNT)}
+          >
+            다음 후보 ▶
+          </Button>
         </div>
 
         <div style={card}>

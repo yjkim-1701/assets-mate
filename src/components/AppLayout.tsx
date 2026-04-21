@@ -8,7 +8,6 @@ import Bell from '@react-spectrum/s2/icons/Bell';
 import User from '@react-spectrum/s2/icons/User';
 import Home from '@react-spectrum/s2/icons/Home';
 import Brand from '@react-spectrum/s2/icons/Brand';
-import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import UserGroup from '@react-spectrum/s2/icons/UserGroup';
 import SocialNetwork from '@react-spectrum/s2/icons/SocialNetwork';
 import ImageBackgroundRemove from '@react-spectrum/s2/icons/ImageBackgroundRemove';
@@ -60,9 +59,12 @@ function pathToPageLabel(pathname: string): string {
   if (pathname === '/brand/template-locks') return '템플릿 잠금 영역';
   if (pathname === '/brand/forbidden') return '금지 에셋 관리';
   if (pathname.startsWith('/brand')) return '브랜드 거버넌스';
+  if (pathname.startsWith('/ai/brand-fix')) return '브랜드 AI 수정';
+  if (pathname.startsWith('/ai/inbox')) return 'AI 보정 인박스';
+  if (pathname.startsWith('/ai/studio')) return 'AI Creative Studio';
   if (pathname.startsWith('/ai/custom-models')) return '브랜드 Custom Model';
   if (pathname.startsWith('/ai/variations')) return '브랜드 변형 생성';
-  if (pathname.startsWith('/ai')) return 'AI Creative';
+  if (pathname.startsWith('/ai')) return 'AI 보정 인박스';
   if (pathname.startsWith('/collaboration')) return '협업 & 승인';
   if (pathname.startsWith('/social')) return '소셜 리사이즈';
   if (pathname.startsWith('/optimize')) return '에셋 최적화';
@@ -133,7 +135,6 @@ const NAV_MAIN: NavItemProps[] = [
 ];
 
 const NAV_WORKSPACE: NavItemProps[] = [
-  { to: '/ai', Icon: MagicWand, label: 'AI Creative' },
   { to: '/collaboration', Icon: UserGroup, label: '캠페인 워크스페이스' },
   { to: '/social', Icon: SocialNetwork, label: '소셜 미디어' },
   { to: '/optimize', Icon: ImageBackgroundRemove, label: '에셋 최적화' },

@@ -1,6 +1,7 @@
 import { Text, Button, TextField } from '@react-spectrum/s2';
 import Video from '@react-spectrum/s2/icons/Video';
 import Download from '@react-spectrum/s2/icons/Download';
+import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
@@ -11,6 +12,7 @@ import {
   ASSETS,
   ASSET_VERSION_HISTORY,
   BRAND_VIOLATIONS,
+  findAiFixInboxEntryByAssetId,
   getAssetLicense,
   type Asset,
 } from '../data/mock';
@@ -51,6 +53,8 @@ export default function AssetDetail() {
   const license = useMemo(() => getAssetLicense(assetId), [assetId]);
 
   const violations = useMemo(() => BRAND_VIOLATIONS.filter(v => v.assetId === assetId), [assetId]);
+
+  const curatedFix = useMemo(() => findAiFixInboxEntryByAssetId(assetId), [assetId]);
 
   const relatedCampaign = useMemo(() => {
     if (!asset) return [];
@@ -98,6 +102,42 @@ export default function AssetDetail() {
           </Link>
           <span style={{ margin: '0 8px', color: CM.textMuted }}>/</span>
           <span style={{ color: CM.text }}>{asset.name}</span>
+        </div>
+
+        <div
+          style={{
+            ...card,
+            marginBottom: 20,
+            borderLeft: `4px solid ${CM.accentIndigo}`,
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+          }}
+        >
+          <div style={f({ flexDirection: 'column', gap: 6, flex: 1, minWidth: 200 })}>
+            <Text UNSAFE_style={{ fontSize: 16, fontWeight: 700 }}>자연어로 이 에셋 수정</Text>
+            <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary }}>
+              브랜드 가이드를 반영한 지시문으로 Firefly 스타일 편집 화면으로 이동합니다.
+            </Text>
+            {violations.length > 0 && (
+              <Link to="/brand" style={{ fontSize: 12, fontWeight: 600, color: CM.primaryBlue, textDecoration: 'none' }}>
+                브랜드 인박스에서 위반 {violations.length}건 확인 →
+              </Link>
+            )}
+          </div>
+          <div style={f({ gap: 10, alignItems: 'stretch', flexWrap: 'wrap' })}>
+            <AccentButton size="M" onPress={() => navigate(`/ai/brand-fix/${asset.id}`)}>
+              <MagicWand />
+              <Text>AI 자연어 수정 열기</Text>
+            </AccentButton>
+            {curatedFix && (
+              <Button variant="secondary" onPress={() => navigate(`/ai/inbox/${curatedFix.id}`)}>
+                AI Curated 검토
+              </Button>
+            )}
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 380px', gap: 24, alignItems: 'start' }}>

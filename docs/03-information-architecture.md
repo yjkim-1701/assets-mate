@@ -23,18 +23,17 @@ Assets Mate
 │   └── 다국어 에셋 그룹 (/search/multilingual)
 │
 ├── 브랜드 거버넌스 (/brand)
-│   ├── 브랜드 대시보드 (/brand)
-│   ├── 브랜드 검사 상세 (/brand/inspect/:assetId)
-│   ├── 라이선스 관리 (/brand/licenses)
-│   └── 금지 에셋 관리 (/brand/restricted)
+│   ├── 브랜드 대시보드 (/brand) — 종합 스코어 아래 **브랜드 인박스**(위반·만료 임박 라이선스), 캠페인별 요약 → 검색 에셋 목록, **미배정** 캠페인 동일 흐름
+│   ├── 템플릿 잠금·금지 에셋 등 서브 경로
+│   └── AI 보정 인박스 진입: 대시보드 링크·헤더 알림 또는 `/ai/inbox` (사이드바 최상위 **AI Creative** 메뉴는 제외)
 │
-├── AI Creative (Firefly) (/ai)
-│   ├── AI Creative Inbox (/ai/inbox)
+├── AI 보정·스튜디오 (라우트 유지, 일부는 브랜드/검색 여정에서 진입)
+│   ├── AI 보정 인박스 (/ai/inbox)
 │   ├── AI 수정 승인 상세 (/ai/inbox/:fixId)
-│   ├── AI Creative Studio (/ai/studio/:assetId)
-│   ├── 브랜드 위반 AI 수정 (/ai/brand-fix/:assetId)
+│   ├── AI Creative Studio (/ai/studio, /ai/studio/:assetId)
+│   ├── 브랜드 AI 수정 — 자연어 편집 (/ai/brand-fix/:assetId) ← 검색·에셋 상세·브랜드 인박스 CTA
 │   ├── AI 변형 생성 (/ai/variations/:assetId)
-│   └── Custom Model 관리 (/ai/models)
+│   └── Custom Model 관리 (/ai/custom-models)
 │
 ├── 협업 & 승인 (/collaboration)
 │   ├── 캠페인 워크스페이스 (/collaboration/campaigns)
@@ -63,6 +62,12 @@ Assets Mate
     └── 사용자 관리
 ```
 
+### 1.1 검색 → 에셋 상세 → 브랜드 AI 수정
+
+1. `/search`에서 결과 카드를 눌러 `/assets/:assetId`로 이동한다.
+2. 에셋 상세 상단의 **자연어로 이 에셋 수정** CTA로 `/ai/brand-fix/:assetId`에 진입한다(에셋 `id`는 목업 `ASSETS`와 일치해야 한다).
+3. 인박스에 동일 에셋에 대한 보정 항목이 있으면 **AI Curated 검토**로 `/ai/inbox/:fixId`로 이어질 수 있다.
+
 ---
 
 ## 2. 글로벌 네비게이션 구조
@@ -76,7 +81,6 @@ Assets Mate
 │  📊 대시보드          │
 │  🔍 검색 & 탐색       │
 │  🛡 브랜드 거버넌스    │
-│  🤖 AI Creative      │
 │  🤝 협업 & 승인       │
 │  📱 소셜 리사이즈      │
 │  ⚡ 에셋 최적화       │

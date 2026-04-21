@@ -33,6 +33,9 @@ const card: React.CSSProperties = {
   boxShadow: CM.cardShadow,
 };
 
+/** AI 검색 탭: 크롬·브레드크럼 아래 가용 높이에 맞춤(본문이 뷰포트를 넘지 않도록 고정) */
+const SEARCH_AI_TAB_VIEW_HEIGHT = 'calc(100vh - 96px)';
+
 const TABS: { id: string; label: string }[] = [
   { id: 'ai_chat', label: 'AI 검색' },
   { id: 'integrated', label: '필터 검색' },
@@ -135,7 +138,14 @@ export default function Search() {
 
   const [duplicateKeep, setDuplicateKeep] = useState<Record<string, string>>({});
 
-  const [aiMessages, setAiMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([]);
+  type AiChatMessage = {
+    role: 'user' | 'assistant';
+    text: string;
+    /** 히스토리용: 전송 시점 이미지 (data URL, clearAiUpload 후에도 유지) */
+    imageSrc?: string;
+    imageFileName?: string;
+  };
+  const [aiMessages, setAiMessages] = useState<AiChatMessage[]>([]);
   const [searchIntent, setSearchIntent] = useState<SearchIntent>(() => emptySearchIntent());
   const [aiInput, setAiInput] = useState('');
   const [aiUploadFile, setAiUploadFile] = useState<File | null>(null);
@@ -327,23 +337,45 @@ export default function Search() {
     setAiUploadFile(file);
   };
 
-  const sendAiChat = () => {
+  const sendAiChat = async () => {
     const t = aiInput.trim();
-    if (!t && !aiUploadFile) return;
+    const file = aiUploadFile;
+    if (!t && !file) return;
+
+    let imageDataUrl: string | undefined;
+    let imageFileName: string | undefined;
+    if (file) {
+      imageFileName = file.name;
+      try {
+        imageDataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+      } catch {
+        /* 히스토리에는 텍스트만 */
+      }
+    }
+
     let nextIntent = t ? parseChatToIntent(searchIntent, t) : { ...searchIntent };
-    if (aiUploadFile) {
+    if (file) {
       nextIntent = {
         ...nextIntent,
-        uploadedImageFileName: aiUploadFile.name,
+        uploadedImageFileName: file.name,
         uploadedImageMockRefId: 'a1',
         ...(!t ? { referenceAssetId: null as string | null } : {}),
       };
     }
     setSearchIntent(nextIntent);
-    const userText = t || (aiUploadFile ? `이미지 업로드: ${aiUploadFile.name}` : '');
+    const userText = t || (file ? `이미지 업로드: ${file.name}` : '');
     setAiMessages(prev => [
       ...prev,
-      { role: 'user', text: userText },
+      {
+        role: 'user',
+        text: userText,
+        ...(imageDataUrl ? { imageSrc: imageDataUrl, imageFileName } : imageFileName ? { imageFileName } : {}),
+      },
       { role: 'assistant', text: summarizeIntent(nextIntent) },
     ]);
     setAiInput('');
@@ -445,12 +477,33 @@ export default function Search() {
   const tabId = TABS[activeTab].id;
 
   return (
-    <>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        ...(tabId === 'ai_chat'
+          ? {
+              height: SEARCH_AI_TAB_VIEW_HEIGHT,
+              minHeight: 0,
+              maxHeight: SEARCH_AI_TAB_VIEW_HEIGHT,
+              overflow: 'hidden',
+            }
+          : {}),
+      }}
+    >
       <PageHeader
         title="검색 & 탐색"
         description="비주얼·색상·의미 기반 검색과 복합 필터로 에셋을 찾고, 다국어 변형·중복 정리·분류 탐색까지 한 화면에서 처리합니다."
       />
-      <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div
+        style={{
+          padding: '24px 28px 40px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          ...(tabId === 'ai_chat' ? { flex: 1, minHeight: 0 } : {}),
+        }}
+      >
         <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
           {TABS.map((tab, i) =>
             activeTab === i ? (
@@ -650,48 +703,92 @@ export default function Search() {
             style={{
               display: 'grid',
               gridTemplateColumns: 'minmax(280px, 360px) 1fr',
+              gridTemplateRows: 'minmax(0, 1fr)',
               gap: 20,
               alignItems: 'stretch',
+              flex: 1,
+              minHeight: 0,
             }}
           >
-            <div style={{ ...card, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 420 }}>
+            <div
+              style={{
+                ...card,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                height: '100%',
+                minHeight: 0,
+                overflow: 'hidden',
+              }}
+            >
               <Text UNSAFE_style={{ fontSize: 15, fontWeight: 'bold' }}>AI 검색 (대화)</Text>
               <Text UNSAFE_style={{ fontSize: 12, color: CM.textMuted }}>
                 예: 「2026 Summer 캠페인 인스타용 히어로 느낌」·「a1이랑 비슷한 배너」·「뉴스레터」·「파랑 톤」·+ 첨부 후 여러 줄 입력·비행기 아이콘으로 전송
               </Text>
-              <div
-                style={{
-                  flex: 1,
-                  overflowY: 'auto',
-                  border: `1px solid ${CM.cardBorder}`,
-                  borderRadius: 8,
-                  padding: 10,
-                  backgroundColor: CM.mainBg,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 10,
-                  minHeight: 200,
-                }}
-              >
-                {aiMessages.map((msg, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                      maxWidth: '92%',
-                      padding: '8px 12px',
-                      borderRadius: 10,
-                      backgroundColor: msg.role === 'user' ? CM.infoBg : CM.panelBg,
-                      border: `1px solid ${CM.cardBorder}`,
-                      fontSize: 13,
-                      whiteSpace: 'pre-wrap',
-                    }}
-                  >
-                    {msg.text}
-                  </div>
-                ))}
+              <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                <div
+                  style={{
+                    flex: 1,
+                    minHeight: 120,
+                    overflowY: 'scroll',
+                    overscrollBehavior: 'contain',
+                    border: `1px solid ${CM.cardBorder}`,
+                    borderRadius: 8,
+                    padding: 10,
+                    backgroundColor: CM.mainBg,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                  }}
+                >
+                  {aiMessages.map((msg, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                        maxWidth: '92%',
+                        padding: '8px 12px',
+                        borderRadius: 10,
+                        backgroundColor: msg.role === 'user' ? CM.infoBg : CM.panelBg,
+                        border: `1px solid ${CM.cardBorder}`,
+                        fontSize: 13,
+                        whiteSpace: 'pre-wrap',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 8,
+                        minWidth: 0,
+                      }}
+                    >
+                      {msg.role === 'user' && msg.imageSrc && (
+                        <div
+                          style={{
+                            borderRadius: 8,
+                            overflow: 'hidden',
+                            border: `1px solid ${CM.cardBorder}`,
+                            backgroundColor: CM.surfacePlaceholder,
+                            maxHeight: 200,
+                            maxWidth: 260,
+                            alignSelf: 'stretch',
+                          }}
+                        >
+                          <img
+                            src={msg.imageSrc}
+                            alt={msg.imageFileName ?? '첨부'}
+                            style={{ width: '100%', height: '100%', maxHeight: 200, objectFit: 'cover', display: 'block' }}
+                          />
+                        </div>
+                      )}
+                      {msg.role === 'user' && !msg.imageSrc && msg.imageFileName && (
+                        <Text UNSAFE_style={{ fontSize: 11, color: CM.textMuted }}>
+                          첨부: {msg.imageFileName} (미리보기 없음)
+                        </Text>
+                      )}
+                      {msg.text ? <span style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</span> : null}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
                 <input ref={aiImageInputRef} type="file" accept="image/*" hidden onChange={onAiImageChange} />
                 {aiUploadPreview && aiUploadFile && (
                   <div
@@ -854,7 +951,19 @@ export default function Search() {
               </div>
             </div>
 
-            <div style={{ ...card, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div
+              style={{
+                ...card,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                minWidth: 0,
+                minHeight: 0,
+                height: '100%',
+                overflow: 'hidden',
+              }}
+            >
+              <div style={{ ...f({ flexDirection: 'column', gap: 12 }), flexShrink: 0 }}>
               <div style={f({ justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 })}>
                 <Text UNSAFE_style={{ fontSize: 15, fontWeight: 'bold' }}>적용 조건 · 결과</Text>
                 <div style={f({ gap: 8 })}>
@@ -980,20 +1089,30 @@ export default function Search() {
                 {aiSearchResults.results.length}개 에셋 (교집합 필터 · 목업 규칙 파싱)
                 {!intentHasActiveConstraints(searchIntent) && ' · 조건이 없으면 전체 목록을 보여 줍니다.'}
               </Text>
+              </div>
               <div
-                style={
-                  gridMode === 'grid'
-                    ? { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }
-                    : { display: 'flex', flexDirection: 'column', gap: 8 }
-                }
+                style={{
+                  flex: 1,
+                  minHeight: 0,
+                  overflowY: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                }}
               >
-                {aiSearchResults.results.map(a => {
-                  const meta = aiSearchResults.metaById[a.id];
-                  return renderAssetCard(a, {
-                    similarity: meta?.similarity,
-                    matchReasons: meta?.matchReasons,
-                  });
-                })}
+                <div
+                  style={
+                    gridMode === 'grid'
+                      ? { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }
+                      : { display: 'flex', flexDirection: 'column', gap: 8 }
+                  }
+                >
+                  {aiSearchResults.results.map(a => {
+                    const meta = aiSearchResults.metaById[a.id];
+                    return renderAssetCard(a, {
+                      similarity: meta?.similarity,
+                      matchReasons: meta?.matchReasons,
+                    });
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -1231,6 +1350,6 @@ export default function Search() {
           </>
         )}
       </div>
-    </>
+    </div>
   );
 }

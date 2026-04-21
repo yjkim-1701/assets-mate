@@ -194,6 +194,23 @@ export function applyIntentToAssets(
     return { results: [...assets], metaById: {} };
   }
 
+  /** 목업: 파일명이 product_shot_01.jpg(경로 제외)이면 우측 결과를 해당 카탈로그 에셋 한 건만 표시 */
+  const uploadedBase = intent.uploadedImageFileName?.replace(/^.*[/\\]/, '').toLowerCase() ?? '';
+  if (uploadedBase === 'product_shot_01.jpg') {
+    const shot = assets.find(a => a.name === 'product_shot_01.jpg') ?? assets.find(a => a.id === 'a1');
+    if (shot) {
+      return {
+        results: [shot],
+        metaById: {
+          [shot.id]: {
+            similarity: '100%',
+            matchReasons: ['업로드 이미지 = 샘플 product_shot_01.jpg (목업 고정 매칭)'],
+          },
+        },
+      };
+    }
+  }
+
   const visualRefId = intent.uploadedImageMockRefId || intent.referenceAssetId;
   const ref = visualRefId ? (assets.find(a => a.id === visualRefId) ?? null) : null;
 

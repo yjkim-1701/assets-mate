@@ -1,4 +1,5 @@
 import { Text, Button, Checkbox } from '@react-spectrum/s2';
+import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import { MutedBadge } from '../components/MutedBadge';
 import { MutedMeter } from '../components/MutedMeter';
 import { useState } from 'react';
@@ -15,9 +16,10 @@ const row: React.CSSProperties = {
   borderRadius: 12,
   padding: 16,
   border: `1px solid ${CM.cardBorder}`,
-  cursor: 'pointer',
   boxShadow: CM.cardShadow,
 };
+/** 브랜드 인박스 ViolationRows와 동일 — CTA 두 줄 가로 폭 맞춤 */
+const governanceCtaFullWidth: React.CSSProperties = { width: '100%' };
 
 const STATUS_TABS: { key: string; label: string }[] = [
   { key: 'all', label: '전체' },
@@ -110,11 +112,37 @@ export default function AIFixInbox() {
 
         <div style={f({ flexDirection: 'column', gap: 8 })}>
           {filtered.map(fix => (
-            <div key={fix.id} style={row} onClick={() => navigate(`/ai/inbox/${fix.id}`)}>
-              <div style={f({ gap: 16, alignItems: 'center' })}>
-                <div onClick={e => e.stopPropagation()}>
-                  <Checkbox isSelected={selected.has(fix.id)} onChange={() => toggleSelect(fix.id)} />
-                </div>
+            <div
+              key={fix.id}
+              style={f({
+                ...row,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 12,
+                flexWrap: 'wrap',
+              })}
+            >
+              <div style={f({ alignItems: 'center', flexShrink: 0 })}>
+                <Checkbox isSelected={selected.has(fix.id)} onChange={() => toggleSelect(fix.id)} />
+              </div>
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/ai/inbox/${fix.id}`)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/ai/inbox/${fix.id}`);
+                  }
+                }}
+                style={f({
+                  gap: 16,
+                  alignItems: 'center',
+                  flex: 1,
+                  minWidth: 200,
+                  cursor: 'pointer',
+                })}
+              >
                 <div
                   style={{
                     width: 64,
@@ -127,12 +155,12 @@ export default function AIFixInbox() {
                 >
                   <SampleAssetImage filename={fix.assetName} phase="before" />
                 </div>
-                <div style={f({ flexDirection: 'column', gap: 4, flex: 1 })}>
-                  <div style={f({ gap: 8, alignItems: 'center' })}>
+                <div style={f({ flexDirection: 'column', gap: 4, flex: 1, minWidth: 0 })}>
+                  <div style={f({ gap: 8, alignItems: 'center', flexWrap: 'wrap' })}>
                     <Text UNSAFE_style={{ fontSize: 15, fontWeight: 'bold' }}>{fix.assetName}</Text>
                     <StatusBadge status={fix.status} />
                   </div>
-                  <div style={f({ gap: 6 })}>
+                  <div style={f({ gap: 6, flexWrap: 'wrap' })}>
                     {fix.violations.map(v => (
                       <MutedBadge key={v} tone="danger" size="S">
                         {v}
@@ -143,7 +171,7 @@ export default function AIFixInbox() {
                     요청자: {fix.requester} · {fix.requestedAt}
                   </Text>
                 </div>
-                <div style={f({ flexDirection: 'column', alignItems: 'flex-end', gap: 4 })}>
+                <div style={f({ flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 })}>
                   <div style={f({ gap: 8, alignItems: 'center' })}>
                     <Text UNSAFE_style={{ fontSize: 13, color: CM.danger, fontWeight: 600 }}>{fix.scoreBefore}</Text>
                     <Text UNSAFE_style={{ fontSize: 13, color: CM.textMuted }}>→</Text>
@@ -156,6 +184,26 @@ export default function AIFixInbox() {
                     label=""
                   />
                 </div>
+              </div>
+              <div
+                style={f({ flexDirection: 'column', gap: 8, alignItems: 'stretch', flexShrink: 0, minWidth: 200 })}
+              >
+                <AccentButton
+                  size="S"
+                  UNSAFE_style={governanceCtaFullWidth}
+                  onPress={() => navigate(`/ai/brand-fix/${fix.assetId}`)}
+                >
+                  <MagicWand />
+                  <Text>AI 자연어 수정</Text>
+                </AccentButton>
+                <Button
+                  variant="secondary"
+                  size="S"
+                  UNSAFE_style={governanceCtaFullWidth}
+                  onPress={() => navigate(`/ai/inbox/${fix.id}`)}
+                >
+                  AI Curated 검토
+                </Button>
               </div>
             </div>
           ))}

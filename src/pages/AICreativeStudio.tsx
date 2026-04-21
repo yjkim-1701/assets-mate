@@ -4,9 +4,9 @@ import { MutedBadge } from '../components/MutedBadge';
 import { AccentButton } from '../components/AccentButton';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import Checkmark from '@react-spectrum/s2/icons/Checkmark';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useParams, useLocation } from 'react-router-dom';
 import { PageHeader, CM } from '../components/AppLayout';
-import { BRAND_CUSTOM_MODELS } from '../data/mock';
+import { ASSETS, BRAND_CUSTOM_MODELS } from '../data/mock';
 import { SampleAssetImage } from '../components/SampleAssetImage';
 import { GenerativeFillPanel } from '../components/GenerativeFillPanel';
 import { GenerativeExpandPanel } from '../components/GenerativeExpandPanel';
@@ -20,10 +20,13 @@ const card: React.CSSProperties = {
   border: `1px solid ${CM.cardBorder}`,
   boxShadow: CM.cardShadow,
 };
-/** 비교 + 편집 이력 행 — 상위에서 12컬럼 그리드(10+2)로 배치 */
+/** 비교 행 + 편집 명령 + 편집 이력(하단) 세로 스택 */
 const compareRowWrap: React.CSSProperties = {
   width: '100%',
   maxWidth: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 20,
 };
 const imageBox: React.CSSProperties = {
   flex: 1,
@@ -40,7 +43,7 @@ const imageBox: React.CSSProperties = {
   overflow: 'hidden',
 };
 
-const ASSET_FILENAME = 'product_shot_01.jpg';
+const FALLBACK_STUDIO_FILENAME = 'product_shot_01.jpg';
 /** Instruct Edit 완료 후 프리뷰·라이트박스에 표시하는 목업 결과 이미지 */
 const MOCK_PREVIEW_AFTER_FILENAME = 'product_shot_02.png';
 const MOCK_AI_MS = 2800;
@@ -107,7 +110,7 @@ const ORIGINAL_STEP: HistoryStep = {
 };
 
 /**
- * AI 생성 이력(목업) — 우측 패널에 표시. 각각 `public/sample/` 파일 1개.
+ * AI 생성 이력(목업) — 편집 명령 카드 하단 패널에 표시. 각각 `public/sample/` 파일 1개.
  * 「이 이미지로 교체」 시 편집 명령 필드와 프리뷰에 반영됩니다.
  */
 const AI_EDIT_HISTORY_SLIDES: { id: string; imageFile: string; prompt: string }[] = [
@@ -149,6 +152,15 @@ function evaluateBrandGuardrail(prompt: string): { ok: boolean; violations: stri
 
 export default function AICreativeStudio() {
   const navigate = useNavigate();
+  const { assetId: routeAssetId } = useParams<{ assetId?: string }>();
+  const { pathname } = useLocation();
+  const isBrandFix = pathname.includes('/ai/brand-fix');
+  const asset = useMemo(
+    () => (routeAssetId ? ASSETS.find(a => a.id === routeAssetId) ?? null : null),
+    [routeAssetId]
+  );
+  const assetFilename = asset?.name ?? FALLBACK_STUDIO_FILENAME;
+
   const [activeTab, setActiveTab] = useState(0);
   const [prompt, setPrompt] = useState('');
   const [history, setHistory] = useState<HistoryStep[]>([ORIGINAL_STEP]);
@@ -187,11 +199,11 @@ export default function AICreativeStudio() {
     if (loading) return null;
     if (historyPreviewOverrideFile) return historyPreviewOverrideFile;
     if (!hasEdits) return null;
-    return displayedStep.id === 'original' ? ASSET_FILENAME : MOCK_PREVIEW_AFTER_FILENAME;
-  }, [loading, historyPreviewOverrideFile, hasEdits, displayedStep.id]);
+    return displayedStep.id === 'original' ? assetFilename : MOCK_PREVIEW_AFTER_FILENAME;
+  }, [loading, historyPreviewOverrideFile, hasEdits, displayedStep.id, assetFilename]);
   const previewHasImage = previewImageFilename !== null && !loading;
   const previewIsEditedLook = Boolean(
-    previewImageFilename && previewImageFilename !== ASSET_FILENAME
+    previewImageFilename && previewImageFilename !== assetFilename
   );
   /** 편집 프리뷰가 원본이 아닐 때만 완료 가능 */
   const canFinalComplete = !loading && previewHasImage && previewIsEditedLook;
@@ -230,6 +242,25 @@ export default function AICreativeStudio() {
       document.body.style.overflow = prevOverflow;
     };
   }, [lightbox]);
+
+  useEffect(() => {
+    setHistory([ORIGINAL_STEP]);
+    setActiveStepIndex(0);
+    setHistoryPreviewOverrideFile(null);
+    setPreviewReplaceRevision(0);
+    setPrompt('');
+    setPromptRunError(null);
+    setShowPostRunGuardrailMessage(false);
+    setLoading(false);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (completeRef.current) {
+      clearTimeout(completeRef.current);
+      completeRef.current = null;
+    }
+  }, [assetFilename]);
 
   const runInstructEdit = () => {
     if (loading) return;
@@ -298,9 +329,32 @@ export default function AICreativeStudio() {
     setPromptRunError(null);
   }, []);
 
+  const pageTitle = isBrandFix ? '브랜드 AI 수정' : 'AI Creative Studio';
+  const pageDescription = asset
+    ? `${asset.name} — Firefly Image-to-Image Instruct Edit`
+    : isBrandFix
+      ? '에셋 ID로 연결된 파일을 자연어 지시로 편집합니다.'
+      : 'Firefly Image-to-Image Instruct Edit — 자연어로 에셋을 편집합니다';
+
+  if (isBrandFix && routeAssetId && !asset) {
+    return (
+      <>
+        <PageHeader title="브랜드 AI 수정" description={`에셋 ID «${routeAssetId}»를 찾을 수 없습니다`} />
+        <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 480 }}>
+          <Text UNSAFE_style={{ fontSize: 14, color: CM.textSecondary }}>
+            목업 데이터에 해당 ID가 없습니다. 검색에서 에셋을 선택한 뒤 다시 시도해 주세요.
+          </Text>
+          <Button variant="accent" onPress={() => navigate('/search')}>
+            검색으로 이동
+          </Button>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
-      <PageHeader title="AI Creative Studio" description="Firefly Image-to-Image Instruct Edit — 자연어로 에셋을 편집합니다" />
+      <PageHeader title={pageTitle} description={pageDescription} />
       <div style={{ padding: '24px 28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div style={f({ justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 })}>
           <div style={f({ gap: 10, alignItems: 'center', flexWrap: 'wrap' })}>
@@ -354,7 +408,7 @@ export default function AICreativeStudio() {
               <div style={f({ flexDirection: 'column', gap: 8, flex: '1 1 0', minWidth: 0, width: '100%' })}>
                 <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center' }}>원본</Text>
                 <div style={{ ...imageBox, padding: 0 }}>
-                  <SampleAssetImage filename={ASSET_FILENAME} />
+                  <SampleAssetImage filename={assetFilename} />
                 </div>
                 <div style={f({ justifyContent: 'center', width: '100%' })}>
                   <Button variant="secondary" size="S" onPress={() => setLightbox('original')}>
@@ -414,112 +468,6 @@ export default function AICreativeStudio() {
                 )}
               </div>
               </div>
-
-              <div
-                className="aiCreativeCompareHistory"
-                style={{
-                  ...card,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 12,
-                  maxHeight: 'min(85vh, 920px)',
-                  overflowY: 'auto',
-                }}
-              >
-                <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', display: 'block' }}>편집 이력</Text>
-                <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, lineHeight: 1.5 }}>
-                  AI 생성 결과 3건과 이번 세션 단계를 확인할 수 있습니다. 썸네일 행에서「이 이미지로 교체」를 누르면 편집 명령·우측 프리뷰에 반영됩니다.
-                </Text>
-
-                <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary }}>AI 생성 이력</Text>
-                <div style={f({ flexDirection: 'column', gap: 10 })}>
-                  {AI_EDIT_HISTORY_SLIDES.map((slide, idx) => (
-                    <div
-                      key={slide.id}
-                      style={{
-                        border: `1px solid ${CM.cardBorder}`,
-                        borderRadius: 8,
-                        padding: 10,
-                        backgroundColor: CM.surfacePlaceholder,
-                        display: 'flex',
-                        gap: 10,
-                        alignItems: 'flex-start',
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 72,
-                          height: 56,
-                          flexShrink: 0,
-                          borderRadius: 6,
-                          overflow: 'hidden',
-                          backgroundColor: CM.panelBg,
-                          border: `1px solid ${CM.cardBorder}`,
-                        }}
-                      >
-                        <SampleAssetImage
-                          filename={slide.imageFile}
-                          alt=""
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        <Text UNSAFE_style={{ fontSize: 11, fontWeight: 600, color: CM.textSecondary }}>
-                          이력 {idx + 1}/3
-                        </Text>
-                        <Text UNSAFE_style={{ fontSize: 12, lineHeight: 1.45 }}>{slide.prompt}</Text>
-                        <div>
-                          <Button variant="secondary" size="S" onPress={() => applyArchiveSlide(idx)}>
-                            이 이미지로 교체
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div
-                  style={{
-                    height: 1,
-                    backgroundColor: CM.cardBorder,
-                    margin: '4px 0',
-                    flexShrink: 0,
-                  }}
-                />
-
-                <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary }}>이번 세션</Text>
-                {hasEdits ? (
-                  <>
-                    <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block' }}>
-                      단계를 선택하면 해당 미리보기로 이동합니다.
-                    </Text>
-                    <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
-                      {history.map((step, index) => {
-                        const active = index === activeStepIndex;
-                        return active ? (
-                          <AccentButton key={step.id} size="S" onPress={() => goToStep(index)}>
-                            {step.label}
-                          </AccentButton>
-                        ) : (
-                          <Button key={step.id} variant="secondary" size="S" onPress={() => goToStep(index)}>
-                            {step.label}
-                          </Button>
-                        );
-                      })}
-                    </div>
-                    {history.length > 1 && history[activeStepIndex]?.prompt && (
-                      <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', lineHeight: 1.5 }}>
-                        선택 단계 명령: {history[activeStepIndex].prompt}
-                      </Text>
-                    )}
-                  </>
-                ) : (
-                  <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary, lineHeight: 1.55 }}>
-                    AI 편집 실행 후 단계별 이력이 이곳에 추가됩니다.
-                  </Text>
-                )}
-              </div>
-            </div>
             </div>
 
             <div
@@ -539,7 +487,7 @@ export default function AICreativeStudio() {
                       setPrompt(v);
                       setPromptRunError(null);
                     }}
-                    description="한국어 또는 영어로 원하는 변경을 입력하세요. 아래 템플릿을 누를 때마다 문장이 이어 붙습니다(색상·배경·오브젝트 등 여러 항목을 조합할 수 있습니다). 우측「편집 이력」에서「이 이미지로 교체」한 경우에도 이 필드에 같은 문장이 채워집니다."
+                    description="한국어 또는 영어로 원하는 변경을 입력하세요. 아래 템플릿을 누를 때마다 문장이 이어 붙습니다(색상·배경·오브젝트 등 여러 항목을 조합할 수 있습니다). 하단「편집 이력」에서「이 이미지로 교체」한 경우에도 이 필드에 같은 문장이 채워집니다."
                   />
                 </div>
 
@@ -663,6 +611,112 @@ export default function AICreativeStudio() {
               </div>
             </div>
 
+            <div
+              className="aiCreativeCompareHistory"
+              style={{
+                ...card,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                maxHeight: 'min(85vh, 920px)',
+                overflowY: 'auto',
+              }}
+            >
+              <Text UNSAFE_style={{ fontSize: 14, fontWeight: 'bold', display: 'block' }}>편집 이력</Text>
+              <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, lineHeight: 1.5 }}>
+                AI 생성 결과 3건과 이번 세션 단계를 확인할 수 있습니다. 썸네일 행에서「이 이미지로 교체」를 누르면 편집 명령·상단 편집 프리뷰에 반영됩니다.
+              </Text>
+
+              <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary }}>AI 생성 이력</Text>
+              <div style={f({ flexDirection: 'column', gap: 10 })}>
+                {AI_EDIT_HISTORY_SLIDES.map((slide, idx) => (
+                  <div
+                    key={slide.id}
+                    style={{
+                      border: `1px solid ${CM.cardBorder}`,
+                      borderRadius: 8,
+                      padding: 10,
+                      backgroundColor: CM.surfacePlaceholder,
+                      display: 'flex',
+                      gap: 10,
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 72,
+                        height: 56,
+                        flexShrink: 0,
+                        borderRadius: 6,
+                        overflow: 'hidden',
+                        backgroundColor: CM.panelBg,
+                        border: `1px solid ${CM.cardBorder}`,
+                      }}
+                    >
+                      <SampleAssetImage
+                        filename={slide.imageFile}
+                        alt=""
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <Text UNSAFE_style={{ fontSize: 11, fontWeight: 600, color: CM.textSecondary }}>
+                        이력 {idx + 1}/3
+                      </Text>
+                      <Text UNSAFE_style={{ fontSize: 12, lineHeight: 1.45 }}>{slide.prompt}</Text>
+                      <div>
+                        <Button variant="secondary" size="S" onPress={() => applyArchiveSlide(idx)}>
+                          이 이미지로 교체
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  height: 1,
+                  backgroundColor: CM.cardBorder,
+                  margin: '4px 0',
+                  flexShrink: 0,
+                }}
+              />
+
+              <Text UNSAFE_style={{ fontSize: 12, fontWeight: 700, color: CM.textSecondary }}>이번 세션</Text>
+              {hasEdits ? (
+                <>
+                  <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block' }}>
+                    단계를 선택하면 해당 미리보기로 이동합니다.
+                  </Text>
+                  <div style={f({ gap: 8, flexWrap: 'wrap', alignItems: 'center' })}>
+                    {history.map((step, index) => {
+                      const active = index === activeStepIndex;
+                      return active ? (
+                        <AccentButton key={step.id} size="S" onPress={() => goToStep(index)}>
+                          {step.label}
+                        </AccentButton>
+                      ) : (
+                        <Button key={step.id} variant="secondary" size="S" onPress={() => goToStep(index)}>
+                          {step.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  {history.length > 1 && history[activeStepIndex]?.prompt && (
+                    <Text UNSAFE_style={{ fontSize: 12, color: CM.textSecondary, display: 'block', lineHeight: 1.5 }}>
+                      선택 단계 명령: {history[activeStepIndex].prompt}
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary, lineHeight: 1.55 }}>
+                  AI 편집 실행 후 단계별 이력이 이곳에 추가됩니다.
+                </Text>
+              )}
+            </div>
+            </div>
+
             {lightbox && (
               <div
                 role="dialog"
@@ -718,7 +772,7 @@ export default function AICreativeStudio() {
                         filename={
                           lightbox === 'preview'
                             ? previewImageFilename ?? MOCK_PREVIEW_AFTER_FILENAME
-                            : ASSET_FILENAME
+                            : assetFilename
                         }
                         alt={lightbox === 'preview' ? '편집 프리뷰' : '원본'}
                         cacheBust={
@@ -740,7 +794,7 @@ export default function AICreativeStudio() {
             <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold', display: 'block', marginBottom: 12 }}>
               Generative Fill
             </Text>
-            <GenerativeFillPanel assetFilename={ASSET_FILENAME} studioModelId={studioModelId} />
+            <GenerativeFillPanel assetFilename={assetFilename} studioModelId={studioModelId} />
           </div>
         )}
 
@@ -749,7 +803,7 @@ export default function AICreativeStudio() {
             <Text UNSAFE_style={{ fontSize: 16, fontWeight: 'bold', display: 'block', marginBottom: 12 }}>
               Generative Expand
             </Text>
-            <GenerativeExpandPanel assetFilename={ASSET_FILENAME} />
+            <GenerativeExpandPanel assetFilename={assetFilename} />
             <div style={f({ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${CM.cardBorder}` })}>
               <Text UNSAFE_style={{ fontSize: 13, color: CM.textSecondary, display: 'block', marginBottom: 8 }}>
                 소셜 리사이즈에서 채널 프리셋에 맞춰 동일한 Expand를 적용하려면 아래로 이동하세요.

@@ -1,14 +1,13 @@
-/* 12-column row: 비교 10 / 편집 이력 2 */
+/* 상단: 원본·프리뷰 비교 행만 (편집 이력은 하단 카드로 분리) */
 .aiCreativeCompareGrid {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 20px;
   align-items: stretch;
   width: 100%;
 }
 
 .aiCreativeCompareMain {
-  grid-column: span 10;
   display: flex;
   gap: 21px;
   align-items: stretch;
@@ -17,17 +16,12 @@
 }
 
 .aiCreativeCompareHistory {
-  grid-column: span 2;
   min-width: 0;
+  width: 100%;
 }
 
 @media (max-width: 960px) {
-  .aiCreativeCompareGrid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .aiCreativeCompareMain,
-  .aiCreativeCompareHistory {
-    grid-column: 1 / -1;
+  .aiCreativeCompareMain {
+    flex-direction: column;
   }
 }

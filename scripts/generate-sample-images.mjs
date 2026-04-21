@@ -54,6 +54,9 @@ const SPECS = [
   { file: 'stock_lifestyle_01.png', w: 1200, h: 800, fmt: 'jpeg' },
   { file: 'social_post_03.png', w: 800, h: 1000, fmt: 'jpeg' },
   { file: 'bg_texture_03.jpg', w: 512, h: 512, fmt: 'png' },
+  // Brand violations / license rows (mock.ts)
+  { file: 'adhoc_signage_draft.png', w: 900, h: 1200, fmt: 'png' },
+  { file: 'event_photo_misc.jpg', w: 1600, h: 1067, fmt: 'jpeg' },
 ];
 
 function fontSizeFor(w, h) {
