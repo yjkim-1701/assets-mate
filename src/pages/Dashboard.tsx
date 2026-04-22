@@ -101,7 +101,7 @@ function StatCard({ label, value, accent, change }: { label: string; value: stri
 }
 
 const RECENT_ACTIVITIES: { Icon: ComponentType; text: string; time: string }[] = [
-  { Icon: CheckmarkCircle, text: 'product_shot_01.jpg 승인 완료', time: '10분 전' },
+  { Icon: CheckmarkCircle, text: 'product_shot_01.png 승인 완료', time: '10분 전' },
   { Icon: MagicWand, text: 'promo_banner_v2.png AI 수정 완료 → Inbox 대기', time: '30분 전' },
   { Icon: DevicePhone, text: '소셜 리사이즈 5개 채널 완료', time: '1시간 전' },
   { Icon: Brand, text: 'infographic_stats.png 브랜드 위반 감지', time: '2시간 전' },

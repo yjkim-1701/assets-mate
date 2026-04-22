@@ -1,6 +1,6 @@
 # Assets Mate — 통합 구현 TODO (API / MCP)
 
-> 작성일: 2026-04-17  
+> 작성일: 2026-04-17 (갱신: 2026-04-20)  
 > 문서 인덱스: [README.md](./README.md)  
 > 기준 문서: [02-feature-specification.md](./02-feature-specification.md), [05-implement-status.md](./05-implement-status.md)  
 > 참조: [integration-reference.md](./integration-reference.md)
@@ -9,7 +9,7 @@
 
 ## 1. 목적
 
-- 목업(저장소 루트 `src/` UI)은 완료되었으나 **실데이터·백엔드·외부 연동**은 미구현이다. ([05-implement-status.md](./05-implement-status.md))
+- 목업(저장소 루트 `src/` UI)은 **F-0.3 설정·F-0.4 AI Creative 생성 허브·F-1.8 결과 표시 정책** 등까지 반영되었으나 **실데이터·백엔드·외부 연동**은 미구현이다. ([05-implement-status.md](./05-implement-status.md))
 - 본 문서는 **이미 제공되는 Adobe AEM Assets API / MCP, Firefly API**를 우선 소비해야 하는 항목과, **명세상 제공되지 않아 애플리케이션에서 직접 구현**해야 하는 항목을 구분한다.
 - 공식 링크·엔드포인트는 [integration-reference.md](./integration-reference.md)를 따른다.
 
@@ -32,6 +32,8 @@
 **기능 매핑 (소비 후보)**
 
 - **F-0.2** 에셋 상세: 메타데이터, 미리보기·rendition, 버전·라이선스 필드 → Assets HTTP API + (필요 시) Dynamic Media.
+- **F-0.3** 설정 허브: 거버넌스 가이드·텍소노미·채널 정책의 **영속 저장·게시 워크플로** → 앱 설정 API 또는 AEM Configuration / Context-Aware Config 등 조직 표준에 맞게 설계.
+- **F-0.4** AI Creative 생성·DAM: 텍스트·이미지 **실제 생성**(Generate / Instruct) + **DAM 폴더 생성·에셋 PUT** + 거버넌스 엔진(서버) → Firefly API + Assets HTTP API + (선택) 승인 큐.
 - **F-1.4** 복합 필터: 서버 영속·ACL 반영 검색 → Assets HTTP API / OpenAPI 검색 패턴 + 메타 모델.
 - **F-1.7** 텍소노미: DAM 분류 동기화 → AEM 분류·메타 연동 (동일 API 층).
 - **F-3.5** Custom Model 학습 데이터 선택: “AEM에서 10–30개 에셋 선택” → Assets API로 나열·선택 후 Firefly Custom Models로 전달 ([02-feature-specification.md](./02-feature-specification.md) F-3.5).
@@ -85,6 +87,7 @@
 
 | 기능 ID | 내용 | 이유 / 구현 방향 |
 |---------|------|------------------|
+| F-1.8 | 대화형 AI 검색(LLM 의도 파싱·세션·ACL) | 목업은 규칙 파싱·`aiSearchRan` 플래그; 실서비스는 **structured output·스트리밍·권한 필터**를 검색 BFF에 구현. |
 | F-1.1 | 비주얼 유사도 (임베딩·벡터 인덱스) | AEM 기본 검색만으로는 부족할 수 있음 → 임베딩 파이프라인·벡터 DB 또는 Adobe Sensei/유사 상품 검색 아키텍처 검토 후 **별도 마이크로서비스**. |
 | F-1.2 | 색상 기반 정밀 매칭·에셋 팔레트 자동 추출 | 팔레트 추출·색 공간 매칭은 **앱 또는 ML 서비스**. |
 | F-1.3 | 자연어 시맨틱 검색·300ms 자동완성 | NLU + 임베딩 검색·동의어 사전·권한 필터 → **검색 BFF**. |
@@ -105,6 +108,7 @@
 
 | 기능 ID | 내용 | 이유 / 구현 방향 |
 |---------|------|------------------|
+| F-0.4 | 거버넌스 게이트·NL/이미지 생성·DAM 경로 확정 | 목업 휴리스틱을 **정책 엔진**으로 교체; 생성물·메타를 **지정 DAM 경로**에 쓰기 전 **승인/검역 큐** 연계. |
 | F-3.1 | AI Creative Inbox·승인 후 원본 대체·감사·일괄 진행률 | Firefly는 이미지 생성만 담당; **Inbox·상태머신·버전 갱신**은 자체 구현. |
 | F-3.2 ~ F-3.4 | 프로젝트 저장·세션 이력·정밀 마스크 | UI 상태·저장소는 **앱**; Firefly는 호출만. |
 | F-3.5 ~ F-3.6 | AEM 에셋 → 학습 파이프라인·변형-원본 관계·재검사 | **오케스트레이션** (AEM API + Firefly API + 메타 갱신). |

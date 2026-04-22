@@ -1,6 +1,6 @@
 # Assets Mate - UI 디자인 가이드
 
-> 작성일: 2026-04-16  
+> 작성일: 2026-04-16 (패턴·내비 갱신: 2026-04-20)  
 > 상태: 확정  
 > 문서 인덱스: [README.md](./README.md)  
 > 선행 문서: [03-information-architecture.md](./03-information-architecture.md)
@@ -161,7 +161,8 @@ React Spectrum S2의 Spectrum Workflow Icons를 활용한다.
 | 검색 | `Search` | 검색바, 검색 메뉴 |
 | 필터 | `Filter` | 필터 패널 토글 |
 | 다운로드 | `Download` | 에셋 다운로드 |
-| 업로드 | `Upload` | 에셋 업로드 |
+| 업로드 | `Upload` | 비주얼 검색 등 파일 드롭·바이너리 업로드 |
+| AI Creative (생성 허브) | `MagicWand` | 사이드바 `/assets/upload` — 거버넌스 우선 생성·DAM 경로(목업) |
 | 공유 | `Share` | 에셋 공유 |
 | 리사이즈 | `Resize` | 소셜 리사이즈 |
 | 승인 | `CheckmarkCircle` | 승인 액션 |
@@ -300,9 +301,24 @@ Provider
 │       │   └── Flex (TextField 메시지 + Button 보내기)
 │       └── Flex (결과 열, direction="column")
 │           ├── Flex (도구: 조건·대화 초기화, 그리드/리스트)
-│           ├── TagGroup (파싱된 SearchIntent 칩, 개별 제거)
-│           ├── Text (건수 안내)
-│           └── CardView (에셋 그리드, 유사도·매칭 이유 배지)
+│           ├── (첫 전송 성공 전) Text / Content — 플레이스홀더만
+│           ├── (첫 전송 성공 후) TagGroup (파싱된 SearchIntent 칩, 개별 제거)
+│           ├── (첫 전송 성공 후) Text (건수 안내)
+│           └── (첫 전송 성공 후) CardView (에셋 그리드, 유사도·매칭 이유 배지)
+```
+
+### 8.2.2 AI Creative — 거버넌스 생성 허브 (`/assets/upload`)
+
+```
+Provider
+├── Flex (메인, min-height: calc(100vh - 헤더·브레드크럼))
+│   └── Grid (2열: 채팅 | 적용 조건·결과; 우측 minmax(320px, 1fr))
+│       ├── Flex (좌: 채팅, 세션 모드 전환·메시지·전송)
+│       └── Flex (우: 세션에 따라)
+│           ├── (빈 세션) Text — 플레이스홀더만 (검색 AI 탭 초기 상태와 유사)
+│           └── (활성 세션) 거버넌스 InlineAlert, 미리보기 Card,
+│               (업로드 준비·비차단 시) DAM 경로 Picker + AI 제안 경로 Text,
+│               하단 ButtonGroup (업로드 확정 등)
 ```
 
 ### 8.3 AI Creative Studio
@@ -337,8 +353,7 @@ Provider
 ```
 Provider
 ├── Flex
-│   ├── NavGroup (사이드바)
-│   │   └── NavItem ("AI Creative") + Badge (미처리 건수)
+│   ├── NavGroup (사이드바) — Inbox 전용 NavItem은 생략 가능; 헤더 벨에서 진입
 │   └── Flex (메인, direction="column")
 │       ├── ActionBar (헤더)
 │       ├── Flex (필터 + 액션)

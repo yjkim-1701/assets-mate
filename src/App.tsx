@@ -13,6 +13,7 @@ import Optimization from './pages/Optimization';
 import AssetDetail from './pages/AssetDetail';
 import AssetUpload from './pages/AssetUpload';
 import Settings from './pages/Settings';
+import AssetsCopilot from './pages/AssetsCopilot';
 import TemplateLocks from './pages/TemplateLocks';
 import ForbiddenAssets from './pages/ForbiddenAssets';
 import BrandCustomModel from './pages/BrandCustomModel';
@@ -42,6 +43,7 @@ function App() {
             <Route path="/social" element={<SocialResize />} />
             <Route path="/optimize" element={<Optimization />} />
             <Route path="/assets/upload" element={<AssetUpload />} />
+            <Route path="/ai/copilot" element={<AssetsCopilot />} />
             <Route path="/assets/:assetId" element={<AssetDetail />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>

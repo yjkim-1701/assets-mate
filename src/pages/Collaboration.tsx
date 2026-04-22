@@ -46,7 +46,7 @@ const REVIEWS = [
   { id: 'r1', asset: 'summer_banner_v3.png', reviewer: 'Kim', workflow: '검토 중', status: 'pending', submitted: '2시간 전' },
   { id: 'r2', asset: 'social_post_agency.jpg', reviewer: 'Park (Agency)', workflow: '수정 요청', status: 'changes', submitted: '5시간 전' },
   { id: 'r3', asset: 'email_header_final.png', reviewer: 'Lee', workflow: '승인', status: 'approved', submitted: '1일 전' },
-  { id: 'r4', asset: 'product_shot_01.jpg', reviewer: 'Choi (Agency)', workflow: '검토 중', status: 'pending', submitted: '2일 전' },
+  { id: 'r4', asset: 'product_shot_01.png', reviewer: 'Choi (Agency)', workflow: '검토 중', status: 'pending', submitted: '2일 전' },
 ];
 
 const KANBAN_COLS: { key: ApprovalKanbanColumn; label: string }[] = [

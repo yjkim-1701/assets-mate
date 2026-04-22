@@ -43,7 +43,7 @@ const imageBox: React.CSSProperties = {
   overflow: 'hidden',
 };
 
-const FALLBACK_STUDIO_FILENAME = 'product_shot_01.jpg';
+const FALLBACK_STUDIO_FILENAME = 'product_shot_01.png';
 /** Instruct Edit 완료 후 프리뷰·라이트박스에 표시하는 목업 결과 이미지 */
 const MOCK_PREVIEW_AFTER_FILENAME = 'product_shot_02.png';
 const MOCK_AI_MS = 2800;

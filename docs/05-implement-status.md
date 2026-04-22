@@ -1,6 +1,6 @@
 # Assets Mate — 기능 구현 현황
 
-> 작성일: 2026-04-17  
+> 작성일: 2026-04-17 (갱신: 2026-04-20)  
 > 기준 문서: [02-feature-specification.md](./02-feature-specification.md)  
 > 문서 인덱스: [README.md](./README.md)  
 > 구현 범위: 저장소 **루트**의 Vite 앱 **`src/`** 등 (React + 정적 목 데이터 UI 프로토타입). 백엔드·Firefly API·실제 검색/AI 연동은 포함하지 않음.
@@ -19,11 +19,13 @@
 
 ## 구현 완료 항목 (저장소 루트 목업 기준)
 
-아래는 상세 표에서 **목업 기능 상태**가 **완료**인 기능입니다. (전체 37개 — 세부는 절별 표 참고)
+아래는 상세 표에서 **목업 기능 상태**가 **완료**인 기능입니다. (전체 39개 — 세부는 절별 표 참고)
 
 - **F-0.1** 메인 대시보드  
 - **F-0.2** 에셋 상세 뷰  
-- **F-1.1 ~ F-1.8** 고급 검색·발견 (비주얼·색상·시맨틱·복합 필터·다국어·중복·텍소노미·**AI 검색 탭**)  
+- **F-0.3** 설정 허브 (`/settings`, 탭형 목업)  
+- **F-0.4** AI Creative 거버넌스 생성·DAM (`/assets/upload`, `AssetUpload.tsx`)  
+- **F-1.1 ~ F-1.8** 고급 검색·발견 (비주얼·색상·시맨틱·복합 필터·다국어·중복·텍소노미·**AI 검색 탭**, 첫 성공 전송 전 결과 플레이스홀더)  
 - **F-2.1 ~ F-2.6** 브랜드 거버넌스 (가이드라인 검사·라이선스·승인 게이트·템플릿 잠금·스코어카드·금지 에셋 목업)  
 - **F-3.1 ~ F-3.6** AI Creative 전반 (인박스·자연어 편집·Fill·Expand·Custom Model·변형 생성 목업)  
 - **F-4.1 ~ F-4.5** 협업·승인 (공유 포털·리뷰/마크업·버전 비교·캠페인 워크스페이스·승인 칸반 목업)  
@@ -38,6 +40,8 @@
 |----|------|----------------|------|----------------|
 | F-0.1 | 메인 대시보드 | **완료** | 현황 카드, 최근 활동, 빠른 액션(모듈 카드), 캠페인 진행률, 브랜드 건강도 (`Dashboard.tsx`) | 실데이터·실시간 지표·알림 연동 |
 | F-0.2 | 에셋 상세 뷰 | **완료** | `/assets/:assetId` — 미리보기(줌)·메타·버전·라이선스·관련 에셋·브랜드 점수 (`AssetDetail.tsx`) | 실 DAM API·동적 렌더·다운로드 |
+| F-0.3 | 설정 허브 | **완료** | `/settings` — 거버넌스 가이드·텍소노미·채널·알림·AI 정책·사용자 탭 목업 (`Settings.tsx`) | 서버 영속·IMS·실 정책 엔진 |
+| F-0.4 | AI Creative 생성·DAM | **완료** | `/assets/upload` — 이미지/텍스트 NL 생성·거버넌스·세션 단계·미리보기 아래 DAM 탐색+AI 제안·초기화 시 빈 우측 패널 (`AssetUpload.tsx`) | Firefly·실 DAM 경로·세션 서버 저장 |
 
 ---
 
@@ -52,7 +56,7 @@
 | F-1.5 | 다국어 유사 에셋 추출 | **완료** | `langGroupId` 그룹 카드·보존 라디오 선택 | 번역·크로스링구얼 유사도·워크플로 API |
 | F-1.6 | 중복 에셋 탐지 | **완료** | `duplicateGroupId` 그룹·보존 선택 UI | 콘텐츠 지문·해시·대용량 중복 클러스터링 |
 | F-1.7 | 텍소노미 기반 검색 | **완료** | prefix 탐색·노드 건수·브레드크럼/상위로·필터 결과 그리드 | DAM/AEM 분류 동기화·권한별 트리 |
-| F-1.8 | 대화형 AI 검색 | **완료** | AI 검색 탭·채팅·`SearchIntent` 규칙 파싱·조건 칩·교집합 결과·`searchIntentMock`·`assetSearch` 헬퍼 (`Search.tsx`) | LLM structured output·ACL·스트리밍·멀티모달 업로드 |
+| F-1.8 | 대화형 AI 검색 | **완료** | AI 검색 탭·채팅·`SearchIntent` 규칙 파싱·조건 칩·교집합 결과·**첫 `sendAiChat` 성공 후에만** 결과 그리드·건수 표시·`aiSearchRan`·초기화 시 플레이스홀더 복귀 (`Search.tsx`) | LLM structured output·ACL·스트리밍·멀티모달 업로드 |
 
 ---
 
@@ -122,7 +126,7 @@
 
 | 목업 기능 상태 | 개수 (대략) |
 |----------------|-------------|
-| **완료** | 36 |
+| **완료** | 39 |
 | **부분** | 0 |
 | **미구현** | 0 |
 
@@ -136,7 +140,7 @@
 | 영역 | 주요 경로 |
 |------|-----------|
 | 라우팅 | `src/App.tsx` |
-| 페이지 | `src/pages/*.tsx` (AI: `AICreativeStudio`, `BrandVariations`, `BrandCustomModel` 등) |
+| 페이지 | `src/pages/*.tsx` (공통: `Settings`, `AssetUpload`; AI: `AICreativeStudio`, `BrandVariations`, `BrandCustomModel` 등) |
 | 컴포넌트 | `src/components/GenerativeFillPanel.tsx`, `GenerativeExpandPanel.tsx` |
 | 레이아웃·내비 | `src/components/AppLayout.tsx` |
 | 목 데이터 | `src/data/mock.ts` (`SOCIAL_CALENDAR_EVENTS`, `DEPLOY_HISTORY`, `CHANNEL_HEX` 등) |

@@ -30,7 +30,7 @@ export type Asset = {
 export const ASSETS: Asset[] = [
   {
     id: 'a1',
-    name: 'product_shot_01.jpg',
+    name: 'product_shot_01.png',
     type: 'image',
     size: '4.2 MB',
     dim: '3840×2160',
@@ -99,7 +99,7 @@ export const ASSETS: Asset[] = [
   },
   {
     id: 'a4',
-    name: 'product_lifestyle_01.jpg',
+    name: 'product_lifestyle_01.png',
     type: 'image',
     size: '5.1 MB',
     dim: '4000×3000',
@@ -187,7 +187,7 @@ export const ASSETS: Asset[] = [
   },
   {
     id: 'a8',
-    name: 'hero_banner_winter.jpg',
+    name: 'hero_banner_winter.png',
     type: 'image',
     size: '3.7 MB',
     dim: '2560×1440',
@@ -443,7 +443,7 @@ export const BRAND_KIT_ITEMS = [
 export type ShareAccessLogRow = { id: string; at: string; actor: string; action: string; asset: string };
 
 export const SHARE_ACCESS_LOGS: ShareAccessLogRow[] = [
-  { id: 'l1', at: '2026-04-16 15:22', actor: 'agency-viewer@partner.com', action: '다운로드', asset: 'product_shot_01.jpg' },
+  { id: 'l1', at: '2026-04-16 15:22', actor: 'agency-viewer@partner.com', action: '다운로드', asset: 'product_shot_01.png' },
   { id: 'l2', at: '2026-04-16 14:01', actor: 'agency-viewer@partner.com', action: '미리보기', asset: '브랜드 킷 패키지' },
   { id: 'l3', at: '2026-04-15 09:40', actor: 'freelance@design.kr', action: '다운로드', asset: 'logo_primary.svg' },
 ];
@@ -641,6 +641,15 @@ export function findAiFixInboxEntryByAssetId(assetId: string) {
   return AI_FIX_INBOX.find(f => f.assetId === assetId) ?? null;
 }
 
+export const COPILOT_STARTER_PROMPTS: string[] = [
+  '2026 여름 캠페인 중에 승인된 1:1 소셜 이미지 보여줘',
+  '겨울 프로모션 히어로 배너 만들어줘, 2560×1440, 블루 톤',
+  'social_post_03 스코어 너무 낮네, 자동으로 고쳐줘',
+  '여름 캠페인 배너 중에 스코어 60 미만인 거 보여줘',
+  '인스타그램용 1:1 이미지 생성해줘',
+  '지금까지 한 작업 요약해줘',
+];
+
 export const SOCIAL_CHANNELS = [
   { id: 'ig-feed', name: 'Instagram 피드', width: 1080, height: 1080 },
   { id: 'ig-story', name: 'Instagram 스토리', width: 1080, height: 1920 },
@@ -691,7 +700,7 @@ export const SOCIAL_CALENDAR_EVENTS: SocialCalendarEvent[] = [
     channel: 'Instagram 피드',
     status: 'scheduled',
     assetId: 'a1',
-    assetName: 'product_shot_01.jpg',
+    assetName: 'product_shot_01.png',
     repeatRule: 'none',
   },
   {
@@ -703,7 +712,7 @@ export const SOCIAL_CALENDAR_EVENTS: SocialCalendarEvent[] = [
     channel: 'YouTube 썸네일',
     status: 'publishing',
     assetId: 'a4',
-    assetName: 'product_lifestyle_01.jpg',
+    assetName: 'product_lifestyle_01.png',
     repeatRule: 'none',
   },
   {
@@ -784,7 +793,7 @@ export const DEPLOY_HISTORY: DeployHistoryRow[] = [
   {
     id: 'd1',
     assetId: 'a1',
-    assetName: 'product_shot_01.jpg',
+    assetName: 'product_shot_01.png',
     channelId: 'ig-feed',
     channel: 'Instagram 피드',
     deployedAt: '2026-04-16 14:22',
@@ -795,7 +804,7 @@ export const DEPLOY_HISTORY: DeployHistoryRow[] = [
   {
     id: 'd2',
     assetId: 'a1',
-    assetName: 'product_shot_01.jpg',
+    assetName: 'product_shot_01.png',
     channelId: 'fb-feed',
     channel: 'Facebook 피드',
     deployedAt: '2026-04-16 14:25',
@@ -806,7 +815,7 @@ export const DEPLOY_HISTORY: DeployHistoryRow[] = [
   {
     id: 'd3',
     assetId: 'a4',
-    assetName: 'product_lifestyle_01.jpg',
+    assetName: 'product_lifestyle_01.png',
     channelId: 'yt-thumb',
     channel: 'YouTube 썸네일',
     deployedAt: '2026-04-15 09:10',
@@ -817,7 +826,7 @@ export const DEPLOY_HISTORY: DeployHistoryRow[] = [
   {
     id: 'd4',
     assetId: 'a4',
-    assetName: 'product_lifestyle_01.jpg',
+    assetName: 'product_lifestyle_01.png',
     channelId: 'yt-thumb',
     channel: 'YouTube 썸네일',
     deployedAt: '2026-04-15 09:18',
@@ -958,7 +967,7 @@ export const FORBIDDEN_ASSETS: ForbiddenAssetRow[] = [
     reason: 'brand_change',
     forbiddenAt: '2026-04-01',
     replacementAssetId: 'a1',
-    replacementName: 'product_shot_01.jpg',
+    replacementName: 'product_shot_01.png',
     usedIn: [
       { name: 'Winter 2019 랜딩 (아카이브)', type: 'page' },
       { name: 'Brand Refresh', type: 'campaign' },
@@ -971,7 +980,7 @@ export const FORBIDDEN_ASSETS: ForbiddenAssetRow[] = [
     reason: 'license_expired',
     forbiddenAt: '2026-04-10',
     replacementAssetId: 'a4',
-    replacementName: 'product_lifestyle_01.jpg',
+    replacementName: 'product_lifestyle_01.png',
     usedIn: [{ name: '2026 Summer', type: 'campaign' }],
   },
   {

@@ -107,7 +107,7 @@ type ChatMsg = {
 
 const MOCK_EDIT_PREVIEW_FILE = 'summer_banner_v3.png';
 const INGEST_SESSION_KEY = 'assetMate_lastIngest';
-const NL_GEN_PREVIEW_FILE = 'product_lifestyle_01.jpg';
+const NL_GEN_PREVIEW_FILE = 'product_lifestyle_01.png';
 
 type SessionOrigin = 'text' | 'image' | null;
 

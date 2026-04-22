@@ -13,6 +13,7 @@ import SocialNetwork from '@react-spectrum/s2/icons/SocialNetwork';
 import ImageBackgroundRemove from '@react-spectrum/s2/icons/ImageBackgroundRemove';
 import MagicWand from '@react-spectrum/s2/icons/MagicWand';
 import Settings from '@react-spectrum/s2/icons/Settings';
+import Comment from '@react-spectrum/s2/icons/Comment';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import { AdobeMark } from './AdobeMark';
 import { AI_FIX_INBOX, STATUS_LABELS, type FixStatus } from '../data/mock';
@@ -62,6 +63,7 @@ function pathToPageLabel(pathname: string): string {
   if (pathname === '/brand/forbidden') return '금지 에셋 관리';
   if (pathname.startsWith('/brand')) return '브랜드 거버넌스';
   if (pathname.startsWith('/ai/brand-fix')) return '브랜드 AI 수정';
+  if (pathname.startsWith('/ai/copilot')) return 'Assets Copilot';
   if (pathname.startsWith('/ai/inbox')) return 'AI 보정 인박스';
   if (pathname.startsWith('/ai/studio')) return 'AI Creative Studio';
   if (pathname.startsWith('/ai/custom-models')) return '브랜드 Custom Model';
@@ -132,6 +134,7 @@ function SidebarNavItem({ to, Icon, label, badge }: NavItemProps) {
 
 const NAV_MAIN: NavItemProps[] = [
   { to: '/', Icon: Home, label: '대시보드' },
+  { to: '/ai/copilot', Icon: Comment, label: 'Assets Copilot' },
   { to: '/assets/upload', Icon: MagicWand, label: 'AI Creative' },
   { to: '/search', Icon: Search, label: '검색 & 탐색' },
   { to: '/brand', Icon: Brand, label: '브랜드 거버넌스' },
