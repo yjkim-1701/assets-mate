@@ -148,11 +148,11 @@ export function parseChatToIntent(prev: SearchIntent, userMessage: string): Sear
     /* 참조 없이 유사 요청만 온 경우 — 목업에서는 유지 */
   }
 
-  if (/승인됨|approved/i.test(m)) next.statuses.push('approved');
+  if (/승인됨|승인된|승인|approved/i.test(m)) next.statuses.push('approved');
   if (/검토\s*중|review/i.test(m)) next.statuses.push('review');
   if (/위반|violation/i.test(m)) next.statuses.push('violation');
 
-  if (/사진|photo/i.test(m)) next.kinds.push('photo');
+  if (/사진|photo|소셜\s*(이미지|포스트|피드)?|social\s*(post|feed|image)?/i.test(m)) next.kinds.push('photo');
   if (/배너|banner/i.test(m)) next.kinds.push('banner');
   if (/비디오|video|mp4/i.test(m)) next.kinds.push('video');
 

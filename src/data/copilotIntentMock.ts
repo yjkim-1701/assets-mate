@@ -123,7 +123,7 @@ export function emptyCopilotSession(): CopilotSession {
 // ── Intent Parser ─────────────────────────────────────────────────────────────
 
 const FIX_KEYWORDS = /수정|고쳐|보정|fix|repair|correct|위반.*해결|브랜드.*맞춰/i;
-const GENERATE_KEYWORDS = /생성|만들어|그려|만들기|generate|create|이미지.*만|배너.*만|포스터|창작/i;
+const GENERATE_KEYWORDS = /생성|만들어|그려|만들기|generate|create|이미지.*만들|배너.*만들|포스터|창작/i;
 const INSPECT_KEYWORDS = /자세히|상세|보여줘|detail|열어|크게|확대/i;
 const GOVERNANCE_KEYWORDS = /거버넌스|체크|검사|준수|가이드라인|governance|check/i;
 const SUMMARY_KEYWORDS = /요약|정리|summary|지금까지|뭐 했|어떤 작업/i;
@@ -325,12 +325,14 @@ export function mockGenerationPreview(prompt: string): ToolCard & { kind: 'gener
 }
 
 export function mockBeforeAfter(slots: FixSlots): ToolCard & { kind: 'before_after' } {
+  const base = slots.assetName.replace(/\.(png|jpg|jpeg)$/i, '');
+  const ext = slots.assetName.match(/\.(png|jpg|jpeg)$/i)?.[0] ?? '.png';
   return {
     kind: 'before_after',
     assetId: slots.assetId,
     assetName: slots.assetName,
-    before: '/sample/violation_sample_red_tone.png',
-    after: '/sample/violation_fixed_cool_tone.png',
+    before: `/sample/${slots.assetName}`,
+    after: `/sample/${base}_fixed${ext}`,
     scoreBefore: slots.scoreBefore,
     scoreAfter: slots.scoreAfter,
     violations: slots.violations,

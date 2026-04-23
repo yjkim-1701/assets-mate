@@ -1,200 +1,281 @@
-# Assets Copilot 데모용 샘플 이미지 생성 가이드
+# Assets Copilot 데모용 샘플 이미지 — 시나리오 세트 정의
 
 > 작성일: 2026-04-22
-> 상태: 초안
+> 상태: 초안 (개정 3)
 > 문서 인덱스: [README.md](./README.md)
-> 선행 문서: [99-demo-scenario.md](./99-demo-scenario.md), [sample-images.md](./sample-images.md)
+> 선행 문서: [99-demo-scenario.md](./99-demo-scenario.md), [07-integrated-AI.md](./07-integrated-AI.md)
+> **제품 전제**: 전자 기기 — **무선 헤드셋** (모든 시나리오 공통)
 
 ---
 
-## 1. 개요
+## 설계 원칙
 
-Assets Copilot 데모 시나리오(A–E)에서 실제로 화면에 노출되는 이미지 목록과 Adobe Firefly 생성 프롬프트를 정리한다.  
-생성된 파일은 `public/sample/` 폴더에 저장하면 즉시 반영된다.
-
-**현재 `public/sample/`에 이미 있는 파일**
-
-| 파일명 | 비고 |
-|--------|------|
-| `product_shot_01.png` | 에셋 검색 결과 카드용 |
-| `product_lifestyle_01.png` | 에셋 검색 결과 카드용 |
-| `social_post_03.png` | 위반 수정 after 이미지 |
-| `social_post_03_before.png` | 위반 수정 before 이미지 |
-| `hero_banner_winter.png` | 이미지 생성 후보 base (CSS filter로 4종 변형) |
-| `promo_banner_v2.png` | 브랜드 대시보드용 |
+- **시나리오 간 이미지 미공유**: 어떤 이미지 파일도 두 개 이상의 시나리오에서 사용되지 않는다.
+- **세트 내 일관성**: 같은 시나리오의 이미지들은 동일한 포맷·색조·스타일을 공유한다.
+- **source = before**: Scenario D·E의 수정 전(before) 이미지는 검색 결과 카드에 나타나는 source asset 파일 자체와 동일하다.
+- **`_fixed` 네이밍 규칙**: 수정 후(after) 이미지는 `<원본명>_fixed.<ext>` 로 명명한다. `mockBeforeAfter` 가 자동으로 참조한다.
 
 ---
 
-## 2. 신규 생성 필요 파일
-
-### 2.1 Scenario B — 거버넌스 체크 (외부 에이전시 제출 이미지)
-
-> `/ai/copilot` 채팅창에 이미지 첨부 시 거버넌스 자동 검사 데모용.  
-> 파일명에 `warn` / `block` 키워드가 포함되면 mock이 자동으로 해당 결과를 반환한다.
-
-| 파일명 | 저장 경로 | 캔버스 |
-|--------|-----------|--------|
-| `agency_submit_warn.png` | `public/sample/` | 1920×1080 |
-
-**Firefly 프롬프트**
-```
-Professional marketing banner for outdoor lifestyle brand, product photography
-with warm sunset tones, slightly oversaturated orange-yellow color grading,
-clean layout with text placeholder area, high quality commercial photography
-```
-- Content type: `Photo`
-- Style: `Commercial photography`
-- 의도: 색상 톤이 약간 어긋난 수준 → **경고(warn)** 케이스
+## 시나리오별 이미지 세트
 
 ---
 
-| 파일명 | 저장 경로 | 캔버스 |
-|--------|-----------|--------|
-| `agency_submit_block.png` | `public/sample/` | 1920×1080 |
+### SET A — 시나리오 A: 2026 Summer 소셜 이미지 검색
 
-**Firefly 프롬프트**
+**트리거 발화**: `"2026 여름 캠페인 중에 승인된 1:1 소셜 이미지 보여줘"`
+**표시 카드**: `asset_grid` → `asset_detail`
+**필터**: campaign: `2026 Summer` · status: `approved` · assetKind: `photo`
+
+| 파일명 | mock ID | 해상도 | 역할 | 상태 |
+|--------|---------|--------|------|------|
+| `summer_social_headset_01.png` | a11 | 1080×1080 | 검색 결과 카드 1 | 🆕 신규 생성 필요 |
+| `summer_social_headset_02.png` | a12 | 1080×1080 | 검색 결과 카드 2 | 🆕 신규 생성 필요 |
+| `summer_social_headset_03.png` | a13 | 1080×1080 | 검색 결과 카드 3 | 🆕 신규 생성 필요 |
+
+> **격리 보장**: a4(product_lifestyle_01.png)의 캠페인을 `Brand Refresh`로 변경해 A 검색 결과에서 제외함 (코드 반영 완료).
+
+#### A-1. `summer_social_headset_01.png` — 헤드셋 플랫레이, 여름 미니멀
+
 ```
-Bold promotional banner with bright vivid red dominant background,
-aggressive warm color scheme, neon accent colors, product advertisement layout,
-commercial photography style — overly saturated, clearly off-brand palette
+Premium wireless over-ear headphones flatlay on a clean sand-white surface,
+bright natural summer daylight, cool white and brand blue accent tones,
+square format with generous top negative space for text overlay,
+commercial product photography, Instagram post 1:1
 ```
-- Content type: `Photo`
-- Style: `Commercial photography`
-- Lighting & color: 채도 최대, 색온도 가장 따뜻하게
-- 의도: 브랜드 컬러 완전 이탈 → **차단(block)** 케이스
+- Style: `Product photography` · Lighting: 자연광, 쿨화이트
+
+#### A-2. `summer_social_headset_02.png` — 헤드셋 착용 라이프스타일, 여름 야외
+
+```
+Young person wearing premium wireless headphones in a bright summer outdoor setting,
+casual lifestyle mood, brand blue clothing accent, soft bokeh background,
+square 1:1 crop, editorial lifestyle photography, Instagram social feed
+```
+- Style: `Lifestyle photography` · Lighting: 골든아워 전 자연광
+
+#### A-3. `summer_social_headset_03.png` — 헤드셋 + 여름 오브제 스타일링
+
+```
+Premium wireless headphones styled with summer accessories — sunglasses and light fabric —
+clean flatlay, airy blue-white palette, brand-compliant color scheme,
+square composition, high-end product styling, Instagram 1:1 format
+```
+- Style: `Product photography / Flat lay` · Lighting: 소프트박스 확산광
 
 ---
 
-### 2.2 Scenario C — 이미지 생성 후보 4종
+### SET B — 시나리오 B: 거버넌스 체크 업로드
 
-> `hero_banner_winter.png`가 이미 있어 코드에서 CSS filter로 4종 변형해 표시한다.  
-> 더 실감나는 데모를 원하면 아래 4개 파일을 별도 생성해 저장한다.
+**트리거 동작**: 채팅창에 이미지 드래그 드롭
+**표시 카드**: `governance_report` (warn 또는 block)
+**mock 판정 기준**: 파일명에 `warn` / `block` 포함 여부
 
-| 파일명 | 저장 경로 | 캔버스 |
-|--------|-----------|--------|
-| `winter_promo_generated_01.png` | `public/sample/` | 2560×1440 |
+| 파일명 | 해상도 | 역할 | 상태 |
+|--------|--------|------|------|
+| `agency_submit_warn.png` | 1920×1080 | 첨부 썸네일 + 경고 판정 트리거 | ⚠️ 내용 교체 필요 (헤드셋 테마) |
+| `agency_submit_block.png` | 1920×1080 | 첨부 썸네일 + 차단 판정 트리거 | ⚠️ 내용 교체 필요 (헤드셋 테마) |
 
-**Firefly 프롬프트**
+> **격리 보장**: 파일명에 `warn`/`block` 포함이 필수이므로 파일명은 유지, 이미지 내용만 교체.
+
+#### B-1. `agency_submit_warn.png` — 헤드셋 배너, 경미한 색상 이탈
+
 ```
-Cinematic winter hero banner, snow-covered mountain cabin at dusk,
-warm glowing windows, natural light, blue-grey color palette,
-minimalist background, ultra wide landscape, commercial photography, 8K quality
+Wide marketing banner for premium wireless headphones, 16:9 format,
+warm sunset orange-yellow color grading, slightly oversaturated warm tones —
+intentionally off the brand's cool blue palette but not severe,
+product centered, clean layout with text placeholder area,
+commercial photography, agency submission style
+```
+- Lighting & color: 색온도 따뜻하게 (+30), 채도 +20
+- 의도: **경고(warn)** — 색상 톤 경미한 이탈
+
+#### B-2. `agency_submit_block.png` — 헤드셋 배너, 브랜드 컬러 완전 이탈
+
+```
+Wide promotional banner with wireless headphones as hero product,
+vivid red dominant background, aggressive warm accent neon colors,
+oversaturated color scheme completely different from cool blue brand identity,
+commercial photography style, agency submission format, 16:9
+```
+- Lighting & color: 채도 최대, 색온도 매우 따뜻하게
+- 의도: **차단(block)** — 브랜드 컬러 완전 이탈
+
+---
+
+### SET C — 시나리오 C: 겨울 프로모션 배너 AI 생성
+
+**트리거 발화**: `"겨울 프로모션 히어로 배너 만들어줘, 2560×1440, 블루 톤"`
+**표시 카드**: `generation_preview` — 2×2 후보 그리드
+**코드 참조**: `copilotIntentMock.ts GEN_IMAGES` 배열
+
+| 파일명 | 해상도 | promptAdj 태그 | 상태 |
+|--------|--------|----------------|------|
+| `winter_promo_generated_01.png` | 2560×1440 | `—자연광, 미니멀 배경` | ⚠️ 내용 교체 필요 (헤드셋 테마) |
+| `winter_promo_generated_02.png` | 2560×1440 | `—블루 그라디언트 톤` | ⚠️ 내용 교체 필요 (헤드셋 테마) |
+| `winter_promo_generated_03.png` | 2560×1440 | `—다크 배경, 하이라이트 강조` | ⚠️ 내용 교체 필요 (헤드셋 테마) |
+| `winter_promo_generated_04.png` | 2560×1440 | `—소프트 파스텔, 아웃도어` | ⚠️ 내용 교체 필요 (헤드셋 테마) |
+
+> **격리 보장**: 파일명 유지, 이미지 내용만 헤드셋 겨울 배너로 교체.
+
+#### C-1. `winter_promo_generated_01.png` — 자연광·미니멀
+
+```
+Premium wireless over-ear headphones on a minimal snowy white surface,
+cinematic winter hero banner, cold natural window light,
+blue-grey cool palette, clean negative space for text overlay,
+ultra-wide landscape 16:9, commercial product photography, 8K quality
+```
+
+#### C-2. `winter_promo_generated_02.png` — 블루 그라디언트
+
+```
+Premium wireless headphones floating on deep blue gradient background,
+winter promotion hero banner, cool blue tone color grading,
+frost crystal texture overlay, premium brand aesthetic,
+wide-format 16:9 with negative space for headline, commercial photography
+```
+
+#### C-3. `winter_promo_generated_03.png` — 다크·하이라이트
+
+```
+Premium wireless headphones on dark velvet surface,
+dramatic winter night mood, string lights bokeh background,
+rim highlight accentuating headphone curves, luxury product photography,
+cinematic wide format 16:9
+```
+
+#### C-4. `winter_promo_generated_04.png` — 소프트 파스텔
+
+```
+Wireless headphones with cozy winter accessories — knit scarf and warm mug —
+soft pastel arrangement, Scandinavian aesthetic, airy wide layout,
+negative space for text overlay, editorial lifestyle photography, 16:9
 ```
 
 ---
 
-| 파일명 | 저장 경로 | 캔버스 |
-|--------|-----------|--------|
-| `winter_promo_generated_02.png` | `public/sample/` | 2560×1440 |
+### SET D — 시나리오 D: 브랜드 위반 소셜 포스트 수정
 
-**Firefly 프롬프트**
+**트리거 발화**: `"social_post_03 스코어 너무 낮네, 자동으로 고쳐줘"`
+**표시 카드**: `before_after` — 좌(before) · 우(after) · 스코어 45→88
+**source = before 원칙**: mockBeforeAfter가 `social_post_03.png` 자체를 before 이미지로 사용.
+
+| 파일명 | mock ID | 해상도 | 역할 | brandScore | 상태 |
+|--------|---------|--------|------|------------|------|
+| `social_post_03.png` | a3 | 1080×1080 | source asset 썸네일 = before | 45 | ⚠️ 내용 교체 필요 (헤드셋 위반 이미지) |
+| `social_post_03_fixed.png` | — | 1080×1080 | after (수정 후) | 88 | 🆕 신규 생성 필요 |
+
+> **격리 보장**: a3 (Brand Refresh campaign, violation)은 Scenario A 검색 필터(2026 Summer + approved + photo)에 걸리지 않으므로 Set A와 완전히 분리된다.
+>
+> **`_fixed` 규칙**: `mockBeforeAfter`가 `social_post_03.png` → `social_post_03_fixed.png` 를 자동 파생하므로 코드 변경 불필요.
+
+#### D-1. `social_post_03.png` — 헤드셋 소셜, 브랜드 위반 (before · source)
+
 ```
-Winter promotion hero banner, deep blue gradient sky, frozen lake reflection,
-pine forest silhouette, professional wide-format layout, cool blue tone color grading,
-premium brand aesthetic, negative space for text overlay
-```
-
----
-
-| 파일명 | 저장 경로 | 캔버스 |
-|--------|-----------|--------|
-| `winter_promo_generated_03.png` | `public/sample/` | 2560×1440 |
-
-**Firefly 프롬프트**
-```
-Dark moody winter banner, dramatic night sky with stars,
-cozy alpine chalet with warm christmas lights, dark background with highlight contrast,
-luxury brand style, cinematic lighting, wide cinematic aspect ratio
-```
-
----
-
-| 파일명 | 저장 경로 | 캔버스 |
-|--------|-----------|--------|
-| `winter_promo_generated_04.png` | `public/sample/` | 2560×1440 |
-
-**Firefly 프롬프트**
-```
-Soft pastel winter outdoor scene, fresh snow on trees, golden hour light,
-airy and clean Scandinavian minimalist aesthetic,
-wide negative space for text overlay, lifestyle brand editorial photography
-```
-
----
-
-### 2.3 Scenario D / E — 브랜드 위반 수정 전·후
-
-> `before_after` 카드에서 수정 전/후 이미지로 사용된다.  
-> `social_post_03_before.png` / `social_post_03.png` 가 이미 있지만,  
-> 위반이 더 명확히 보이는 버전이 필요하면 아래 파일로 교체한다.
-
-| 파일명 | 저장 경로 | 캔버스 |
-|--------|-----------|--------|
-| `violation_sample_red_tone.png` | `public/sample/` | 1080×1080 |
-
-**Firefly 프롬프트**
-```
-Social media square post for lifestyle brand, product flatlay composition,
-vivid red-orange dominant color tone, oversaturated warm palette,
-cramped logo area, off-brand color grading — brand guideline violation aesthetic,
-Instagram post format
+Wireless headphones product social media post, square 1:1 Instagram format,
+flatlay on a warm terracotta-red surface, warm orange-red dominant tones,
+oversaturated color grading far from brand's cool blue palette,
+product clearly visible but surrounding colors are off-brand,
+cramped composition with logo too close to edge
 ```
 - Lighting & color: 색온도 매우 따뜻하게, 채도 높게
-- 의도: **수정 전(before)** — 색상 톤 위반
+- 의도: 브랜드 스코어 45, 색상 위반 + 로고 여백 부족 — **수정 전(before)**
 
----
+#### D-2. `social_post_03_fixed.png` — 헤드셋 소셜, 브랜드 준수 (after)
 
-| 파일명 | 저장 경로 | 캔버스 |
-|--------|-----------|--------|
-| `violation_fixed_cool_tone.png` | `public/sample/` | 1080×1080 |
-
-**Firefly 프롬프트**
 ```
-Same social media square post layout, product flatlay composition,
-corrected with cool neutral blue-white brand palette,
-clean typography, proper logo whitespace and margins,
-professional brand-compliant layout, Instagram post format
+Same wireless headphones product in square 1:1 format,
+corrected with cool neutral brand palette — white and brand blue (#1D4ED8) tones,
+clean minimal composition, proper logo whitespace and margins,
+professional brand-compliant product photography, Instagram feed format
 ```
-- Lighting & color: 색온도 차갑게, 채도 중간
-- 의도: **수정 후(after)** — 브랜드 컬러 준수
+- Lighting & color: 쿨 블루+화이트, 채도 표준
+- 의도: 브랜드 스코어 88 — **수정 후(after)**
 
 ---
 
-### 2.4 기존 파일 품질 개선 (선택)
+### SET E — 시나리오 E: 여름 배너 검색 → 수정 → DAM 저장 복합 체인
 
-현재 파일로도 데모는 동작하지만, 더 실감나는 사진으로 교체하고 싶을 경우 아래 프롬프트를 사용한다.
+**트리거 발화**: `"여름 캠페인 배너 중에 스코어 60 미만인 거 보여줘"` → `"첫 번째 자동으로 고쳐줘"`
+**표시 카드**: `asset_grid` → `before_after` → `governance_report` → `dam_path_suggest`
+**필터**: campaign: `2026 Summer` · assetKind: `banner` · brandScore < 60
+**`_fixed` 규칙**: `mockBeforeAfter`가 `summer_banner_violation.png` → `summer_banner_violation_fixed.png` 자동 파생.
 
-| 파일명 | 캔버스 | Firefly 프롬프트 |
-|--------|--------|----------------|
-| `product_shot_01.png` | 1200×900 | `Professional product photography, wireless headphones on minimal white surface, soft shadow, clean studio lighting, commercial quality, lifestyle brand` |
-| `product_lifestyle_01.png` | 1200×900 | `Lifestyle product photography, laptop and headphones on wooden desk, natural window light, home office aesthetic, warm neutral tones, editorial style` |
-| `hero_banner_winter.png` | 2560×1440 | `Cinematic winter hero banner, snow-covered mountain cabin at dusk, warm glowing windows, natural light, blue-grey color palette, ultra wide landscape, 8K` |
+| 파일명 | mock ID | 해상도 | 역할 | brandScore | 상태 |
+|--------|---------|--------|------|------------|------|
+| `summer_banner_violation.png` | a14 | 1920×1080 | source asset 썸네일 = before | 48 | 🆕 신규 생성 필요 |
+| `summer_banner_violation_fixed.png` | — | 1920×1080 | after (수정 후) | 91 | 🆕 신규 생성 필요 |
+
+> **격리 보장**: a14는 assetKind: `banner`, brandScore: 48, campaign: `2026 Summer`. Scenario A 검색(photo 필터)에는 나타나지 않고, Scenario D의 social post와는 format(1080→1920)·campaign(Brand Refresh→2026 Summer)이 완전히 다르다.
+
+#### E-1. `summer_banner_violation.png` — 여름 헤드셋 배너, 브랜드 위반 (before · source)
+
+```
+Wide promotional banner for wireless headphones, landscape 16:9 format,
+summer campaign aesthetic with warm orange-yellow dominant background,
+oversaturated warm palette clearly off the brand's cool blue identity,
+product centered, logo area with insufficient whitespace,
+commercial photography, marketing banner layout
+```
+- Lighting & color: 색온도 매우 따뜻하게, 오렌지-옐로우 계열 지배, 채도 높게
+- 의도: 브랜드 스코어 48 — **위반(violation)**, 수정 전(before)
+
+#### E-2. `summer_banner_violation_fixed.png` — 여름 헤드셋 배너, 브랜드 준수 (after)
+
+```
+Wide promotional banner for wireless headphones, landscape 16:9 format,
+corrected summer campaign design with brand-compliant cool blue palette (#1D4ED8),
+clean minimal layout, proper logo whitespace and margins,
+professional commercial photography, strong negative space for headline text,
+premium brand-aligned marketing banner
+```
+- Lighting & color: 쿨 블루 지배, 화이트 여백 확보
+- 의도: 브랜드 스코어 91 — **수정 후(after)**
 
 ---
 
-## 3. 생성 체크리스트
+## 생성 체크리스트
 
-| 파일명 | 시나리오 | 필수 여부 | 완료 |
-|--------|----------|-----------|------|
-| `agency_submit_warn.png` | B | 필수 | [ ] |
-| `agency_submit_block.png` | B | 필수 | [ ] |
-| `violation_sample_red_tone.png` | D, E | 필수 | [ ] |
-| `violation_fixed_cool_tone.png` | D, E | 필수 | [ ] |
-| `winter_promo_generated_01.png` | C | 선택 | [ ] |
-| `winter_promo_generated_02.png` | C | 선택 | [ ] |
-| `winter_promo_generated_03.png` | C | 선택 | [ ] |
-| `winter_promo_generated_04.png` | C | 선택 | [ ] |
-| `product_shot_01.png` (교체) | A | 선택 | [ ] |
-| `product_lifestyle_01.png` (교체) | A | 선택 | [ ] |
-| `hero_banner_winter.png` (교체) | C | 선택 | [ ] |
+| 세트 | 파일명 | 해상도 | 작업 | Firefly 프롬프트 | 완료 |
+|------|--------|--------|------|-----------------|------|
+| **A** | `summer_social_headset_01.png` | 1080×1080 | 신규 생성 | `Premium wireless over-ear headphones flatlay on a clean sand-white surface, bright natural summer daylight, cool white and brand blue accent tones, square format with generous top negative space for text overlay, commercial product photography, Instagram post 1:1` | [x] |
+| **A** | `summer_social_headset_02.png` | 1080×1080 | 신규 생성 | `Young person wearing premium wireless headphones in a bright summer outdoor setting, casual lifestyle mood, brand blue clothing accent, soft bokeh background, square 1:1 crop, editorial lifestyle photography, Instagram social feed` | [x] |
+| **A** | `summer_social_headset_03.png` | 1080×1080 | 신규 생성 | `Premium wireless headphones styled with summer accessories — sunglasses and light fabric — clean flatlay, airy blue-white palette, brand-compliant color scheme, square composition, high-end product styling, Instagram 1:1 format` | [x] |
+| **B** | `agency_submit_warn.png` | 1920×1080 | 내용 교체 | `Wide marketing banner for premium wireless headphones, 16:9 format, warm sunset orange-yellow color grading, slightly oversaturated warm tones intentionally off the brand's cool blue palette, product centered, clean layout with text placeholder, commercial photography` | [ ] |
+| **B** | `agency_submit_block.png` | 1920×1080 | 내용 교체 | `Wide promotional banner with wireless headphones as hero product, vivid red dominant background, aggressive warm accent neon colors, oversaturated color scheme completely different from cool blue brand identity, commercial photography style, 16:9` | [ ] |
+| **C** | `winter_promo_generated_01.png` | 2560×1440 | 내용 교체 | `Premium wireless over-ear headphones on a minimal snowy white surface, cinematic winter hero banner, cold natural window light, blue-grey cool palette, clean negative space for text overlay, ultra-wide landscape 16:9, commercial product photography, 8K quality` | [ ] |
+| **C** | `winter_promo_generated_02.png` | 2560×1440 | 내용 교체 | `Premium wireless headphones floating on deep blue gradient background, winter promotion hero banner, cool blue tone color grading, frost crystal texture overlay, premium brand aesthetic, wide-format 16:9 with negative space for headline, commercial photography` | [ ] |
+| **C** | `winter_promo_generated_03.png` | 2560×1440 | 내용 교체 | `Premium wireless headphones on dark velvet surface, dramatic winter night mood, string lights bokeh background, rim highlight accentuating headphone curves, luxury product photography, cinematic wide format 16:9` | [ ] |
+| **C** | `winter_promo_generated_04.png` | 2560×1440 | 내용 교체 | `Wireless headphones with cozy winter accessories — knit scarf and warm mug — soft pastel arrangement, Scandinavian aesthetic, airy wide layout, negative space for text overlay, editorial lifestyle photography, 16:9` | [ ] |
+| **D** | `social_post_03.png` | 1080×1080 | 내용 교체 (위반) | `Wireless headphones product social media post, square 1:1 Instagram format, flatlay on a warm terracotta-red surface, warm orange-red dominant tones, oversaturated color grading far from brand's cool blue palette, product visible but surrounding colors are off-brand, cramped logo placement` | [ ] |
+| **D** | `social_post_03_fixed.png` | 1080×1080 | 신규 생성 | `Same wireless headphones product in square 1:1 format, corrected with cool neutral brand palette — white and brand blue (#1D4ED8) tones, clean minimal composition, proper logo whitespace and margins, professional brand-compliant product photography, Instagram feed format` | [x] |
+| **E** | `summer_banner_violation.png` | 1920×1080 | 신규 생성 | `Wide promotional banner for wireless headphones, landscape 16:9 format, summer campaign aesthetic with warm orange-yellow dominant background, oversaturated warm palette clearly off the brand's cool blue identity, product centered, logo area with insufficient whitespace, commercial photography` | [x] |
+| **E** | `summer_banner_violation_fixed.png` | 1920×1080 | 신규 생성 | `Wide promotional banner for wireless headphones, landscape 16:9 format, corrected summer campaign design with brand-compliant cool blue palette (#1D4ED8), clean minimal layout, proper logo whitespace and margins, professional commercial photography, strong negative space for headline text` | [x] |
 
 ---
 
-## 4. Firefly 생성 팁
+## 코드 반영 현황
 
-- **Content type**: `Photo` 선택 (Art 아님)
-- **Style**: `Commercial photography` 또는 `Product photography`
-- **Aspect ratio**: 생성 후 캔버스 크기에 맞게 크롭/내보내기
-- 위반 이미지는 `Lighting & color` 패널에서 색온도·채도를 수동 조정하면 더 명확한 위반 효과를 낼 수 있다
-- 생성 후 `PNG` 또는 `JPG (품질 90+)` 로 내보내기
-- 저장 위치: `asset-mate/public/sample/`
+| 항목 | 변경 내용 | 완료 |
+|------|-----------|------|
+| `mock.ts` a4 campaign | `2026 Summer` → `Brand Refresh` (Set A 격리) | ✅ |
+| `mock.ts` a11~a13 추가 | Set A 전용 소셜 에셋 | ✅ |
+| `mock.ts` a14 추가 | Set E 전용 배너 에셋, brandScore 48 | ✅ |
+| `mock.ts` BRAND_VIOLATIONS | a14 위반 항목 v6, v7 추가 | ✅ |
+| `mock.ts` AI_FIX_INBOX | a14 수정 요청 f5 추가 | ✅ |
+| `searchIntentMock.ts` | `승인된` → status:approved 파싱 수정 | ✅ |
+| `searchIntentMock.ts` | `소셜` → kinds:photo 파싱 추가 | ✅ |
+| `copilotIntentMock.ts` | `mockBeforeAfter` source=before 원칙 적용 (`assetName` → `assetName_fixed`) | ✅ |
+
+---
+
+## Firefly 생성 팁
+
+- **Content type**: `Photo`
+- **Style**: `Product photography` (A·D·E) / `Commercial photography` (B·C)
+- **해상도별 Aspect ratio**: 1:1 (A·D), 16:9 (B·C·E)
+- 위반 이미지(D before, E before, B-block): `Lighting & color` 패널에서 색온도 최대 따뜻하게 + 채도 높게
+- 수정 이미지(D after, E after): 색온도 중간~차갑게, 채도 표준
+- 저장: `PNG`, `JPG 품질 90+` / 저장 위치: `asset-mate/public/sample/`
+- **주의**: `warn`/`block` 파일명 유지 필수 (mock 거버넌스 판정 기준)

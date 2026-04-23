@@ -83,7 +83,7 @@ interface NavItemProps {
   badge?: number;
 }
 
-function SidebarNavItem({ to, Icon, label, badge }: NavItemProps) {
+function SidebarNavItem({ to, Icon, label, badge, collapsed }: NavItemProps & { collapsed?: boolean }) {
   const location = useLocation();
   const isActive =
     to === '/'
@@ -93,11 +93,13 @@ function SidebarNavItem({ to, Icon, label, badge }: NavItemProps) {
   return (
     <NavLink
       to={to}
+      title={collapsed ? label : undefined}
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 10,
-        padding: '10px 12px',
+        gap: collapsed ? 0 : 10,
+        padding: collapsed ? '10px 0' : '10px 12px',
+        justifyContent: collapsed ? 'center' : 'flex-start',
         marginBottom: 4,
         borderRadius: 8,
         textDecoration: 'none',
@@ -122,8 +124,8 @@ function SidebarNavItem({ to, Icon, label, badge }: NavItemProps) {
       >
         <Icon />
       </span>
-      <span style={{ flex: 1, minWidth: 0 }}>{label}</span>
-      {badge != null && badge > 0 && (
+      {!collapsed && <span style={{ flex: 1, minWidth: 0 }}>{label}</span>}
+      {!collapsed && badge != null && badge > 0 && (
         <MutedBadge size="S" tone={isActive ? 'success' : 'accent'}>
           {badge}
         </MutedBadge>
@@ -146,7 +148,8 @@ const NAV_WORKSPACE: NavItemProps[] = [
   { to: '/optimize', Icon: ImageBackgroundRemove, label: '에셋 최적화' },
 ];
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children, collapsed }: { children: React.ReactNode; collapsed?: boolean }) {
+  if (collapsed) return <div style={{ height: 12 }} />;
   return (
     <div
       style={{
@@ -160,6 +163,16 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>
+  );
+}
+
+function HamburgerIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="2" y="3.5" width="12" height="1.5" rx="0.75" fill="currentColor" />
+      <rect x="2" y="7.25" width="12" height="1.5" rx="0.75" fill="currentColor" />
+      <rect x="2" y="11" width="12" height="1.5" rx="0.75" fill="currentColor" />
+    </svg>
   );
 }
 
@@ -415,6 +428,8 @@ function TopChrome() {
 }
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: CM.mainBg }}>
       <TopChrome />
@@ -422,26 +437,66 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <nav
           style={{
-            width: 260,
+            width: collapsed ? 60 : 260,
             flexShrink: 0,
             backgroundColor: CM.sidebarBg,
             borderRight: `1px solid ${CM.sidebarBorder}`,
             display: 'flex',
             flexDirection: 'column',
-            padding: '12px 10px 16px',
+            padding: collapsed ? '12px 8px 16px' : '12px 10px 16px',
             overflowY: 'auto',
+            overflowX: 'hidden',
+            transition: 'width 0.2s ease, padding 0.2s ease',
           }}
         >
-          <SectionLabel>메인</SectionLabel>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: collapsed ? 'center' : 'flex-end',
+              marginBottom: 4,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setCollapsed(c => !c)}
+              aria-label={collapsed ? '메뉴 펼치기' : '메뉴 접기'}
+              title={collapsed ? '메뉴 펼치기' : '메뉴 접기'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 32,
+                height: 32,
+                borderRadius: 6,
+                border: 'none',
+                background: 'transparent',
+                color: CM.textSecondary,
+                cursor: 'pointer',
+                flexShrink: 0,
+                transition: 'background-color 0.15s ease, color 0.15s ease',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor = CM.activeNav;
+                (e.currentTarget as HTMLButtonElement).style.color = CM.text;
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent';
+                (e.currentTarget as HTMLButtonElement).style.color = CM.textSecondary;
+              }}
+            >
+              <HamburgerIcon />
+            </button>
+          </div>
+          <SectionLabel collapsed={collapsed}>메인</SectionLabel>
           {NAV_MAIN.map(item => (
-            <SidebarNavItem key={item.to} {...item} />
+            <SidebarNavItem key={item.to} {...item} collapsed={collapsed} />
           ))}
-          <SectionLabel>워크스페이스</SectionLabel>
+          <SectionLabel collapsed={collapsed}>워크스페이스</SectionLabel>
           {NAV_WORKSPACE.map(item => (
-            <SidebarNavItem key={item.to} {...item} />
+            <SidebarNavItem key={item.to} {...item} collapsed={collapsed} />
           ))}
           <div style={{ flex: 1 }} />
-          <SidebarNavItem to="/settings" Icon={Settings} label="설정" />
+          <SidebarNavItem to="/settings" Icon={Settings} label="설정" collapsed={collapsed} />
         </nav>
         <main
           style={{
